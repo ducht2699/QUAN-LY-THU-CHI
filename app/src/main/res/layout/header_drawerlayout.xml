@@ -10,12 +10,12 @@
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/profile_image"/>
+        android:src="@drawable/person_icon"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nguyen Van Que"
+        android:text="Hoàng Trung Đức"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="nguyenvanque231@gmail.com"
+        android:text="duc.ht2699@gmail.com"
         android:textColor="@color/black"/>
 
 </LinearLayout>

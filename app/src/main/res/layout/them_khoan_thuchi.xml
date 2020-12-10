@@ -92,7 +92,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/xoaTextGD"
+                android:id="@+id/huyThemGD"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/bg_ui"
                 android:layout_marginRight="10dp"

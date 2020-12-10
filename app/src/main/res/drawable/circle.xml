@@ -4,7 +4,7 @@
         <shape android:shape="oval">
             <gradient
                 android:angle="90"/>
-            <solid android:color="@color/do_nhat"/>
+            <solid android:color="@color/blue"/>
         </shape>
     </item>
 </layer-list>

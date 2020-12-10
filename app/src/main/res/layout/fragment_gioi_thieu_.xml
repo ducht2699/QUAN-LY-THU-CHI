@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.assignment.fragment.GioiThieu_Fragment">
+    tools:context="com.example.project3.fragment.GioiThieu_Fragment">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -15,7 +15,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_ui"
+                android:background="@color/blue"
                 android:gravity="center"
                 android:layout_marginTop="-5dp"
                 android:orientation="vertical">
@@ -37,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nguyễn Văn Quế"
+                    android:text="Hoàng Trung Đức"
                     android:textColor="@color/profileAccentColor"
                     android:textSize="20dp"
                     android:paddingTop="5dp"
@@ -160,7 +160,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/grey_dam"
-                    android:text="nguyenvanque231@gmail.com"
+                    android:text="duc.ht2699@gmail.com"
                     android:textSize="15dp"
                     android:paddingLeft="15dp"/>
             </LinearLayout>
@@ -179,7 +179,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/grey_dam"
-                    android:text="0398329434"
+                    android:text="0961822743"
                     android:textSize="15dp"
                     android:paddingLeft="15dp"/>
             </LinearLayout>
@@ -199,7 +199,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/grey_dam"
-                    android:text="Add to group              "
+                    android:text="Add to group"
                     android:textSize="15dp"
                     android:paddingLeft="15dp"/>
             </LinearLayout>
@@ -233,7 +233,7 @@
                 android:layout_marginRight="10dp"
                 android:textAlignment="textStart"
                 android:layout_marginBottom="20dp"
-                android:text="Đây là phần mềm quản lí thu chi trên nền tẳng android. Giúp bạn có thể quản lí được các chi tiêu trong cuộc sống hằng ngày của bạn"
+                android:text="Phần mềm quản lý tài chính Project III "
                 android:textColor="@color/grey_dam"
                 android:textSize="18dp"
                 android:gravity="start" />

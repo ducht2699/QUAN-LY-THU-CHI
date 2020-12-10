@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">#D60000</item>
+        <item name="colorPrimary">#03A9F4</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
@@ -20,7 +20,7 @@
         <item name="android:minWidth">250dp</item>
     </style>
     <style name="AppTheme.ProfileTheme">
-        <item name="colorPrimaryDark">@color/profilePrimaryDark</item>
+        <item name="colorPrimaryDark">@color/blue</item>
         <item name="colorAccent">@color/profileAccentColor</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -94,5 +94,10 @@
     </style>
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 </resources>

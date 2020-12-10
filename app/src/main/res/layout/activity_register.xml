@@ -7,33 +7,16 @@
     tools:context=".RegisterActivity">
 
     <ImageView
-        android:id="@+id/logofpT"
-        android:layout_width="300dp"
+        android:id="@+id/logoIcon"
+        android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginLeft="70dp"
+
+        android:layout_centerHorizontal="true"
+
         android:layout_marginTop="30dp"
-        android:layout_marginRight="70dp"
+
         android:layout_marginBottom="20dp"
-        android:background="@drawable/logofpoly" />
-
-    <ImageView
-        android:id="@+id/circle1"
-        android:layout_width="134dp"
-        android:layout_height="134dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="80dp"
-        android:layout_marginRight="-70dp"
-        android:src="@drawable/circletransparant" />
-
-    <ImageView
-        android:id="@+id/circle3"
-        android:layout_width="182dp"
-        android:layout_height="182dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="-80dp"
-        android:layout_marginBottom="-30dp"
-        android:src="@drawable/circle" />
+        android:background="@drawable/icon" />
 
     <RelativeLayout
         android:id="@+id/rlayout"

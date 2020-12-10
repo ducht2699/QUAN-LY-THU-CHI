@@ -10,49 +10,31 @@
 
 
     <ImageView
-        android:id="@+id/logofpT"
-        android:layout_width="300dp"
+        android:id="@+id/logoIcon"
+        android:layout_width="120dp"
         android:layout_height="120dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="70dp"
         android:layout_marginTop="30dp"
         android:layout_marginRight="70dp"
         android:layout_marginBottom="20dp"
-        android:background="@drawable/logofpoly" />
+        android:background="@drawable/icon" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/logofpT"
+        android:layout_below="@id/logoIcon"
         android:layout_centerHorizontal="true"
         android:text="ĐĂNG NHẬP"
         android:textColor="@color/black"
         android:textSize="20dp"
         android:textStyle="bold" />
 
-    <ImageView
-        android:id="@+id/circle2"
-        android:layout_width="134dp"
-        android:layout_height="134dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="-100dp"
-        android:layout_marginBottom="50dp"
-        android:src="@drawable/circletransparant" />
-
-    <ImageView
-        android:id="@+id/circle3"
-        android:layout_width="182dp"
-        android:layout_height="182dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="-100dp"
-        android:layout_marginBottom="-30dp"
-        android:src="@drawable/circle" />
-
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/logofpT"
+        android:layout_below="@id/logoIcon"
         android:layout_marginTop="30dp"
         android:padding="10dp">
 
@@ -115,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:buttonTint="@color/grey_dam"
                 android:layout_marginTop="10dp"
-                android:text="Lưu thông tin" />
+                android:text="Tự động đăng nhập" />
 
             <LinearLayout
                 android:layout_width="match_parent"

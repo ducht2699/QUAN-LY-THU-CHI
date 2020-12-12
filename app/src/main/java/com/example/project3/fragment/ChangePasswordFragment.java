@@ -1,14 +1,7 @@
 package com.example.project3.fragment;
 
-import android.content.Intent;
-import android.content.pm.ChangedPackages;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -21,23 +14,22 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.example.project3.LoginActivity;
-import com.example.project3.MainActivity;
 import com.example.project3.R;
-import com.example.project3.dao.DaoTaiKhoan;
-import com.example.project3.model.TaikhoanMatKhau;
+import com.example.project3.dao.DAOUsers;
+import com.example.project3.model.Users;
 
 import java.util.ArrayList;
 
-public class ChangepasswordFragment extends Fragment {
+public class ChangePasswordFragment extends Fragment {
     EditText txtCTk, txtCpass, txtNewPass;
     Button btChangePass, btNhapLai;
-    DaoTaiKhoan tkDao;
+    DAOUsers tkDao;
     Animation animation;
     LinearLayout linearLayout;
-    ArrayList<TaikhoanMatKhau> listTk = new ArrayList<>();
+    ArrayList<Users> listTk = new ArrayList<>();
     View view;
-    public ChangepasswordFragment() {
+
+    public ChangePasswordFragment() {
         // Required empty public constructor
     }
 
@@ -51,37 +43,36 @@ public class ChangepasswordFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view=inflater.inflate(R.layout.fragment_changepassword, container, false);
+        view = inflater.inflate(R.layout.fragment_changepassword, container, false);
         init();
 
-        animation = AnimationUtils.loadAnimation(getContext(), R.anim.dangnhap_dangky_animation);
+        animation = AnimationUtils.loadAnimation(getContext(), R.anim.ogin_signin_animation);
         linearLayout.setAnimation(animation);
 
         btChangePass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean xetTk = false, xetMk = true;
-                tkDao = new DaoTaiKhoan(getContext());
+                tkDao = new DAOUsers(getContext());
                 String tk = txtCTk.getText().toString();
                 String mk = txtCpass.getText().toString();
                 String mkk = txtNewPass.getText().toString();
-                TaikhoanMatKhau tkmkMoi = new TaikhoanMatKhau(tk,mkk);
+                Users tkmkMoi = new Users(tk, mkk);
                 listTk = tkDao.getALl();
 
                 //Check tk, mk có khớp vs tk trong list k
                 for (int i = 0; i < listTk.size(); i++) {
-                    TaikhoanMatKhau tkx = listTk.get(i);
-                    if (tkx.getTenTaiKhoan().matches(tk)&&tkx.getMatKhau().matches(mk)) {
+                    Users tkx = listTk.get(i);
+                    if (tkx.getUsername().matches(tk) && tkx.getPassword().matches(mk)) {
                         xetTk = true;
                         break;
                     }
                 }
 
-                if(mk.matches(mkk)){
-                    xetMk=false;
-                }
-                else {
-                    xetMk=true;
+                if (mk.matches(mkk)) {
+                    xetMk = false;
+                } else {
+                    xetMk = true;
                 }
 
                 if (tk.isEmpty()) {
@@ -116,13 +107,14 @@ public class ChangepasswordFragment extends Fragment {
         });
         return view;
     }
-    private void init(){
+
+    private void init() {
         txtCTk = view.findViewById(R.id.edtCUser);
         txtCpass = view.findViewById(R.id.edtCPass);
         txtNewPass = view.findViewById(R.id.edtNewPass);
-        btChangePass  =view.findViewById(R.id.btnChange);
+        btChangePass = view.findViewById(R.id.btnChange);
         btNhapLai = view.findViewById(R.id.btnRelay);
-        linearLayout=view.findViewById(R.id.linearLayoutchange);
+        linearLayout = view.findViewById(R.id.linearLayoutchange);
     }
 
 }

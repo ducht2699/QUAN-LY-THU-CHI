@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,22 +22,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
-import com.example.project3.adapter.LoaiThuAdapter;
-import com.example.project3.dao.DaoThuChi;
-import com.example.project3.model.ThuChi;
+import com.example.project3.adapter.ExpensesTypeAdapter;
+import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.model.IncomesExpenses;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class Tab_LoaiThu_Fragment extends Fragment {
+public class Tab_ExpensesType_Fragment extends Fragment {
     View view;
     private RecyclerView rcv;
-    private ArrayList<ThuChi> list = new ArrayList<>();
-    private DaoThuChi daoThuChi;
-    FloatingActionButton girdBtn,danhsachBtn,addBtn;
-    LoaiThuAdapter adapter;
+    private ArrayList<IncomesExpenses> list = new ArrayList<>();
+    private DAOIncomesExpenses daoIncomesExpenses;
+    private ExpensesTypeAdapter adapter;
+    FloatingActionButton girdBtn, danhsachBtn, addBtn;
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -54,7 +55,7 @@ public class Tab_LoaiThu_Fragment extends Fragment {
         }
     };
 
-    public Tab_LoaiThu_Fragment() {
+    public Tab_ExpensesType_Fragment() {
         // Required empty public constructor
     }
 
@@ -66,26 +67,29 @@ public class Tab_LoaiThu_Fragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_tab__loai_thu_, container, false);
-        rcv = view.findViewById(R.id.rcv_LoaiThu);
+        view = inflater.inflate(R.layout.fragment_tab__expenses_type, container, false);
+        rcv = view.findViewById(R.id.rcv_LoaiChi);
         addBtn = view.findViewById(R.id.addBtn);
         girdBtn = view.findViewById(R.id.girdBtn);
-        danhsachBtn = view.findViewById(R.id.danhsachBtn);        daoThuChi = new DaoThuChi(getActivity());
+        danhsachBtn = view.findViewById(R.id.danhsachBtn);
 
-        list = daoThuChi.getThuChi(0);
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity());
+
+        list = daoIncomesExpenses.getIE(1);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new LoaiThuAdapter(getActivity(),R.layout.oneitem_recylerview, list);
+        adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, list);
         rcv.setAdapter(adapter);
         girdBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new LoaiThuAdapter(getActivity(),R.layout.item_girl, list);
+                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.item_girl, list);
                 rcv.setAdapter(adapter);
             }
         });
@@ -94,43 +98,51 @@ public class Tab_LoaiThu_Fragment extends Fragment {
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new LoaiThuAdapter(getActivity(),R.layout.oneitem_recylerview, list);
+                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, list);
                 rcv.setAdapter(adapter);
             }
         });
 
-        // drop item
+
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         rcv.addItemDecoration(dividerItemDecoration);
-
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rcv);
+
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 final Dialog dialog = new Dialog(getContext());
                 dialog.setCancelable(false);
-                dialog.setContentView(R.layout.them_loai_thuchi);
+                dialog.setContentView(R.layout.add_incomes_expenses_type);
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                 Window window = dialog.getWindow();
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 if (dialog != null && dialog.getWindow() != null) {
                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
-                final EditText edt_ThemLoaiThu = dialog.findViewById(R.id.them_loai_thu);
+                final EditText edt_ThemLoaiChi = dialog.findViewById(R.id.them_loai_thu);
                 Button xoa = dialog.findViewById(R.id.xoaTextLT);
                 final Button them = dialog.findViewById(R.id.btnThemLT);
-                edt_ThemLoaiThu.setHint("Thêm loại thu");
+                final TextView title = dialog.findViewById(R.id.titleThemLoai);
+                title.setText("THÊM LOẠI CHI");
+                edt_ThemLoaiChi.setHint("Nhập loại chi");
+
+                DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+                rcv.addItemDecoration(dividerItemDecoration);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+                itemTouchHelper.attachToRecyclerView(rcv);
 
 
                 them.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String themText = edt_ThemLoaiThu.getText().toString();
-                        ThuChi tc = new ThuChi(0, themText, 0);
-                        if (daoThuChi.themTC(tc) == true) {
+                        String themText = edt_ThemLoaiChi.getText().toString();
+                        IncomesExpenses tc = new IncomesExpenses(0, themText, 1);
+                        if (daoIncomesExpenses.addIE(tc) == true) {
                             list.clear();
-                            list.addAll(daoThuChi.getThuChi(0));
+                            list.addAll(daoIncomesExpenses.getIE(1));
                             adapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -149,9 +161,6 @@ public class Tab_LoaiThu_Fragment extends Fragment {
                 dialog.show();
             }
         });
-
         return view;
     }
-
-
 }

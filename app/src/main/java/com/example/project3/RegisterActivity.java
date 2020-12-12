@@ -12,18 +12,19 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.example.project3.dao.DaoTaiKhoan;
-import com.example.project3.model.TaikhoanMatKhau;
+import com.example.project3.dao.DAOUsers;
+import com.example.project3.model.Users;
 
 import java.util.ArrayList;
 
 public class RegisterActivity extends AppCompatActivity {
     private RelativeLayout rlayout;
     private Animation animation;
-    EditText txtRegTk, txtRegMk, txtRegConfirmMk;
-    Button btDangKy, btNhapLai;
-    ArrayList<TaikhoanMatKhau> accList = new ArrayList<>();
-    DaoTaiKhoan tkDao;
+    EditText edtRegUsername, edtRegPassword, edtRegPassCheck;
+    Button btnRegister, btnEraseAll;
+    ArrayList<Users> usersList = new ArrayList<>();
+    DAOUsers daoUsers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,22 +32,22 @@ public class RegisterActivity extends AppCompatActivity {
 
         init();
 
-        animation = AnimationUtils.loadAnimation(this, R.anim.dangnhap_dangky_animation);
+        animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
         rlayout.setAnimation(animation);
 
-        btDangKy.setOnClickListener(new View.OnClickListener() {
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tkDao = new DaoTaiKhoan(RegisterActivity.this);
+                daoUsers = new DAOUsers(RegisterActivity.this);
 
-                String tk = txtRegTk.getText().toString();
-                String mk = txtRegMk.getText().toString();
-                String confirmMk = txtRegConfirmMk.getText().toString();
+                String tk = edtRegUsername.getText().toString();
+                String mk = edtRegPassword.getText().toString();
+                String confirmMk = edtRegPassCheck.getText().toString();
 
                 boolean accountCheck = true, passCheck = false;
-                TaikhoanMatKhau tkmk = new TaikhoanMatKhau(tk, mk);
+                Users tkmk = new Users(tk, mk);
 
-                accList = tkDao.getALl();
+                usersList = daoUsers.getALl();
 
                 if (mk.matches(confirmMk)) {
                     passCheck = true;
@@ -54,9 +55,9 @@ public class RegisterActivity extends AppCompatActivity {
                     passCheck = false;
                 }
 
-                for (int i = 0; i < accList.size(); i++) {
-                    TaikhoanMatKhau tkx = accList.get(i);
-                    if (tkx.getTenTaiKhoan().matches(tk)) {
+                for (int i = 0; i < usersList.size(); i++) {
+                    Users tkx = usersList.get(i);
+                    if (tkx.getUsername().matches(tk)) {
                         accountCheck = false;
                         break;
                     }
@@ -70,13 +71,13 @@ public class RegisterActivity extends AppCompatActivity {
                     } else {
                         if (accountCheck == true) {
                             if (passCheck == true) {
-                                tkDao.Add(tkmk);
+                                daoUsers.addUser(tkmk);
                                 Toast.makeText(RegisterActivity.this, "Thêm tài khoản thành công!", Toast.LENGTH_SHORT).show();
 
                                 Intent i = new Intent();
-                                i.putExtra("taikhoan",tk);
-                                i.putExtra("matkhau",mk);
-                                setResult(RESULT_OK,i);
+                                i.putExtra("taikhoan", tk);
+                                i.putExtra("matkhau", mk);
+                                setResult(RESULT_OK, i);
                                 finish();
 
                             } else {
@@ -90,22 +91,23 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        btNhapLai.setOnClickListener(new View.OnClickListener() {
+        btnEraseAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                txtRegConfirmMk.setText("");
-                txtRegMk.setText("");
-                txtRegTk.setText("");
+                edtRegPassCheck.setText("");
+                edtRegPassword.setText("");
+                edtRegUsername.setText("");
             }
         });
     }
+
     private void init() {
 
-        txtRegTk = findViewById(R.id.edtRegUser);
-        txtRegMk = findViewById(R.id.edtRegPassword);
-        txtRegConfirmMk = findViewById(R.id.edtRePassword);
-        btDangKy = findViewById(R.id.btnReg);
-        btNhapLai = findViewById(R.id.btnRelay);
+        edtRegUsername = findViewById(R.id.edtRegUser);
+        edtRegPassword = findViewById(R.id.edtRegPassword);
+        edtRegPassCheck = findViewById(R.id.edtRePassword);
+        btnRegister = findViewById(R.id.btnReg);
+        btnEraseAll = findViewById(R.id.btnRelay);
         rlayout = findViewById(R.id.rlayout);
     }
 }

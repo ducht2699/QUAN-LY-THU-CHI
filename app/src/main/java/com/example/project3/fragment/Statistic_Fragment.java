@@ -12,8 +12,8 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.example.project3.R;
-import com.example.project3.dao.DaoGiaoDich;
-import com.example.project3.model.GiaoDich;
+import com.example.project3.dao.DAOTransactions;
+import com.example.project3.model.Transactions;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 
-public class ThongKe_Fragment extends Fragment {
+public class Statistic_Fragment extends Fragment {
     private TextView tungay, denngay, thu, chi, conlai;
     private Button btnShow;
     private DatePickerDialog datePickerDialog;
-    private DaoGiaoDich daoGiaoDich;
+    private DAOTransactions daoTransactions;
     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
 
-    public ThongKe_Fragment() {
+    public Statistic_Fragment() {
     }
 
     @Override
@@ -42,29 +42,29 @@ public class ThongKe_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_thong_ke_, container, false);
+        View view = inflater.inflate(R.layout.fragment_statistic, container, false);
         tungay = view.findViewById(R.id.tungay);
         denngay = view.findViewById(R.id.denngay);
         thu = view.findViewById(R.id.tienThu);
         chi = view.findViewById(R.id.tienChi);
         conlai = view.findViewById(R.id.tienConLai);
         btnShow = view.findViewById(R.id.btnShow);
-        daoGiaoDich = new DaoGiaoDich(getActivity());
+        daoTransactions = new DAOTransactions(getActivity());
         //Format dạng tiền
         final NumberFormat fm = new DecimalFormat("#,###");
-        final ArrayList<GiaoDich> listThu = daoGiaoDich.getGDtheoTC(0);
-        final ArrayList<GiaoDich> listChi = daoGiaoDich.getGDtheoTC(1);
+        final ArrayList<Transactions> listThu = daoTransactions.getTransByIE(0);
+        final ArrayList<Transactions> listChi = daoTransactions.getTransByIE(1);
         int tongThu = 0, tongChi = 0;
         for (int i = 0; i < listThu.size(); i++) {
-            tongThu += listThu.get(i).getSoTien();
+            tongThu += listThu.get(i).getAmountMoney();
         }
         for (int i = 0; i < listChi.size(); i++) {
-            tongChi += Math.abs(listChi.get(i).getSoTien());
+            tongChi += Math.abs(listChi.get(i).getAmountMoney());
         }
         thu.setText(fm.format(tongThu) + " VND");
         chi.setText(fm.format(tongChi) + " VND");
         conlai.setText(fm.format(tongThu - tongChi) + " VND");
-        //Khu chọn vào ngày
+        //choose from date
         tungay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,19 +98,18 @@ public class ThongKe_Fragment extends Fragment {
                     }
                 }, y, m, d);
                 datePickerDialog.show();
-                //Khi nhấn nút show lọc thu chi theo ngày
+                //click on show sort IE by day
                 btnShow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         int Thu = 0, Chi = 0;
                         String bd = tungay.getText().toString();
                         String kt = denngay.getText().toString();
-
-                        //Tính tiền theo ngày
+                        //calculate money by day
                         for (int i = 0; i < listThu.size(); i++) {
                             try {
-                                if (listThu.get(i).getNgayGd().compareTo(dfm.parse(bd)) >= 0 && listThu.get(i).getNgayGd().compareTo(dfm.parse(kt)) <= 0) {
-                                    Thu += listThu.get(i).getSoTien();
+                                if (listThu.get(i).getTransDate().compareTo(dfm.parse(bd)) >= 0 && listThu.get(i).getTransDate().compareTo(dfm.parse(kt)) <= 0) {
+                                    Thu += listThu.get(i).getAmountMoney();
                                 }
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -118,8 +117,8 @@ public class ThongKe_Fragment extends Fragment {
                         }
                         for (int i = 0; i < listChi.size(); i++) {
                             try {
-                                if (listChi.get(i).getNgayGd().compareTo(dfm.parse(bd)) >= 0 && listChi.get(i).getNgayGd().compareTo(dfm.parse(kt)) <= 0) {
-                                    Chi += listChi.get(i).getSoTien();
+                                if (listChi.get(i).getTransDate().compareTo(dfm.parse(bd)) >= 0 && listChi.get(i).getTransDate().compareTo(dfm.parse(kt)) <= 0) {
+                                    Chi += listChi.get(i).getAmountMoney();
                                 }
                             } catch (Exception ex) {
                                 ex.printStackTrace();

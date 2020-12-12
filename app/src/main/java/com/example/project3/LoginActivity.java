@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -16,17 +15,17 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.example.project3.dao.DaoTaiKhoan;
-import com.example.project3.model.TaikhoanMatKhau;
+import com.example.project3.dao.DAOUsers;
+import com.example.project3.model.Users;
 
 import java.util.ArrayList;
 
 public class LoginActivity extends AppCompatActivity {
     private Button btReg, btLogin;
-    EditText edtTaiKhoan, edtMatKhau;
-    CheckBox cbLuuThongTin;
-    DaoTaiKhoan tkDao;
-    ArrayList<TaikhoanMatKhau> listTK = new ArrayList<>();
+    EditText edtUsername, edtPassword;
+    CheckBox cdAutoLogin;
+    DAOUsers daoUsers;
+    ArrayList<Users> usersList = new ArrayList<>();
     LinearLayout linearLayout;
     Animation animation;
     boolean doubleBackToExitPressedOnce = false;
@@ -46,10 +45,11 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
 
         init();
 
-        animation = AnimationUtils.loadAnimation(this, R.anim.dangnhap_dangky_animation);
+        animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
         linearLayout.startAnimation(animation);
 
         layThongTin();
@@ -71,20 +71,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 boolean checkAccount = false;
-                tkDao = new DaoTaiKhoan(LoginActivity.this);
-                String tenTK = edtTaiKhoan.getText().toString();
-                String mk = edtMatKhau.getText().toString();
-                listTK = tkDao.getALl();
-                for (int i = 0; i < listTK.size(); i++) {
-                    TaikhoanMatKhau tkx = listTK.get(i);
-                    if (tkx.getTenTaiKhoan().matches(tenTK) && tkx.getMatKhau().matches(mk)) {
+                daoUsers = new DAOUsers(LoginActivity.this);
+                String tenTK = edtUsername.getText().toString();
+                String mk = edtPassword.getText().toString();
+                usersList = daoUsers.getALl();
+                for (int i = 0; i < usersList.size(); i++) {
+                    Users tkx = usersList.get(i);
+                    if (tkx.getUsername().matches(tenTK) && tkx.getPassword().matches(mk)) {
                         checkAccount = true;
                         break;
                     }
                 }
                 if (checkAccount == true) {
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                    luuThongTin();
+                    saveUserData();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
 
@@ -105,15 +105,14 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
-
     }
 
-    private void luuThongTin() {
+    private void saveUserData() {
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        String ten = edtTaiKhoan.getText().toString();
-        String pass = edtMatKhau.getText().toString();
-        boolean check = cbLuuThongTin.isChecked();
+        String ten = edtUsername.getText().toString();
+        String pass = edtPassword.getText().toString();
+        boolean check = cdAutoLogin.isChecked();
         autoLogin = check;
         if (!check) {
             editor.clear();
@@ -135,22 +134,22 @@ public class LoginActivity extends AppCompatActivity {
             String tenNguoiDung = sharedPreferences.getString("tennguoidung", "");
             String matKhau = sharedPreferences.getString("matkhau", "");
             autoLogin = sharedPreferences.getBoolean("autoLogin", false);
-            edtTaiKhoan.setText(tenNguoiDung);
-            edtMatKhau.setText(matKhau);
+            edtUsername.setText(tenNguoiDung);
+            edtPassword.setText(matKhau);
         } else {
-            edtTaiKhoan.setText("");
-            edtMatKhau.setText("");
+            edtUsername.setText("");
+            edtPassword.setText("");
         }
-        cbLuuThongTin.setChecked(check);
+        cdAutoLogin.setChecked(check);
     }
 
     private void init() {
         linearLayout = findViewById(R.id.linearLayoutlogin);
-        edtTaiKhoan = findViewById(R.id.edtUserName);
-        edtMatKhau = findViewById(R.id.edtPassword);
+        edtUsername = findViewById(R.id.edtUserName);
+        edtPassword = findViewById(R.id.edtPassword);
         btLogin = findViewById(R.id.btnLogin);
         btReg = findViewById(R.id.btnRegister);
-        cbLuuThongTin = findViewById(R.id.cbLuuThongTin);
+        cdAutoLogin = findViewById(R.id.cbLuuThongTin);
     }
 
     @Override
@@ -159,8 +158,8 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == 999 && resultCode == RESULT_OK) {
             String tk = data.getStringExtra("taikhoan");
             String mk = data.getStringExtra("matkhau");
-            edtTaiKhoan.setText(tk);
-            edtMatKhau.setText(mk);
+            edtUsername.setText(tk);
+            edtPassword.setText(mk);
         }
 
     }

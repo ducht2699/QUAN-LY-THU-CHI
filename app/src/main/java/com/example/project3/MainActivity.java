@@ -2,43 +2,23 @@ package com.example.project3;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.example.project3.fragment.KhoanChi_Fragment;
-import com.example.project3.fragment.ChangepasswordFragment;
-import com.example.project3.fragment.GioiThieu_Fragment;
-import com.example.project3.fragment.KhoanChi_Fragment;
-import com.example.project3.fragment.KhoanThu_Fragment;
-import com.example.project3.fragment.ThongKe_Fragment;
-import com.google.android.material.bottomappbar.BottomAppBar;
+import com.example.project3.fragment.Expenses_Fragment;
+import com.example.project3.fragment.ChangePasswordFragment;
+import com.example.project3.fragment.Intro_Fragment;
+import com.example.project3.fragment.Incomes_Fragment;
+import com.example.project3.fragment.Statistic_Fragment;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
-
-import java.lang.reflect.Field;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     boolean doubleBackToExitPressedOnce = false;
 
     FrameLayout frameLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         setTitle("KHOẢN THU");
-        replaceFragment(new KhoanThu_Fragment());
+        replaceFragment(new Incomes_Fragment());
 
 
     }
@@ -105,11 +86,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
-
 
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -121,36 +101,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void selectedItemDrawer(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.khoanthu:
                 setTitle("KHOẢN THU");
-                KhoanThu_Fragment khoanThu_fragment = new KhoanThu_Fragment();
-                replaceFragment(khoanThu_fragment);
+                Incomes_Fragment incomes_fragment = new Incomes_Fragment();
+                replaceFragment(incomes_fragment);
                 break;
             case R.id.khoanchi:
                 setTitle("KHOẢN CHI");
-                KhoanChi_Fragment khoanChi_fragment = new KhoanChi_Fragment();
-                replaceFragment(khoanChi_fragment);
+                Expenses_Fragment expenses_fragment = new Expenses_Fragment();
+                replaceFragment(expenses_fragment);
                 break;
             case R.id.thongke:
                 setTitle("THỐNG KÊ");
-                ThongKe_Fragment searchFragment = new ThongKe_Fragment();
+                Statistic_Fragment searchFragment = new Statistic_Fragment();
                 replaceFragment(searchFragment);
                 break;
             case R.id.gioithieu:
                 setTitle("GIỚI THIỆU");
-                GioiThieu_Fragment settingsFragment = new GioiThieu_Fragment();
+                Intro_Fragment settingsFragment = new Intro_Fragment();
                 replaceFragment(settingsFragment);
                 break;
 
             case R.id.doimatkhau:
                 setTitle("ĐỔI MẬT KHẨU");
-                ChangepasswordFragment changepasswordFragment = new ChangepasswordFragment();
+                ChangePasswordFragment changepasswordFragment = new ChangePasswordFragment();
                 replaceFragment(changepasswordFragment);
                 break;
             case R.id.logout:
-                startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("autoLogin", false);

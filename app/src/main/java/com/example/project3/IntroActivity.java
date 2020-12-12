@@ -14,6 +14,7 @@ public class IntroActivity extends AppCompatActivity {
     TextView txtTitle;
     ImageView img_intro;
     Animation animationText, animationImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

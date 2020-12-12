@@ -6,23 +6,23 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.project3.db.Database;
-import com.example.project3.model.TaikhoanMatKhau;
-import com.example.project3.model.ThuChi;
+import com.example.project3.model.IncomesExpenses;
 
 import java.util.ArrayList;
 
-public class DaoThuChi {
+public class DAOIncomesExpenses {
     Database dtb;
     SQLiteDatabase dtTC;
 
-    public DaoThuChi(Context context) {
+    public DAOIncomesExpenses(Context context) {
         dtb = new Database(context);
         dtTC = dtb.getReadableDatabase();
     }
+    // Incomes & Expenses == IE
 
 
-    public ArrayList<ThuChi> getTC(String sql, String... a) {
-        ArrayList<ThuChi> list = new ArrayList<>();
+    public ArrayList<IncomesExpenses> getIE(String sql, String... a) {
+        ArrayList<IncomesExpenses> list = new ArrayList<>();
         Cursor cs = dtTC.rawQuery(sql, a);
         cs.moveToFirst();
         while (!cs.isAfterLast()) {
@@ -30,7 +30,7 @@ public class DaoThuChi {
             String tenTc = cs.getString(1);
             int loaiTc = Integer.parseInt(cs.getString(2));
 
-            ThuChi tc = new ThuChi(maTc, tenTc, loaiTc);
+            IncomesExpenses tc = new IncomesExpenses(maTc, tenTc, loaiTc);
             list.add(tc);
             cs.moveToNext();
         }
@@ -38,11 +38,11 @@ public class DaoThuChi {
         return list;
     }
 
-    //Thêm các khoản thu chi
-    public boolean themTC(ThuChi tc) {
+    //add incomes & expenses
+    public boolean addIE(IncomesExpenses tc) {
         SQLiteDatabase db = dtb.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("tenKhoan", tc.getTenKhoan());
+        contentValues.put("tenKhoan", tc.getIeName());
         contentValues.put("loaiKhoan", tc.isLoaiKhoan());
         long r = db.insert("THUCHI", null, contentValues);
         if (r <= 0) {
@@ -51,49 +51,49 @@ public class DaoThuChi {
         return true;
     }
 
-    //Xóa khoản thu chi theo mã, khi xóa khoản thu chi, các dữ liệu bên giao dịch thuộc khoản thu chi cũng phải xóa theo
-    public boolean xoaTC(ThuChi tc) {
+    //delete incomes&expenses by id, when delete it, datas in transactions must be deleted as well
+    public boolean deleteIE(IncomesExpenses tc) {
         SQLiteDatabase db = dtb.getWritableDatabase();
-        int r = db.delete("THUCHI", "maKhoan=?", new String[]{String.valueOf(tc.getMaKhoan())});
-        int s = db.delete("GIAODICH", "maKhoan=?", new String[]{String.valueOf(tc.getMaKhoan())});
+        int r = db.delete("THUCHI", "maKhoan=?", new String[]{String.valueOf(tc.getIeID())});
+        int s = db.delete("GIAODICH", "maKhoan=?", new String[]{String.valueOf(tc.getIeID())});
         if (r <= 0) {
             return false;
         }
         return true;
     }
 
-    //Sửa khoản thu chi theo mã thu chi
-    public boolean suaTC(ThuChi tc) {
+    //edit incomes&expenses by IE-id
+    public boolean editIE(IncomesExpenses tc) {
         SQLiteDatabase db = dtb.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("tenKhoan", tc.getTenKhoan());
+        contentValues.put("tenKhoan", tc.getIeName());
         contentValues.put("loaiKhoan", tc.isLoaiKhoan());
-        int r = db.update("THUCHI", contentValues, "maKhoan=?", new String[]{String.valueOf(tc.getMaKhoan())});
+        int r = db.update("THUCHI", contentValues, "maKhoan=?", new String[]{String.valueOf(tc.getIeID())});
         if (r <= 0) {
             return false;
         }
         return true;
     }
 
-    //lấy toàn bộ ds thu chi
-    public ArrayList<ThuChi> getAll() {
+    //get incomes&expenses list
+    public ArrayList<IncomesExpenses> getAllIE() {
         String sql = "SELECT * FROM THUCHI";
-        return getTC(sql);
+        return getIE(sql);
     }
 
-    //show danh sách theo thu hoăc chi
-    public ArrayList<ThuChi> getThuChi(int loaiKhoan) {
+    //show list by incomes or expenses
+    public ArrayList<IncomesExpenses> getIE(int loaiKhoan) {
         String sql = "SELECT * FROM THUCHI WHERE loaiKhoan=?";
-        ArrayList<ThuChi> list = getTC(sql, String.valueOf(loaiKhoan));
+        ArrayList<IncomesExpenses> list = getIE(sql, String.valueOf(loaiKhoan));
         return list;
     }
 
-    //Lấy tên theo mã khoản
-    public String getTen(int maKhoan) {
-        String tenKhoan = "";
+    //get name by id
+    public String getNameIE(int maKhoan) {
+        String name = "";
 
         String sql = "SELECT * FROM THUCHI WHERE maKhoan=?";
-        ArrayList<ThuChi> list = getTC(sql, String.valueOf(maKhoan));
-        return list.get(0).getTenKhoan();
+        ArrayList<IncomesExpenses> list = getIE(sql, String.valueOf(maKhoan));
+        return list.get(0).getIeName();
     }
 }

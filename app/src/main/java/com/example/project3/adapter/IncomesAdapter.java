@@ -27,10 +27,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
-import com.example.project3.dao.DaoGiaoDich;
-import com.example.project3.dao.DaoThuChi;
-import com.example.project3.model.GiaoDich;
-import com.example.project3.model.ThuChi;
+import com.example.project3.dao.DAOTransactions;
+import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.model.Transactions;
+import com.example.project3.model.IncomesExpenses;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.text.DecimalFormat;
@@ -39,37 +39,38 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHolder> {
+public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHolder> {
     private Context context;
-    public  ArrayList<GiaoDich> list;
-    private DaoGiaoDich daoGiaoDich;
-    private ArrayList<ThuChi> listTC = new ArrayList<>();
-    private  int layout;
+    public ArrayList<Transactions> list;
+    private DAOTransactions daoTransactions;
+    private ArrayList<IncomesExpenses> listTC = new ArrayList<>();
+    private int layout;
 
     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
-    private DaoThuChi daoThuChi;
+    private DAOIncomesExpenses daoIncomesExpenses;
     private DatePickerDialog datePickerDialog;
     boolean isDark = false;
 
-    public KhoanThuAdapter() {
+    public IncomesAdapter() {
     }
 
-    public KhoanThuAdapter(Context context, ArrayList<GiaoDich> list, Boolean isDark) {
+    public IncomesAdapter(Context context, ArrayList<Transactions> list, Boolean isDark) {
         this.context = context;
         this.list = list;
         this.isDark = isDark;
     }
 
 
-    public KhoanThuAdapter(Context context, ArrayList<GiaoDich> list) {
+    public IncomesAdapter(Context context, ArrayList<Transactions> list) {
         this.context = context;
         this.list = list;
 
     }
-    public KhoanThuAdapter(Context context,int layout, ArrayList<GiaoDich> list) {
+
+    public IncomesAdapter(Context context, int layout, ArrayList<Transactions> list) {
         this.context = context;
         this.list = list;
-        this.layout=layout;
+        this.layout = layout;
 
     }
 
@@ -100,10 +101,10 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.text.setText(list.get(position).getMoTaGd());
+        holder.text.setText(list.get(position).getTransDescription());
 
-        daoGiaoDich = new DaoGiaoDich(context);
-        final GiaoDich gd = list.get(position);
+        daoTransactions = new DAOTransactions(context);
+        final Transactions gd = list.get(position);
         //Khi nhấn nút sửa
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,12 +114,12 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                 );
 
                 View bottomSheetView = LayoutInflater.from(context).inflate(
-                        R.layout.bottom_sheet_khoahoc,
+                        R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet=bottomSheetView.findViewById(R.id.txt_XemChiTiet);
-                TextView txtSuaKhoanChi=bottomSheetView.findViewById(R.id.txt_SuaThuChi);
-                TextView txtXoa=bottomSheetView.findViewById(R.id.txt_XoaThuChi);
+                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.txt_XemChiTiet);
+                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.txt_SuaThuChi);
+                TextView txtXoa = bottomSheetView.findViewById(R.id.txt_XoaThuChi);
                 txtSuaKhoanChi.setText("Sửa khoản thu");
 
                 txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
@@ -126,12 +127,12 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                     public void onClick(View view) {
                         bottomSheetDialog.dismiss();
                         if (position == RecyclerView.NO_POSITION) return;
-                        GiaoDich gd = list.get(position);
-                        //Format dạng tiền
+                        Transactions gd = list.get(position);
+                        //Format money type
                         NumberFormat fm = new DecimalFormat("#,###");
-                        //Hiện thông tin giao dịch khi click vào item
+                        //show transaction's info when click on item
                         Dialog dialog = new Dialog(context);
-                        dialog.setContentView(R.layout.thong_tin_gd);
+                        dialog.setContentView(R.layout.transaction_info);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         TextView mota, ngay, tien, loai, title;
                         mota = dialog.findViewById(R.id.mota_gd);
@@ -140,11 +141,11 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                         loai = dialog.findViewById(R.id.loai_gd);
                         title = dialog.findViewById(R.id.thongtinGD);
                         title.setText("THÔNG TIN THU");
-                        mota.setText(gd.getMoTaGd());
-                        ngay.setText(dfm.format(gd.getNgayGd()));
-                        tien.setText(fm.format(gd.getSoTien()) + " VND");
-                        daoThuChi = new DaoThuChi(context);
-                        loai.setText(daoThuChi.getTen(gd.getMaKhoan()));
+                        mota.setText(gd.getTransDescription());
+                        ngay.setText(dfm.format(gd.getTransDate()));
+                        tien.setText(fm.format(gd.getAmountMoney()) + " VND");
+                        daoIncomesExpenses = new DAOIncomesExpenses(context);
+                        loai.setText(daoIncomesExpenses.getNameIE(gd.getIeID()));
 
                         dialog.show();
 
@@ -157,7 +158,7 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
 
                         final Dialog dialog = new Dialog(context);
                         dialog.setCancelable(false);
-                        dialog.setContentView(R.layout.them_khoan_thuchi);
+                        dialog.setContentView(R.layout.add_incomes_expenses);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         Window window = dialog.getWindow();
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -171,20 +172,19 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                         final TextView title = dialog.findViewById(R.id.titleThemKhoan);
                         final Button huy = dialog.findViewById(R.id.huyThemGD);
                         final Button them = dialog.findViewById(R.id.btnThemGD);
-                        daoThuChi = new DaoThuChi(context);
-                        listTC = daoThuChi.getThuChi(0);
-                        //Set tiêu đề, text
+                        daoIncomesExpenses = new DAOIncomesExpenses(context);
+                        listTC = daoIncomesExpenses.getIE(0);
+                        //Set title, text
                         title.setText("SỬA KHOẢN THU");
                         them.setText("SỬA");
-                        moTaGd.setText(gd.getMoTaGd());
-                        ngayGd.setText(String.valueOf(gd.getNgayGd()));
-                        tienGd.setText(String.valueOf(gd.getSoTien()));
+                        moTaGd.setText(gd.getTransDescription());
+                        ngayGd.setText(String.valueOf(gd.getTransDate()));
+                        tienGd.setText(String.valueOf(gd.getAmountMoney()));
                         final ArrayAdapter sp = new ArrayAdapter(context, R.layout.spiner, listTC);
                         spLoaiGd.setAdapter(sp);
-//               Toast.makeText(context, daoThuChi.getTen(gd.getMaKhoan()),Toast.LENGTH_SHORT).show();
                         int vitri = -1;
                         for (int i = 0; i < listTC.size(); i++) {
-                            if (listTC.get(i).getTenKhoan().equalsIgnoreCase(daoThuChi.getTen(gd.getMaKhoan()))) {
+                            if (listTC.get(i).getIeName().equalsIgnoreCase(daoIncomesExpenses.getNameIE(gd.getIeID()))) {
                                 vitri = i;
                                 break;
                             }
@@ -192,7 +192,7 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                         spLoaiGd.setSelection(vitri);
 
 
-                        //Khi nhấn ngày hiện lên lựa chọ ngày
+                        //click on date show date chooser
                         ngayGd.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -212,7 +212,7 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                         });
 
 
-                        //Khi nhấn nút xóa
+                        //cclick on delete button
                         huy.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -220,24 +220,24 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                             }
                         });
 
-                        //Khi nhấn nút sửa
+                        //click on edit button
                         them.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 String mota = moTaGd.getText().toString();
                                 String ngay = ngayGd.getText().toString();
                                 String tien = tienGd.getText().toString();
-                                ThuChi tc = (ThuChi) spLoaiGd.getSelectedItem();
-                                int ma = tc.getMaKhoan();
+                                IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
+                                int ma = tc.getIeID();
                                 //Check lỗi
                                 if (mota.isEmpty() && ngay.isEmpty() && tien.isEmpty()) {
                                     Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                                 } else {
                                     try {
-                                        GiaoDich giaoDich = new GiaoDich(gd.getMaGd(), mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
-                                        if (daoGiaoDich.suaGD(giaoDich) == true) {
+                                        Transactions transactions = new Transactions(gd.getTransID(), mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
+                                        if (daoTransactions.editTrans(transactions) == true) {
                                             list.clear();
-                                            list.addAll(daoGiaoDich.getGDtheoTC(0));
+                                            list.addAll(daoTransactions.getTransByIE(0));
                                             notifyDataSetChanged();
                                             Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
                                             dialog.dismiss();
@@ -249,13 +249,9 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                                         ex.printStackTrace();
                                     }
                                 }
-
                             }
                         });
-
                         dialog.show();
-
-
                     }
                 });
 
@@ -265,7 +261,7 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                         bottomSheetDialog.dismiss();
                         final Dialog dialog = new Dialog(context);
 
-                        dialog.setContentView(R.layout.dialog_xoa);
+                        dialog.setContentView(R.layout.dialog_delete);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         Window window = dialog.getWindow();
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -279,11 +275,11 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                         final Button btn_No = dialog.findViewById(R.id.btn_no);
                         final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
                         progressBar.setVisibility(View.INVISIBLE);
-                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getMoTaGd() + " hay không ? ");
+                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getTransDescription() + " hay không ? ");
                         btn_Yes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (daoGiaoDich.xoaGD(gd) == true) {
+                                if (daoTransactions.deleteTrans(gd) == true) {
                                     txt_Massage.setText("");
                                     progressBar.setVisibility(View.VISIBLE);
                                     progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -291,7 +287,7 @@ public class KhoanThuAdapter extends RecyclerView.Adapter<KhoanThuAdapter.ViewHo
                                         @Override
                                         public void run() {
                                             list.clear();
-                                            list.addAll(daoGiaoDich.getGDtheoTC(0));
+                                            list.addAll(daoTransactions.getTransByIE(0));
                                             notifyDataSetChanged();
                                             dialog.dismiss();
                                             Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();

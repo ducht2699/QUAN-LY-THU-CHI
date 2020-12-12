@@ -5,8 +5,7 @@
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.Tab_KhoanChi_Fragment">
-
+    tools:context=".fragment.Tab_ExpensesType_Fragment">
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -16,11 +15,10 @@
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcv_LoaiChi"
             android:layout_marginBottom="80dp"
-            android:id="@+id/rcv_KhoanChi"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-
 
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/material_design_android_floating_action_menu"
@@ -76,12 +74,10 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/fab_add"
                 app:fab_colorNormal="#FF9800"
-                fab:fab_label="Thêm khoản chi"
+                fab:fab_label="Thêm loại chi"
                 fab:fab_size="mini" />
         </com.github.clans.fab.FloatingActionMenu>
 
     </RelativeLayout>
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 </FrameLayout>

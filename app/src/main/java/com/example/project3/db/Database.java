@@ -19,7 +19,7 @@ public class Database extends SQLiteOpenHelper {
                 "tenKhoan text," +
                 "loaiKhoan integer)";
         db.execSQL(sql);
-        //0 là thu, 1 là chi
+        //0: incomes, 1: expenses
 //        sql = "INSERT INTO THUCHI VALUES(null,'Lương',0)";
 //        db.execSQL(sql);
 //        sql = "INSERT INTO THUCHI VALUES(null,'Lãi ngân hàng',0)";
@@ -38,6 +38,7 @@ public class Database extends SQLiteOpenHelper {
 //        db.execSQL(sql);
 //        sql = "INSERT INTO THUCHI VALUES(null,'Xui xẻo',1)";
 //        db.execSQL(sql);
+
         //Tạo bảng giao dịch, cho maGd tự tăng lên
         sql = "CREATE TABLE GIAODICH(" +
                 "maGd integer PRIMARY KEY AUTOINCREMENT," +

@@ -23,28 +23,32 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
-import com.example.project3.dao.DaoThuChi;
-import com.example.project3.model.ThuChi;
+import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.model.IncomesExpenses;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 
-public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHolder> {
+public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.ViewHolder> {
     private Context context;
-    private ArrayList<ThuChi> list;
-    private DaoThuChi daoThuChi;
-    private  int layout;
-    public LoaiThuAdapter() {
+    private ArrayList<IncomesExpenses> list;
+    private DAOIncomesExpenses daoIncomesExpenses;
+    private int layout;
+
+    public IncomesTypeAdapter() {
     }
-    public LoaiThuAdapter(Context context, ArrayList<ThuChi> list) {
+
+    public IncomesTypeAdapter(Context context, ArrayList<IncomesExpenses> list) {
         this.context = context;
         this.list = list;
     }
-    public LoaiThuAdapter(Context context,int layout, ArrayList<ThuChi> list) {
+
+    public IncomesTypeAdapter(Context context, int layout, ArrayList<IncomesExpenses> list) {
         this.context = context;
         this.list = list;
-        this.layout=layout;
+        this.layout = layout;
     }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView txtTenKhoan;
         private ImageView imgSua, imgXoa, img_avataitem;
@@ -69,9 +73,9 @@ public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.txtTenKhoan.setText(list.get(position).getTenKhoan());
-        daoThuChi = new DaoThuChi(context);
-        final ThuChi tc = list.get(position);
+        holder.txtTenKhoan.setText(list.get(position).getIeName());
+        daoIncomesExpenses = new DAOIncomesExpenses(context);
+        final IncomesExpenses tc = list.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,13 +84,13 @@ public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHold
                 );
 
                 View bottomSheetView = LayoutInflater.from(context).inflate(
-                        R.layout.bottom_sheet_khoahoc,
+                        R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet=bottomSheetView.findViewById(R.id.txt_XemChiTiet);
+                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.txt_XemChiTiet);
                 txtXemchiTiet.setVisibility(View.GONE);
-                TextView txtSuaKhoanChi=bottomSheetView.findViewById(R.id.txt_SuaThuChi);
-                TextView txtXoa=bottomSheetView.findViewById(R.id.txt_XoaThuChi);
+                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.txt_SuaThuChi);
+                TextView txtXoa = bottomSheetView.findViewById(R.id.txt_XoaThuChi);
                 txtSuaKhoanChi.setText("Sửa loại thu");
 
                 txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
@@ -101,29 +105,30 @@ public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHold
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
                         final Dialog dialog = new Dialog(context);
-                        dialog.setContentView(R.layout.them_loai_thuchi);
+                        dialog.setContentView(R.layout.add_incomes_expenses_type);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         Window window = dialog.getWindow();
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        }                final EditText edtThemLoaiThu = dialog.findViewById(R.id.them_loai_thu);
+                        }
+                        final EditText edtThemLoaiThu = dialog.findViewById(R.id.them_loai_thu);
                         Button xoa = dialog.findViewById(R.id.xoaTextLT);
                         final Button them = dialog.findViewById(R.id.btnThemLT);
                         final TextView title = dialog.findViewById(R.id.titleThemLoai);
                         title.setText("SỬA LOẠI THU");
                         edtThemLoaiThu.setHint("Nhập loại thu");
-                        edtThemLoaiThu.setText(tc.getTenKhoan());
+                        edtThemLoaiThu.setText(tc.getIeName());
                         them.setText("SỬA");
 
                         them.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 String themText = edtThemLoaiThu.getText().toString();
-                                ThuChi thuchi = new ThuChi(tc.getMaKhoan(), themText, 0);
-                                if (daoThuChi.suaTC(thuchi) == true) {
+                                IncomesExpenses thuchi = new IncomesExpenses(tc.getIeID(), themText, 0);
+                                if (daoIncomesExpenses.editIE(thuchi) == true) {
                                     list.clear();
-                                    list.addAll(daoThuChi.getThuChi(0));
+                                    list.addAll(daoIncomesExpenses.getIE(0));
                                     notifyDataSetChanged();
                                     Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
 
@@ -150,7 +155,7 @@ public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHold
                         bottomSheetDialog.dismiss();
                         final Dialog dialog = new Dialog(context);
                         dialog.setCancelable(false);
-                        dialog.setContentView(R.layout.dialog_xoa);
+                        dialog.setContentView(R.layout.dialog_delete);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         Window window = dialog.getWindow();
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -164,11 +169,11 @@ public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHold
                         final Button btn_No = dialog.findViewById(R.id.btn_no);
                         final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
                         progressBar.setVisibility(View.INVISIBLE);
-                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getTenKhoan() + " hay không ? ");
+                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getIeName() + " hay không ? ");
                         btn_Yes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (daoThuChi.xoaTC(tc)) {
+                                if (daoIncomesExpenses.deleteIE(tc)) {
                                     txt_Massage.setText("");
                                     progressBar.setVisibility(View.VISIBLE);
                                     progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -176,7 +181,7 @@ public class LoaiThuAdapter extends RecyclerView.Adapter<LoaiThuAdapter.ViewHold
                                         @Override
                                         public void run() {
                                             list.clear();
-                                            list.addAll(daoThuChi.getThuChi(0));
+                                            list.addAll(daoIncomesExpenses.getIE(0));
                                             notifyDataSetChanged();
                                             Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                             dialog.dismiss();

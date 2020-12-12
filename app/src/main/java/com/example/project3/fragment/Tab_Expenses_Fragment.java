@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +25,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
-import com.example.project3.adapter.KhoanChiAdapter;
-import com.example.project3.dao.DaoGiaoDich;
-import com.example.project3.dao.DaoThuChi;
-import com.example.project3.model.GiaoDich;
-import com.example.project3.model.ThuChi;
+import com.example.project3.adapter.ExpensesAdapter;
+import com.example.project3.dao.DAOTransactions;
+import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.model.Transactions;
+import com.example.project3.model.IncomesExpenses;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
@@ -38,21 +37,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
-import static android.content.ContentValues.TAG;
 
-
-public class Tab_KhoanChi_Fragment extends Fragment {
+public class Tab_Expenses_Fragment extends Fragment {
 
     View view;
     private RecyclerView rcv;
-    private ArrayList<GiaoDich> list = new ArrayList<>();
+    private ArrayList<Transactions> list = new ArrayList<>();
     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
-    private DaoGiaoDich daoGiaoDich;
-    private DaoThuChi daoThuChi;
+    private DAOTransactions daoTransactions;
+    private DAOIncomesExpenses daoIncomesExpenses;
     private DatePickerDialog datePickerDialog;
-    private ArrayList<ThuChi> listTC = new ArrayList<>();
-    KhoanChiAdapter adapter;
-    FloatingActionButton girdBtn,danhsachBtn,addBtn;
+    private ArrayList<IncomesExpenses> listTC = new ArrayList<>();
+    ExpensesAdapter adapter;
+    FloatingActionButton girdBtn, danhsachBtn, addBtn;
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
         @Override
@@ -72,9 +69,10 @@ public class Tab_KhoanChi_Fragment extends Fragment {
         }
     };
 
-    public Tab_KhoanChi_Fragment() {
+    public Tab_Expenses_Fragment() {
         // Required empty public constructor
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,19 +83,19 @@ public class Tab_KhoanChi_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_tab__khoan_chi_, container, false);
+        view = inflater.inflate(R.layout.fragment_tab__expenses, container, false);
         rcv = view.findViewById(R.id.rcv_KhoanChi);
         addBtn = view.findViewById(R.id.addBtn);
         girdBtn = view.findViewById(R.id.girdBtn);
         danhsachBtn = view.findViewById(R.id.danhsachBtn);
 
-        daoGiaoDich = new DaoGiaoDich(getActivity());
+        daoTransactions = new DAOTransactions(getActivity());
 
-        list = daoGiaoDich.getGDtheoTC(1);
+        list = daoTransactions.getTransByIE(1);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new KhoanChiAdapter(getActivity(),R.layout.oneitem_recylerview, list);
+        adapter = new ExpensesAdapter(getActivity(), R.layout.oneitem_recylerview, list);
         rcv.setAdapter(adapter);
 
 
@@ -106,7 +104,7 @@ public class Tab_KhoanChi_Fragment extends Fragment {
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new KhoanChiAdapter(getActivity(),R.layout.item_girl, list);
+                adapter = new ExpensesAdapter(getActivity(), R.layout.item_girl, list);
                 rcv.setAdapter(adapter);
             }
         });
@@ -115,7 +113,7 @@ public class Tab_KhoanChi_Fragment extends Fragment {
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new KhoanChiAdapter(getActivity(),R.layout.oneitem_recylerview, list);
+                adapter = new ExpensesAdapter(getActivity(), R.layout.oneitem_recylerview, list);
                 rcv.setAdapter(adapter);
             }
         });
@@ -130,7 +128,7 @@ public class Tab_KhoanChi_Fragment extends Fragment {
             public void onClick(View v) {
                 final Dialog dialog = new Dialog(getContext());
                 dialog.setCancelable(true);
-                dialog.setContentView(R.layout.them_khoan_thuchi);
+                dialog.setContentView(R.layout.add_incomes_expenses);
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                 Window window = dialog.getWindow();
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -147,12 +145,12 @@ public class Tab_KhoanChi_Fragment extends Fragment {
                 final Button huy = dialog.findViewById(R.id.huyThemGD);
                 final Button them = dialog.findViewById(R.id.btnThemGD);
 
-                daoThuChi = new DaoThuChi(getActivity());
-                listTC = daoThuChi.getThuChi(1);
-                //Set tiêu đề
+                daoIncomesExpenses = new DAOIncomesExpenses(getActivity());
+                listTC = daoIncomesExpenses.getIE(1);
+                //Set title
                 title.setText("THÊM KHOẢN CHI");
 
-                //Khi nhấn ngày hiện lên lựa chọ ngày
+                //click on date show date chooser
                 ngayGd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -163,7 +161,7 @@ public class Tab_KhoanChi_Fragment extends Fragment {
                         datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                final String NgayGD = dayOfMonth + "/" + (month+1) + "/" + year;
+                                final String NgayGD = dayOfMonth + "/" + (month + 1) + "/" + year;
                                 ngayGd.setText(NgayGD);
                             }
                         }, y, m, d);
@@ -171,11 +169,11 @@ public class Tab_KhoanChi_Fragment extends Fragment {
                     }
                 });
 
-                //Đổ dữ liệu vào spinner
+                //pour data to spinner
                 final ArrayAdapter sp = new ArrayAdapter(getActivity(), R.layout.spiner, listTC);
                 spLoaiGd.setAdapter(sp);
 
-                //Khi nhấn nút xóa
+                //click on delete button
                 huy.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -183,7 +181,7 @@ public class Tab_KhoanChi_Fragment extends Fragment {
                     }
                 });
 
-                //Khi nhấn nút Thêm
+                //click on add button
                 them.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -191,19 +189,18 @@ public class Tab_KhoanChi_Fragment extends Fragment {
                         String mota = moTaGd.getText().toString();
                         String ngay = ngayGd.getText().toString();
                         String tien = tienGd.getText().toString();
-                        //error
                         if (spLoaiGd.getSelectedItem() != null) {
-                            ThuChi tc = (ThuChi) spLoaiGd.getSelectedItem();
-                            int ma = tc.getMaKhoan();
+                            IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
+                            int ma = tc.getIeID();
                             if (mota.isEmpty() || ngay.isEmpty() || tien.isEmpty()) {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
-                                    GiaoDich gd = new GiaoDich(0, mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
+                                    Transactions gd = new Transactions(0, mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
 
-                                    if (daoGiaoDich.themGD(gd) == true) {
+                                    if (daoTransactions.addTrans(gd) == true) {
                                         list.clear();
-                                        list.addAll(daoGiaoDich.getGDtheoTC(1));
+                                        list.addAll(daoTransactions.getTransByIE(1));
                                         adapter.notifyDataSetChanged();
                                         Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
@@ -215,8 +212,7 @@ public class Tab_KhoanChi_Fragment extends Fragment {
                                     ex.printStackTrace();
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             Toast.makeText(getActivity(), "Tạo loại chi trước!", Toast.LENGTH_SHORT).show();
                         }
 

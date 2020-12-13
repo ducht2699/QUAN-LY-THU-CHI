@@ -70,10 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                     } else {
                         if (accountCheck == true) {
                             if (passCheck == true) {
-
                                 addUser(userName, password);
-
-
                             } else {
                                 Toast.makeText(RegisterActivity.this, "Mật khẩu không khớp nhau!", Toast.LENGTH_SHORT).show();
                             }
@@ -107,25 +104,25 @@ public class RegisterActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Users tempUser = new Users(usn.substring(0, usn.length() - 10), pwd, FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
                             //add user in db
-                            mData.push().setValue(tempUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            mData.child(tempUser.getUID()).setValue(tempUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(RegisterActivity.this, "Thành công!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
                                         Intent i = new Intent();
                                         i.putExtra("userName", usn.substring(0, usn.length() - 10));
                                         i.putExtra("pass", pwd);
                                         setResult(RESULT_OK, i);
                                         finish();
                                     } else {
-                                        Toast.makeText(RegisterActivity.this, "Thất bại DB!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
 
 
                         } else {
-                            Toast.makeText(RegisterActivity.this, "Thất bại AUTHEN!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

@@ -13,12 +13,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.project3.fragment.ChangePasswordFragment;
 import com.example.project3.fragment.Expenses_Fragment;
 import com.example.project3.fragment.Intro_Fragment;
 import com.example.project3.fragment.Incomes_Fragment;
 import com.example.project3.fragment.Statistic_Fragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
+            FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
             FirebaseAuth.getInstance().signOut();
             SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -128,10 +131,11 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.doimatkhau:
                 setTitle("ĐỔI MẬT KHẨU");
-//                ChangePasswordFragment changepasswordFragment = new ChangePasswordFragment();
-//                replaceFragment(changepasswordFragment);
+                ChangePasswordFragment changepasswordFragment = new ChangePasswordFragment();
+                replaceFragment(changepasswordFragment);
                 break;
             case R.id.logout:
+                FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);

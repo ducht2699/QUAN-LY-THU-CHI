@@ -1,7 +1,5 @@
 package com.example.project3.model;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,7 @@ public class Users implements Serializable {
     private String UID;
     private boolean isLoggedIn = false;
 
-    private List<Users> usersList = new ArrayList<>();
+    private List<IncomesExpenses> IEList = new ArrayList<>();
 
     public Users() {
     }
@@ -38,12 +36,12 @@ public class Users implements Serializable {
         this.UID = UID;
     }
 
-    public List<Users> getUsersList() {
-        return usersList;
+    public List<IncomesExpenses> getIEList() {
+        return IEList;
     }
 
-    public void setUsersList(List<Users> usersList) {
-        this.usersList = usersList;
+    public void setIEList(List<IncomesExpenses> IEList) {
+        this.IEList = IEList;
     }
 
     public String getUsername() {

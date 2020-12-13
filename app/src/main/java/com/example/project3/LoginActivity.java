@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.example.project3.dao.DAOUsers;
 import com.example.project3.model.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,17 +27,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private Button btReg, btLogin;
     EditText edtUsername, edtPassword;
-    CheckBox cdAutoLogin;
+    CheckBox cbAutoLogin;
 
     List<Users> usersList;
     LinearLayout linearLayout;
@@ -60,14 +56,16 @@ public class LoginActivity extends AppCompatActivity {
         animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
         linearLayout.startAnimation(animation);
 
+        //FIXME: app crashed when data exist in DB
+        if (mAuth.getCurrentUser() != null) {
+            mAuth.signOut();
+        }
+
         layThongTin();
+
 
         getUserList();
 
-
-        if (autoLogin) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-        }
 
 
         btLogin.setOnClickListener(new View.OnClickListener() {
@@ -94,8 +92,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+
+
     private void getUserList() {
-        mData.child("Users").addChildEventListener(new ChildEventListener() {
+        mData.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Users temp = snapshot.getValue(Users.class);
@@ -132,11 +132,13 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            //change log in state in DB
+                            mData.child(mAuth.getCurrentUser().getUid().toString()).child("loggedIn").setValue("true");
                             Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                             saveUserData();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
-                            //TODO: edit on DB
+
                         } else {
                             Toast.makeText(LoginActivity.this, "Tên tài khoản hoặc mật khẩu không chính xác!", Toast.LENGTH_SHORT).show();
                         }
@@ -149,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String userName = edtUsername.getText().toString();
         String pass = edtPassword.getText().toString();
-        boolean check = cdAutoLogin.isChecked();
+        boolean check = cbAutoLogin.isChecked();
         autoLogin = check;
         if (!check) {
             editor.clear();
@@ -177,11 +179,11 @@ public class LoginActivity extends AppCompatActivity {
             edtUsername.setText("");
             edtPassword.setText("");
         }
-        cdAutoLogin.setChecked(check);
+        cbAutoLogin.setChecked(check);
     }
 
     private void init() {
-        mData = FirebaseDatabase.getInstance().getReference();
+        mData = FirebaseDatabase.getInstance().getReference("Users");
         mAuth = FirebaseAuth.getInstance();
 
         usersList = new ArrayList<>();
@@ -190,7 +192,7 @@ public class LoginActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         btLogin = findViewById(R.id.btnLogin);
         btReg = findViewById(R.id.btnRegister);
-        cdAutoLogin = findViewById(R.id.cbLuuThongTin);
+        cbAutoLogin = findViewById(R.id.cbLuuThongTin);
     }
 
     @Override

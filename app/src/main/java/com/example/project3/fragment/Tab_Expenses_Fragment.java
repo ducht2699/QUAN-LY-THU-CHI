@@ -89,7 +89,7 @@ public class Tab_Expenses_Fragment extends Fragment {
         girdBtn = view.findViewById(R.id.girdBtn);
         danhsachBtn = view.findViewById(R.id.danhsachBtn);
 
-        daoTransactions = new DAOTransactions(getActivity());
+        daoTransactions = new DAOTransactions();
 
         list = daoTransactions.getTransByIE(1);
 
@@ -145,7 +145,7 @@ public class Tab_Expenses_Fragment extends Fragment {
                 final Button huy = dialog.findViewById(R.id.huyThemGD);
                 final Button them = dialog.findViewById(R.id.btnThemGD);
 
-                daoIncomesExpenses = new DAOIncomesExpenses(getActivity());
+                daoIncomesExpenses = new DAOIncomesExpenses();
                 listTC = daoIncomesExpenses.getIE(1);
                 //Set title
                 title.setText("THÊM KHOẢN CHI");

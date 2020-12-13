@@ -1,5 +1,7 @@
 package com.example.project3;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -17,38 +19,36 @@ import android.widget.Toast;
 
 import com.example.project3.dao.DAOUsers;
 import com.example.project3.model.Users;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private Button btReg, btLogin;
     EditText edtUsername, edtPassword;
     CheckBox cdAutoLogin;
-    DAOUsers daoUsers;
-    ArrayList<Users> usersList = new ArrayList<>();
+
+    List<Users> usersList;
     LinearLayout linearLayout;
     Animation animation;
     boolean doubleBackToExitPressedOnce = false;
     boolean autoLogin = false;
 
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
-        }
+    DatabaseReference mData;
+    FirebaseAuth mAuth;
 
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Nhấn Back một lần nữa để thoát!", Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
-            }
-        }, 2000);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +62,9 @@ public class LoginActivity extends AppCompatActivity {
 
         layThongTin();
 
+        getUserList();
+
+
         if (autoLogin) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
@@ -70,28 +73,12 @@ public class LoginActivity extends AppCompatActivity {
         btLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean checkAccount = false;
-                daoUsers = new DAOUsers(LoginActivity.this);
-                String tenTK = edtUsername.getText().toString();
-                String mk = edtPassword.getText().toString();
-                usersList = daoUsers.getALl();
-                for (int i = 0; i < usersList.size(); i++) {
-                    Users tkx = usersList.get(i);
-                    if (tkx.getUsername().matches(tenTK) && tkx.getPassword().matches(mk)) {
-                        checkAccount = true;
-                        break;
-                    }
-                }
-                if (checkAccount == true) {
-                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                    saveUserData();
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
-
-                } else {
-                    Toast.makeText(LoginActivity.this, "Tên tài khoản hoặc mật khẩu không chính xác!", Toast.LENGTH_SHORT).show();
-                }
-
+                String userName = edtUsername.getText().toString();
+                String password = edtPassword.getText().toString();
+                if (userName.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Không được bỏ trống!", Toast.LENGTH_SHORT).show();
+                } else
+                    login(userName, password);
             }
         });
 
@@ -107,19 +94,69 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    private void getUserList() {
+        mData.child("Users").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Users temp = snapshot.getValue(Users.class);
+                usersList.add(temp);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
+    private void login(String email, String password) {
+        String em = email + "@gmail.com";
+        mAuth.signInWithEmailAndPassword(em, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                            saveUserData();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
+                            //TODO: edit on DB
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Tên tài khoản hoặc mật khẩu không chính xác!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
     private void saveUserData() {
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        String ten = edtUsername.getText().toString();
+        String userName = edtUsername.getText().toString();
         String pass = edtPassword.getText().toString();
         boolean check = cdAutoLogin.isChecked();
         autoLogin = check;
         if (!check) {
             editor.clear();
         } else {
-            editor.putString("tennguoidung", ten);
-            editor.putString("matkhau", pass);
-            editor.putBoolean("checkstatus", check);
+            editor.putString("userName", userName);
+            editor.putString("pass", pass);
+            editor.putBoolean("checkStatus", check);
             editor.putBoolean("autoLogin", autoLogin);
         }
         editor.commit();
@@ -129,13 +166,13 @@ public class LoginActivity extends AppCompatActivity {
     private void layThongTin() {
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
 
-        boolean check = sharedPreferences.getBoolean("checkstatus", false);
+        boolean check = sharedPreferences.getBoolean("checkStatus", false);
         if (check) {
-            String tenNguoiDung = sharedPreferences.getString("tennguoidung", "");
-            String matKhau = sharedPreferences.getString("matkhau", "");
+            String userName = sharedPreferences.getString("userName", "");
+            String pass = sharedPreferences.getString("pass", "");
             autoLogin = sharedPreferences.getBoolean("autoLogin", false);
-            edtUsername.setText(tenNguoiDung);
-            edtPassword.setText(matKhau);
+            edtUsername.setText(userName);
+            edtPassword.setText(pass);
         } else {
             edtUsername.setText("");
             edtPassword.setText("");
@@ -144,6 +181,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void init() {
+        mData = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+
+        usersList = new ArrayList<>();
         linearLayout = findViewById(R.id.linearLayoutlogin);
         edtUsername = findViewById(R.id.edtUserName);
         edtPassword = findViewById(R.id.edtPassword);
@@ -156,12 +197,32 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 999 && resultCode == RESULT_OK) {
-            String tk = data.getStringExtra("taikhoan");
-            String mk = data.getStringExtra("matkhau");
+            String tk = data.getStringExtra("userName");
+            String mk = data.getStringExtra("pass");
             edtUsername.setText(tk);
             edtPassword.setText(mk);
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            mAuth.signOut();
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Nhấn Back một lần nữa để thoát!", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
     }
 }
 

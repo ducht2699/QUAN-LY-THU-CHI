@@ -26,8 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
-import com.example.project3.dao.DAOTransactions;
-import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -41,9 +39,9 @@ import java.util.Calendar;
 public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHolder> {
     private Context context;
     public static ArrayList<Transactions> list;
-    private DAOTransactions daoTransactions;
+
     private ArrayList<IncomesExpenses> listTC = new ArrayList<>();
-    private DAOIncomesExpenses daoIncomesExpenses;
+
     private DatePickerDialog datePickerDialog;
     int layout;
     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
@@ -93,7 +91,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.text.setText(list.get(position).getTransDescription());
-        daoTransactions = new DAOTransactions(context);
+//        daoTransactions = new DAOTransactions();
         final Transactions gd = list.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,8 +129,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         mota.setText(gd.getTransDescription());
                         ngay.setText(String.valueOf(gd.getTransDate()));
                         tien.setText(fm.format(Math.abs(gd.getAmountMoney())) + " VND");
-                        daoIncomesExpenses = new DAOIncomesExpenses(context);
-                        loai.setText(daoIncomesExpenses.getNameIE(gd.getIeID()));
+//                        daoIncomesExpenses = new DAOIncomesExpenses();
+//                        loai.setText(daoIncomesExpenses.getNameIE(gd.getIeID()));
                         dialog.show();
                     }
                 });
@@ -156,8 +154,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         final TextView title = dialog.findViewById(R.id.titleThemKhoan);
                         final Button huy = dialog.findViewById(R.id.huyThemGD);
                         final Button them = dialog.findViewById(R.id.btnThemGD);
-                        daoIncomesExpenses = new DAOIncomesExpenses(context);
-                        listTC = daoIncomesExpenses.getIE(1);
+//                        daoIncomesExpenses = new DAOIncomesExpenses();
+//                        listTC = daoIncomesExpenses.getIE(1);
                         //Set title, text
                         title.setText("SỬA KHOẢN CHI");
                         them.setText("SỬA");
@@ -167,12 +165,12 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         final ArrayAdapter sp = new ArrayAdapter(context, R.layout.spiner, listTC);
                         spLoaiGd.setAdapter(sp);
                         int vitri = -1;
-                        for (int i = 0; i < listTC.size(); i++) {
-                            if (listTC.get(i).getIeName().equalsIgnoreCase(daoIncomesExpenses.getNameIE(gd.getIeID()))) {
-                                vitri = i;
-                                break;
-                            }
-                        }
+//                        for (int i = 0; i < listTC.size(); i++) {
+//                            if (listTC.get(i).getIeName().equalsIgnoreCase(daoIncomesExpenses.getNameIE(gd.getIeID()))) {
+//                                vitri = i;
+//                                break;
+//                            }
+//                        }
                         spLoaiGd.setSelection(vitri);
 
 
@@ -204,37 +202,37 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                             }
                         });
 
-                        //click on edit button
-                        them.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                String mota = moTaGd.getText().toString();
-                                String ngay = ngayGd.getText().toString();
-                                String tien = tienGd.getText().toString();
-                                IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
-                                int ma = tc.getIeID();
-                                if (mota.isEmpty() && ngay.isEmpty() && tien.isEmpty()) {
-                                    Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    try {
-                                        Transactions transactions = new Transactions(gd.getTransID(), mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
-                                        if (daoTransactions.editTrans(transactions) == true) {
-                                            list.clear();
-                                            list.addAll(daoTransactions.getTransByIE(1));
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        } else {
-                                            Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        }
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-
-                            }
-                        });
+//                        //click on edit button
+//                        them.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                String mota = moTaGd.getText().toString();
+//                                String ngay = ngayGd.getText().toString();
+//                                String tien = tienGd.getText().toString();
+//                                IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
+//                                int ma = tc.getIeID();
+//                                if (mota.isEmpty() && ngay.isEmpty() && tien.isEmpty()) {
+//                                    Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
+//                                } else {
+//                                    try {
+//                                        Transactions transactions = new Transactions(gd.getTransID(), mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
+//                                        if (daoTransactions.editTrans(transactions) == true) {
+//                                            list.clear();
+//                                            list.addAll(daoTransactions.getTransByIE(1));
+//                                            notifyDataSetChanged();
+//                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
+//                                            dialog.dismiss();
+//                                        } else {
+//                                            Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
+//                                            dialog.dismiss();
+//                                        }
+//                                    } catch (Exception ex) {
+//                                        ex.printStackTrace();
+//                                    }
+//                                }
+//
+//                            }
+//                        });
 
                         dialog.show();
 
@@ -242,53 +240,53 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                     }
                 });
 
-                txtXoa.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        bottomSheetDialog.dismiss();
-                        final Dialog dialog = new Dialog(context);
-                        dialog.setContentView(R.layout.dialog_delete);
-                        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
-                        Window window = dialog.getWindow();
-                        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        if (dialog != null && dialog.getWindow() != null) {
-                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        }
-                        final TextView txt_Massage = dialog.findViewById(R.id.txt_Titleconfirm);
-                        final Button btn_Yes = dialog.findViewById(R.id.btn_yes);
-                        final Button btn_No = dialog.findViewById(R.id.btn_no);
-                        final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getTransDescription() + " hay không ? ");
-                        btn_Yes.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (daoTransactions.deleteTrans(gd) == true) {
-                                    txt_Massage.setText("");
-                                    progressBar.setVisibility(View.VISIBLE);
-                                    progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            list.clear();
-                                            list.addAll(daoTransactions.getTransByIE(1));
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        }
-                                    }, 2000);
-                                }
-                            }
-                        });
-                        btn_No.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-                        dialog.show();
-                    }
-                });
+//                txtXoa.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        bottomSheetDialog.dismiss();
+//                        final Dialog dialog = new Dialog(context);
+//                        dialog.setContentView(R.layout.dialog_delete);
+//                        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+//                        Window window = dialog.getWindow();
+//                        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                        if (dialog != null && dialog.getWindow() != null) {
+//                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                        }
+//                        final TextView txt_Massage = dialog.findViewById(R.id.txt_Titleconfirm);
+//                        final Button btn_Yes = dialog.findViewById(R.id.btn_yes);
+//                        final Button btn_No = dialog.findViewById(R.id.btn_no);
+//                        final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
+//                        progressBar.setVisibility(View.INVISIBLE);
+//                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getTransDescription() + " hay không ? ");
+//                        btn_Yes.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                if (daoTransactions.deleteTrans(gd) == true) {
+//                                    txt_Massage.setText("");
+//                                    progressBar.setVisibility(View.VISIBLE);
+//                                    progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
+//                                    new Handler().postDelayed(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            list.clear();
+//                                            list.addAll(daoTransactions.getTransByIE(1));
+//                                            notifyDataSetChanged();
+//                                            Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+//                                            dialog.dismiss();
+//                                        }
+//                                    }, 2000);
+//                                }
+//                            }
+//                        });
+//                        btn_No.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                dialog.dismiss();
+//                            }
+//                        });
+//                        dialog.show();
+//                    }
+//                });
                 bottomSheetView.findViewById(R.id.txt_Huy).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

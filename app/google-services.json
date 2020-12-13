@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "371528475726",
+    "firebase_url": "https://project-iii-868bd-default-rtdb.firebaseio.com",
     "project_id": "project-iii-868bd",
     "storage_bucket": "project-iii-868bd.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:371528475726:android:98fba4fbc003978b918f1f",
+        "mobilesdk_app_id": "1:371528475726:android:dfcd65765e0869e0918f1f",
         "android_client_info": {
-          "package_name": "com.example.assignment2"
+          "package_name": "com.example.project3"
         }
       },
       "oauth_client": [

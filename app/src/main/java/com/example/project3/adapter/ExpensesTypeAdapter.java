@@ -75,8 +75,8 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.text.setText(list.get(position).getIeName());
-        daoIncomesExpenses = new DAOIncomesExpenses(context);
-        daoTransactions = new DAOTransactions(context);
+        daoIncomesExpenses = new DAOIncomesExpenses();
+        daoTransactions = new DAOTransactions();
         final IncomesExpenses tc = list.get(position);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

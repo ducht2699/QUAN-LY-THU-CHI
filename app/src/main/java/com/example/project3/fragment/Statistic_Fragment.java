@@ -49,7 +49,7 @@ public class Statistic_Fragment extends Fragment {
         chi = view.findViewById(R.id.tienChi);
         conlai = view.findViewById(R.id.tienConLai);
         btnShow = view.findViewById(R.id.btnShow);
-        daoTransactions = new DAOTransactions(getActivity());
+        daoTransactions = new DAOTransactions();
         //Format dạng tiền
         final NumberFormat fm = new DecimalFormat("#,###");
         final ArrayList<Transactions> listThu = daoTransactions.getTransByIE(0);

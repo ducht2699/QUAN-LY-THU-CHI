@@ -1,9 +1,12 @@
 package com.example.project3;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -12,18 +15,26 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.example.project3.dao.DAOUsers;
 import com.example.project3.model.Users;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
 public class RegisterActivity extends AppCompatActivity {
     private RelativeLayout rlayout;
     private Animation animation;
     EditText edtRegUsername, edtRegPassword, edtRegPassCheck;
     Button btnRegister, btnEraseAll;
-    ArrayList<Users> usersList = new ArrayList<>();
-    DAOUsers daoUsers;
+
+    DatabaseReference mData;
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,47 +49,30 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                daoUsers = new DAOUsers(RegisterActivity.this);
-
-                String tk = edtRegUsername.getText().toString();
-                String mk = edtRegPassword.getText().toString();
-                String confirmMk = edtRegPassCheck.getText().toString();
+                String userName = edtRegUsername.getText().toString();
+                String password = edtRegPassword.getText().toString();
+                String confirmPass = edtRegPassCheck.getText().toString();
 
                 boolean accountCheck = true, passCheck = false;
-                Users tkmk = new Users(tk, mk);
 
-                usersList = daoUsers.getALl();
 
-                if (mk.matches(confirmMk)) {
+                if (password.matches(confirmPass)) {
                     passCheck = true;
                 } else {
                     passCheck = false;
                 }
 
-                for (int i = 0; i < usersList.size(); i++) {
-                    Users tkx = usersList.get(i);
-                    if (tkx.getUsername().matches(tk)) {
-                        accountCheck = false;
-                        break;
-                    }
-                }
-
-                if (tk.isEmpty()) {
+                if (userName.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Tên tài khoản không được để trống!", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (mk.isEmpty() || confirmMk.isEmpty()) {
+                    if (password.isEmpty() || confirmPass.isEmpty()) {
                         Toast.makeText(RegisterActivity.this, "Mật khẩu không được để trống!", Toast.LENGTH_SHORT).show();
                     } else {
                         if (accountCheck == true) {
                             if (passCheck == true) {
-                                daoUsers.addUser(tkmk);
-                                Toast.makeText(RegisterActivity.this, "Thêm tài khoản thành công!", Toast.LENGTH_SHORT).show();
 
-                                Intent i = new Intent();
-                                i.putExtra("taikhoan", tk);
-                                i.putExtra("matkhau", mk);
-                                setResult(RESULT_OK, i);
-                                finish();
+                                addUser(userName, password);
+
 
                             } else {
                                 Toast.makeText(RegisterActivity.this, "Mật khẩu không khớp nhau!", Toast.LENGTH_SHORT).show();
@@ -89,6 +83,8 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 }
             }
+
+
         });
 
         btnEraseAll.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +97,44 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    private void addUser(String userName, String password) {
+        final String usn = userName + "@gmail.com";
+        final String pwd = password;
+        mAuth.createUserWithEmailAndPassword(usn, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Users tempUser = new Users(usn.substring(0, usn.length() - 10), pwd, FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
+                            //add user in db
+                            mData.push().setValue(tempUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(RegisterActivity.this, "Thành công!", Toast.LENGTH_SHORT).show();
+                                        Intent i = new Intent();
+                                        i.putExtra("userName", usn.substring(0, usn.length() - 10));
+                                        i.putExtra("pass", pwd);
+                                        setResult(RESULT_OK, i);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(RegisterActivity.this, "Thất bại DB!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+
+                        } else {
+                            Toast.makeText(RegisterActivity.this, "Thất bại AUTHEN!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
     private void init() {
+
+        mData = FirebaseDatabase.getInstance().getReference("Users");
+        mAuth = FirebaseAuth.getInstance();
 
         edtRegUsername = findViewById(R.id.edtRegUser);
         edtRegPassword = findViewById(R.id.edtRegPassword);

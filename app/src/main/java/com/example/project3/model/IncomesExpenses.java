@@ -3,11 +3,15 @@ package com.example.project3.model;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IncomesExpenses implements Serializable {
     private int IeID;
     private String IeName;
     private int IeType;
+
+    private List<Transactions> transactionsList = new ArrayList<>();
 
     public IncomesExpenses() {
     }
@@ -16,6 +20,19 @@ public class IncomesExpenses implements Serializable {
         this.IeID = IeID;
         this.IeName = IeName;
         this.IeType = IeType;
+    }
+
+
+    public int getIeType() {
+        return IeType;
+    }
+
+    public List<Transactions> getTransactionsList() {
+        return transactionsList;
+    }
+
+    public void setTransactionsList(List<Transactions> transactionsList) {
+        this.transactionsList = transactionsList;
     }
 
     public int getIeID() {

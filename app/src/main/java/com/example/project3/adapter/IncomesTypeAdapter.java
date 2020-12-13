@@ -74,7 +74,7 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.txtTenKhoan.setText(list.get(position).getIeName());
-        daoIncomesExpenses = new DAOIncomesExpenses(context);
+        daoIncomesExpenses = new DAOIncomesExpenses();
         final IncomesExpenses tc = list.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

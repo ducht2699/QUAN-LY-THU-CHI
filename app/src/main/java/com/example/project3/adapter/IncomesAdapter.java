@@ -103,7 +103,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.text.setText(list.get(position).getTransDescription());
 
-        daoTransactions = new DAOTransactions(context);
+        daoTransactions = new DAOTransactions();
         final Transactions gd = list.get(position);
         //Khi nhấn nút sửa
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -144,7 +144,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         mota.setText(gd.getTransDescription());
                         ngay.setText(dfm.format(gd.getTransDate()));
                         tien.setText(fm.format(gd.getAmountMoney()) + " VND");
-                        daoIncomesExpenses = new DAOIncomesExpenses(context);
+                        daoIncomesExpenses = new DAOIncomesExpenses();
                         loai.setText(daoIncomesExpenses.getNameIE(gd.getIeID()));
 
                         dialog.show();
@@ -172,7 +172,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         final TextView title = dialog.findViewById(R.id.titleThemKhoan);
                         final Button huy = dialog.findViewById(R.id.huyThemGD);
                         final Button them = dialog.findViewById(R.id.btnThemGD);
-                        daoIncomesExpenses = new DAOIncomesExpenses(context);
+                        daoIncomesExpenses = new DAOIncomesExpenses();
                         listTC = daoIncomesExpenses.getIE(0);
                         //Set title, text
                         title.setText("SỬA KHOẢN THU");

@@ -74,7 +74,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
         addBtn = view.findViewById(R.id.addBtn);
         girdBtn = view.findViewById(R.id.girdBtn);
         danhsachBtn = view.findViewById(R.id.danhsachBtn);
-        daoIncomesExpenses = new DAOIncomesExpenses(getActivity());
+        daoIncomesExpenses = new DAOIncomesExpenses();
 
         list = daoIncomesExpenses.getIE(0);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());

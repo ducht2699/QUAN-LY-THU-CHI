@@ -92,6 +92,7 @@ public class DAOIncomesExpenses {
 
         String sql = "SELECT * FROM THUCHI WHERE maKhoan=?";
         ArrayList<IncomesExpenses> list = getIE(sql, String.valueOf(maKhoan));
-        return list.get(0).getIeName();
+//        return list.get(0).getIeName();
+        return "test";
     }
 }

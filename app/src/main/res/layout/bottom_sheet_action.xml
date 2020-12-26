@@ -43,7 +43,7 @@
         android:background="@color/grey_nhat" />
 
     <TextView
-        android:id="@+id/txt_XemChiTiet"
+        android:id="@+id/tvSeeDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -59,7 +59,7 @@
         android:background="@color/grey_nhat" />
 
     <TextView
-        android:id="@+id/txt_SuaThuChi"
+        android:id="@+id/tvEditIncomes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -75,7 +75,7 @@
         android:background="@color/grey_nhat" />
 
     <TextView
-        android:id="@+id/txt_XoaThuChi"
+        android:id="@+id/tvDeleteIE"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"

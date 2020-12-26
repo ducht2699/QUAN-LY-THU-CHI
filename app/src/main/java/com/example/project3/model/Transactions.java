@@ -4,18 +4,18 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Transactions implements Serializable {
-    private int transID;
+    private String transID;
     private String transDescription;
     private Date transDate;
     private int amountMoney;
-    private int IeID;
+    private String IeID;
 
     public Transactions() {
     }
 
 
 
-    public Transactions(int transID, String transDescription, Date transDate, int amountMoney, int IeID) {
+    public Transactions(String transID, String transDescription, Date transDate, int amountMoney, String IeID) {
         this.transID = transID;
         this.transDescription = transDescription;
         this.transDate = transDate;
@@ -23,11 +23,11 @@ public class Transactions implements Serializable {
         this.IeID = IeID;
     }
 
-    public int getTransID() {
+    public String getTransID() {
         return transID;
     }
 
-    public void setTransID(int transID) {
+    public void setTransID(String transID) {
         this.transID = transID;
     }
 
@@ -55,11 +55,11 @@ public class Transactions implements Serializable {
         this.amountMoney = amountMoney;
     }
 
-    public int getIeID() {
+    public String getIeID() {
         return IeID;
     }
 
-    public void setIeID(int ieID) {
+    public void setIeID(String ieID) {
         this.IeID = ieID;
     }
 }

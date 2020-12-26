@@ -14,7 +14,7 @@
         android:textSize="25dp"
         android:textColor="@color/grey_dam"
         android:gravity="center_horizontal"
-        android:id="@+id/titleThemLoai"
+        android:id="@+id/tvAddType"
         android:text="THÊM LOẠI THU"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content">
         <EditText
 
-            android:id="@+id/them_loai_thu"
+            android:id="@+id/add_incomes_type"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@drawable/background_edttext"
@@ -48,7 +48,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_weight="1"
-                android:id="@+id/xoaTextLT"
+                android:id="@+id/btnCancel"
                 android:text="Hủy"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/bg_ui"
@@ -60,7 +60,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_weight="1"
-                android:id="@+id/btnThemLT"
+                android:id="@+id/btnAdd"
                 android:text="Thêm"
                 android:textColor="#FFFFFF"
                 android:layout_gravity="center"

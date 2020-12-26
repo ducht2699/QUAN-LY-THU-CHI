@@ -7,24 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IncomesExpenses implements Serializable {
-    private int IeID;
+    private String IeID;
     private String IeName;
     private int IeType;
 
-    private List<Transactions> transactionsList = new ArrayList<>();
+    private List<Transactions> transactionsList;
 
     public IncomesExpenses() {
     }
 
-    public IncomesExpenses(int IeID, String IeName, int IeType) {
+    public IncomesExpenses(String IeID, String IeName, int IeType, List<Transactions> transactionsList) {
         this.IeID = IeID;
         this.IeName = IeName;
         this.IeType = IeType;
-    }
-
-
-    public int getIeType() {
-        return IeType;
+        this.transactionsList = transactionsList;
     }
 
     public List<Transactions> getTransactionsList() {
@@ -35,11 +31,16 @@ public class IncomesExpenses implements Serializable {
         this.transactionsList = transactionsList;
     }
 
-    public int getIeID() {
+    public int getIeType() {
+        return IeType;
+    }
+
+
+    public String getIeID() {
         return IeID;
     }
 
-    public void setIeID(int ieID) {
+    public void setIeID(String ieID) {
         this.IeID = ieID;
     }
 
@@ -51,9 +52,6 @@ public class IncomesExpenses implements Serializable {
         this.IeName = ieName;
     }
 
-    public int isLoaiKhoan() {
-        return IeType;
-    }
 
     public void setIeType(int ieType) {
         this.IeType = ieType;

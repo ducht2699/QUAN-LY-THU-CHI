@@ -17,14 +17,14 @@
         android:layout_height="match_parent"
         android:padding="15dp">
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/img_avataitem"
+            android:id="@+id/img_avatarItem"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_cash" />
         <TextView
             android:id="@+id/textList"
-            android:layout_below="@id/img_avataitem"
+            android:layout_below="@id/img_avatarItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tên loại"

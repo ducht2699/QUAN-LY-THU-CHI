@@ -25,13 +25,15 @@ import com.example.project3.R;
 import com.example.project3.dao.DAOTransactions;
 import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.IncomesExpenses;
+import com.example.project3.model.Transactions;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapter.ViewHolder> {
     private Context context;
-    private ArrayList<IncomesExpenses> list;
+    private List<IncomesExpenses> IEList;
     private DAOIncomesExpenses daoIncomesExpenses;
     private DAOTransactions daoTransactions;
     private int layout;
@@ -39,30 +41,18 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
     public ExpensesTypeAdapter() {
     }
 
-    public ExpensesTypeAdapter(Context context, ArrayList<IncomesExpenses> list) {
+    public ExpensesTypeAdapter(Context context, ArrayList<IncomesExpenses> IEList) {
         this.context = context;
-        this.list = list;
+        this.IEList = IEList;
     }
 
-    public ExpensesTypeAdapter(Context context, int layout, ArrayList<IncomesExpenses> list) {
+    public ExpensesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList) {
         this.context = context;
-        this.list = list;
+        this.IEList = IEList;
         this.layout = layout;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView text;
-        private ImageView img_avataitem;
-        RelativeLayout relativeLayout;
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            text = itemView.findViewById(R.id.textList);
-            img_avataitem = itemView.findViewById(R.id.img_avataitem);
-            relativeLayout = itemView.findViewById(R.id.relative_item);
-
-        }
-    }
 
     @NonNull
     @Override
@@ -74,10 +64,10 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.text.setText(list.get(position).getIeName());
+        holder.text.setText(IEList.get(position).getIeName());
         daoIncomesExpenses = new DAOIncomesExpenses();
         daoTransactions = new DAOTransactions();
-        final IncomesExpenses tc = list.get(position);
+        final IncomesExpenses tc = IEList.get(position);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,10 +80,10 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.txt_XemChiTiet);
+                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.tvSeeDetail);
                 txtXemchiTiet.setVisibility(View.GONE);
-                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.txt_SuaThuChi);
-                TextView txtXoa = bottomSheetView.findViewById(R.id.txt_XoaThuChi);
+                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.tvEditIncomes);
+                TextView txtXoa = bottomSheetView.findViewById(R.id.tvDeleteIE);
                 txtSuaKhoanChi.setText("Sửa loại chi");
 
                 txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
@@ -115,10 +105,10 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView text = dialog.findViewById(R.id.them_loai_thu);
-                        Button xoa = dialog.findViewById(R.id.xoaTextLT);
-                        final Button them = dialog.findViewById(R.id.btnThemLT);
-                        final TextView title = dialog.findViewById(R.id.titleThemLoai);
+                        final TextView text = dialog.findViewById(R.id.add_incomes_type);
+                        Button xoa = dialog.findViewById(R.id.btnCancel);
+                        final Button them = dialog.findViewById(R.id.btnAdd);
+                        final TextView title = dialog.findViewById(R.id.tvAddType);
                         title.setText("SỬA LOẠI CHI");
                         text.setText(tc.getIeName());
                         them.setText("SỬA");
@@ -127,10 +117,11 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                             @Override
                             public void onClick(View v) {
                                 String themText = text.getText().toString();
-                                IncomesExpenses thuchi = new IncomesExpenses(tc.getIeID(), themText, 1);
-                                if (daoIncomesExpenses.editIE(thuchi) == true) {
-                                    list.clear();
-                                    list.addAll(daoIncomesExpenses.getIE(1));
+
+                                IncomesExpenses incomesExpenses = new IncomesExpenses(tc.getIeID(), themText, 1, new ArrayList<Transactions>());
+                                if (daoIncomesExpenses.editIE(incomesExpenses) == true) {
+                                    IEList.clear();
+                                    IEList.addAll(daoIncomesExpenses.getIE(1));
                                     notifyDataSetChanged();
                                     Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
                                     dialog.dismiss();
@@ -165,13 +156,13 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
                         final TextView txt_Massage = dialog.findViewById(R.id.txt_Titleconfirm);
-                        Button xoa = dialog.findViewById(R.id.xoaTextLT);
-                        final Button them = dialog.findViewById(R.id.btnThemLT);
-                        final Button btn_Yes = dialog.findViewById(R.id.btn_yes);
-                        final Button btn_No = dialog.findViewById(R.id.btn_no);
+                        Button xoa = dialog.findViewById(R.id.btnCancel);
+                        final Button them = dialog.findViewById(R.id.btnAdd);
+                        final Button btn_Yes = dialog.findViewById(R.id.btnYes);
+                        final Button btn_No = dialog.findViewById(R.id.btnNo);
                         final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
                         progressBar.setVisibility(View.INVISIBLE);
-                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getIeName() + " hay không ? ");
+                        txt_Massage.setText("Bạn có muốn xóa " + IEList.get(position).getIeName() + " hay không ? ");
                         btn_Yes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -182,8 +173,8 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                                     new Handler().postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
-                                            list.clear();
-                                            list.addAll(daoIncomesExpenses.getIE(1));
+                                            IEList.clear();
+                                            IEList.addAll(daoIncomesExpenses.getIE(1));
                                             notifyDataSetChanged();
                                             Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                             dialog.dismiss();
@@ -223,8 +214,20 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return IEList.size();
     }
 
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView text;
+        private ImageView img_avataitem;
+        RelativeLayout relativeLayout;
 
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            text = itemView.findViewById(R.id.textList);
+            img_avataitem = itemView.findViewById(R.id.img_avatarItem);
+            relativeLayout = itemView.findViewById(R.id.relative_item);
+
+        }
+    }
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 public class RegisterActivity extends AppCompatActivity {
+    private static final String TAG = "REG ACTIVITY TAG";
     private RelativeLayout rlayout;
     private Animation animation;
     EditText edtRegUsername, edtRegPassword, edtRegPassCheck;
@@ -43,12 +44,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         init();
 
-        animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
-        rlayout.setAnimation(animation);
+
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "btn reg click");
                 String userName = edtRegUsername.getText().toString();
                 String password = edtRegPassword.getText().toString();
                 String confirmPass = edtRegPassCheck.getText().toString();
@@ -116,6 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         finish();
                                     } else {
                                         Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "add database failed - " + task.getException());
                                     }
                                 }
                             });
@@ -123,6 +125,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         } else {
                             Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "auth failed - " + task.getException());
                         }
                     }
                 });
@@ -139,5 +142,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnReg);
         btnEraseAll = findViewById(R.id.btnRelay);
         rlayout = findViewById(R.id.rlayout);
+        animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
+        rlayout.setAnimation(animation);
     }
 }

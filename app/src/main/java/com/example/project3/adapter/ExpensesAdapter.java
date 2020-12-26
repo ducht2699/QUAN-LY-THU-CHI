@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +15,9 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,7 +66,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.textList);
-            img_avataitem = itemView.findViewById(R.id.img_avataitem);
+            img_avataitem = itemView.findViewById(R.id.img_avatarItem);
             relativeLayout = itemView.findViewById(R.id.relative_item);
             itemView.setOnClickListener(this);
         }
@@ -104,9 +101,9 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.txt_XemChiTiet);
-                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.txt_SuaThuChi);
-                TextView txtXoa = bottomSheetView.findViewById(R.id.txt_XoaThuChi);
+                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.tvSeeDetail);
+                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.tvEditIncomes);
+                TextView txtXoa = bottomSheetView.findViewById(R.id.tvDeleteIE);
                 txtSuaKhoanChi.setText("Sửa khoản chi");
                 txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -120,11 +117,11 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         dialog.setContentView(R.layout.transaction_info);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         TextView mota, ngay, tien, loai, title;
-                        title = dialog.findViewById(R.id.thongtinGD);
-                        mota = dialog.findViewById(R.id.mota_gd);
-                        ngay = dialog.findViewById(R.id.ngay_gd);
-                        tien = dialog.findViewById(R.id.tien_gd);
-                        loai = dialog.findViewById(R.id.loai_gd);
+                        title = dialog.findViewById(R.id.tvTransTitle);
+                        mota = dialog.findViewById(R.id.tvTransDes);
+                        ngay = dialog.findViewById(R.id.tvTransDate);
+                        tien = dialog.findViewById(R.id.tvMoney);
+                        loai = dialog.findViewById(R.id.tvIEType);
                         title.setText("THÔNG TIN CHI");
                         mota.setText(gd.getTransDescription());
                         ngay.setText(String.valueOf(gd.getTransDate()));
@@ -147,13 +144,13 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView moTaGd = dialog.findViewById(R.id.them_mota_gd);
-                        final TextView ngayGd = dialog.findViewById(R.id.them_ngay_gd);
-                        final TextView tienGd = dialog.findViewById(R.id.them_tien_gd);
-                        final Spinner spLoaiGd = dialog.findViewById(R.id.spLoaiGd);
-                        final TextView title = dialog.findViewById(R.id.titleThemKhoan);
-                        final Button huy = dialog.findViewById(R.id.huyThemGD);
-                        final Button them = dialog.findViewById(R.id.btnThemGD);
+                        final TextView moTaGd = dialog.findViewById(R.id.add_trans_description);
+                        final TextView ngayGd = dialog.findViewById(R.id.add_trans_date);
+                        final TextView tienGd = dialog.findViewById(R.id.add_trans_money);
+                        final Spinner spLoaiGd = dialog.findViewById(R.id.spnTransType);
+                        final TextView title = dialog.findViewById(R.id.titleAddTrans);
+                        final Button huy = dialog.findViewById(R.id.btnCancelTrans);
+                        final Button them = dialog.findViewById(R.id.btnAddTrans);
 //                        daoIncomesExpenses = new DAOIncomesExpenses();
 //                        listTC = daoIncomesExpenses.getIE(1);
                         //Set title, text

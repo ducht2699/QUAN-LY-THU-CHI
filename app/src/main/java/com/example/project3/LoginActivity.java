@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -32,42 +33,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LOGIN ACTIVITY TAG ";
     private Button btReg, btLogin;
     EditText edtUsername, edtPassword;
     CheckBox cbAutoLogin;
-
-    List<Users> usersList;
     LinearLayout linearLayout;
     Animation animation;
     boolean doubleBackToExitPressedOnce = false;
-    boolean autoLogin = false;
-
     DatabaseReference mData;
     FirebaseAuth mAuth;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         init();
-
-        animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
-        linearLayout.startAnimation(animation);
-
-        //FIXME: app crashed when data exist in DB
-        if (mAuth.getCurrentUser() != null) {
-            mAuth.signOut();
-        }
-
-        layThongTin();
-
-
-        getUserList();
-
-
-
         btLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,7 +59,6 @@ public class LoginActivity extends AppCompatActivity {
                     login(userName, password);
             }
         });
-
         btReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,42 +67,11 @@ public class LoginActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
             }
         });
-
-
     }
 
-
-
-    private void getUserList() {
-        mData.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Users temp = snapshot.getValue(Users.class);
-                usersList.add(temp);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    private void autoLogin() {
+        login(edtUsername.getText().toString(), edtPassword.getText().toString());
     }
-
 
     private void login(String email, String password) {
         String em = email + "@gmail.com";
@@ -133,14 +81,22 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             //change log in state in DB
-                            mData.child(mAuth.getCurrentUser().getUid().toString()).child("loggedIn").setValue("true");
-                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                            saveUserData();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
-
+                            mData.child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("loggedIn").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                                        saveUserData();
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                        overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
+                                    } else {
+                                        Log.d(TAG, "add DB failed + " + task.getException());
+                                    }
+                                }
+                            });
                         } else {
                             Toast.makeText(LoginActivity.this, "Tên tài khoản hoặc mật khẩu không chính xác!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "login failed - " + task.getException());
                         }
                     }
                 });
@@ -152,47 +108,52 @@ public class LoginActivity extends AppCompatActivity {
         String userName = edtUsername.getText().toString();
         String pass = edtPassword.getText().toString();
         boolean check = cbAutoLogin.isChecked();
-        autoLogin = check;
         if (!check) {
             editor.clear();
         } else {
             editor.putString("userName", userName);
             editor.putString("pass", pass);
-            editor.putBoolean("checkStatus", check);
-            editor.putBoolean("autoLogin", autoLogin);
+            editor.putBoolean("autoLogin", check);
         }
         editor.commit();
-
-    }
-
-    private void layThongTin() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
-
-        boolean check = sharedPreferences.getBoolean("checkStatus", false);
-        if (check) {
-            String userName = sharedPreferences.getString("userName", "");
-            String pass = sharedPreferences.getString("pass", "");
-            autoLogin = sharedPreferences.getBoolean("autoLogin", false);
-            edtUsername.setText(userName);
-            edtPassword.setText(pass);
-        } else {
-            edtUsername.setText("");
-            edtPassword.setText("");
-        }
-        cbAutoLogin.setChecked(check);
     }
 
     private void init() {
-        mData = FirebaseDatabase.getInstance().getReference("Users");
+        mData = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-
-        usersList = new ArrayList<>();
+        //check if user is logged in --> sign out
+        if (mAuth.getCurrentUser() != null) {
+            Log.d(TAG, "user existed");
+            mAuth.signOut();
+        }
         linearLayout = findViewById(R.id.linearLayoutlogin);
         edtUsername = findViewById(R.id.edtUserName);
         edtPassword = findViewById(R.id.edtPassword);
         btLogin = findViewById(R.id.btnLogin);
         btReg = findViewById(R.id.btnRegister);
         cbAutoLogin = findViewById(R.id.cbLuuThongTin);
+        animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
+        linearLayout.startAnimation(animation);
+        //get data from SharedRef
+        SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
+        boolean check = sharedPreferences.getBoolean("autoLogin", false);
+        cbAutoLogin.setChecked(check);
+        if (check) {
+            String userName = sharedPreferences.getString("userName", "");
+            String pass = sharedPreferences.getString("pass", "");
+            edtUsername.setText(userName);
+            edtPassword.setText(pass);
+            autoLogin();
+        } else {
+            edtUsername.setText("");
+            edtPassword.setText("");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "Resume end");
     }
 
     @Override
@@ -204,20 +165,19 @@ public class LoginActivity extends AppCompatActivity {
             edtUsername.setText(tk);
             edtPassword.setText(mk);
         }
-
     }
 
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            mAuth.signOut();
+            if (mAuth.getCurrentUser() != null) {
+                mAuth.signOut();
+            }
             super.onBackPressed();
             return;
         }
-
         this.doubleBackToExitPressedOnce = true;
         Toast.makeText(this, "Nhấn Back một lần nữa để thoát!", Toast.LENGTH_SHORT).show();
-
         new Handler().postDelayed(new Runnable() {
 
             @Override

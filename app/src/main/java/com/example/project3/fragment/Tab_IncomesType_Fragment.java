@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -22,37 +23,36 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
 import com.example.project3.adapter.IncomesTypeAdapter;
-import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.IncomesExpenses;
+import com.example.project3.model.Transactions;
 import com.github.clans.fab.FloatingActionButton;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 
 public class Tab_IncomesType_Fragment extends Fragment {
     View view;
     private RecyclerView rcv;
-    private ArrayList<IncomesExpenses> list = new ArrayList<>();
-    private DAOIncomesExpenses daoIncomesExpenses;
-    FloatingActionButton girdBtn, danhsachBtn, addBtn;
+    private List<IncomesExpenses> IEList = new ArrayList<>();
+
+    FloatingActionButton btnGrid, btnList, btnAdd;
     IncomesTypeAdapter adapter;
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
 
-            int fromPosition = viewHolder.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
-            Collections.swap(list, fromPosition, toPosition);
-            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
-            return false;
-        }
 
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-        }
-    };
+    DatabaseReference mData;
+    FirebaseAuth mAuth;
 
     public Tab_IncomesType_Fragment() {
         // Required empty public constructor
@@ -70,32 +70,30 @@ public class Tab_IncomesType_Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__incomes_type, container, false);
-        rcv = view.findViewById(R.id.rcv_LoaiThu);
-        addBtn = view.findViewById(R.id.addBtn);
-        girdBtn = view.findViewById(R.id.girdBtn);
-        danhsachBtn = view.findViewById(R.id.danhsachBtn);
-        daoIncomesExpenses = new DAOIncomesExpenses();
+        init();
 
-        list = daoIncomesExpenses.getIE(0);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, list);
+        adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, mAuth, mData);
         rcv.setAdapter(adapter);
-        girdBtn.setOnClickListener(new View.OnClickListener() {
+
+        btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new IncomesTypeAdapter(getActivity(), R.layout.item_girl, list);
+                adapter = new IncomesTypeAdapter(getActivity(), R.layout.item_girl, IEList, mAuth, mData);
                 rcv.setAdapter(adapter);
             }
         });
-        danhsachBtn.setOnClickListener(new View.OnClickListener() {
+
+        btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, list);
+                adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, mAuth, mData);
                 rcv.setAdapter(adapter);
             }
         });
@@ -106,7 +104,10 @@ public class Tab_IncomesType_Fragment extends Fragment {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rcv);
-        addBtn.setOnClickListener(new View.OnClickListener() {
+
+        setChildListener();
+
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Dialog dialog = new Dialog(getContext());
@@ -118,30 +119,33 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 if (dialog != null && dialog.getWindow() != null) {
                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
-                final EditText edt_ThemLoaiThu = dialog.findViewById(R.id.them_loai_thu);
-                Button xoa = dialog.findViewById(R.id.xoaTextLT);
-                final Button them = dialog.findViewById(R.id.btnThemLT);
-                edt_ThemLoaiThu.setHint("Thêm loại thu");
+                final EditText edtAddIncomesType = dialog.findViewById(R.id.add_incomes_type);
+                Button cancel = dialog.findViewById(R.id.btnCancel);
+                final Button add = dialog.findViewById(R.id.btnAdd);
+                edtAddIncomesType.setHint("Thêm loại thu");
 
 
-                them.setOnClickListener(new View.OnClickListener() {
+                add.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String themText = edt_ThemLoaiThu.getText().toString();
-                        IncomesExpenses tc = new IncomesExpenses(0, themText, 0);
-                        if (daoIncomesExpenses.addIE(tc) == true) {
-                            list.clear();
-                            list.addAll(daoIncomesExpenses.getIE(0));
-                            adapter.notifyDataSetChanged();
-                            Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(getActivity(), "Thêm thất bại!", Toast.LENGTH_SHORT).show();
-                        }
+                        String incomesType = edtAddIncomesType.getText().toString();
+                        String ID = mData.push().getKey();
+                        IncomesExpenses incomesExpenses = new IncomesExpenses(ID, incomesType, 0, new ArrayList<Transactions>());
+                        mData.child(incomesExpenses.getIeID()).setValue(incomesExpenses).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                } else {
+                                    Toast.makeText(getActivity(), "Thêm thất bại!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
                 });
 
-                xoa.setOnClickListener(new View.OnClickListener() {
+                cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
@@ -154,5 +158,95 @@ public class Tab_IncomesType_Fragment extends Fragment {
         return view;
     }
 
+    private void setChildListener() {
+        mData.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
+                IEList.add(ie);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
+                for (IncomesExpenses x : IEList) {
+                    if (x.getIeID().matches(ie.getIeID())) {
+                        IEList.set(IEList.indexOf(x), ie);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
+                for (IncomesExpenses x : IEList) {
+                    if (x.getIeID().matches(x.getIeID())) {
+                        IEList.remove(ie);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void getIncomes() {
+        Query qr = mData.orderByChild("ieType").equalTo(0);
+        qr.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot i : snapshot.getChildren()) {
+                        IncomesExpenses ieTemp = i.getValue(IncomesExpenses.class);
+                        IEList.add(ieTemp);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void init() {
+        mAuth = FirebaseAuth.getInstance();
+        mData = FirebaseDatabase.getInstance().getReference("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpenses");
+        rcv = view.findViewById(R.id.rcv_LoaiThu);
+        btnAdd = view.findViewById(R.id.addBtn);
+        btnGrid = view.findViewById(R.id.girdBtn);
+        btnList = view.findViewById(R.id.danhsachBtn);
+    }
+
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+
+            int fromPosition = viewHolder.getAdapterPosition();
+            int toPosition = target.getAdapterPosition();
+            Collections.swap(IEList, fromPosition, toPosition);
+            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+        }
+    };
 
 }

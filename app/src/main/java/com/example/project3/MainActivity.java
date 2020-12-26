@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MAIN ACTIVITY TAG";
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
@@ -33,36 +35,44 @@ public class MainActivity extends AppCompatActivity {
     FrameLayout frameLayout;
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        FirebaseAuth.getInstance().signOut();
+        Log.d(TAG, "Destroy, sign out");
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("true");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         init();
-
-
         toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         setupDrawerContent(navigationView);
-
-
         setTitle("KHOẢN THU");
         replaceFragment(new Incomes_Fragment());
-
-
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item)) {
             return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -137,18 +147,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.logout:
                 FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("autoLogin", false);
                 editor.commit();
                 finish();
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
-
         }
-
         item.setChecked(true);
-
         drawerLayout.closeDrawers();
     }
 

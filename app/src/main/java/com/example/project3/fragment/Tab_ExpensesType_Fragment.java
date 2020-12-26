@@ -25,35 +25,22 @@ import com.example.project3.R;
 import com.example.project3.adapter.ExpensesTypeAdapter;
 import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.IncomesExpenses;
+import com.example.project3.model.Transactions;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 
 public class Tab_ExpensesType_Fragment extends Fragment {
     View view;
     private RecyclerView rcv;
-    private ArrayList<IncomesExpenses> list = new ArrayList<>();
+    private List<IncomesExpenses> IEList = new ArrayList<>();
     private DAOIncomesExpenses daoIncomesExpenses;
     private ExpensesTypeAdapter adapter;
-    FloatingActionButton girdBtn, danhsachBtn, addBtn;
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+    FloatingActionButton btnGrid, btnList, btnAdd;
 
-            int fromPosition = viewHolder.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
-            Collections.swap(list, fromPosition, toPosition);
-            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
-            return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-        }
-    };
 
     public Tab_ExpensesType_Fragment() {
         // Required empty public constructor
@@ -71,34 +58,31 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__expenses_type, container, false);
-        rcv = view.findViewById(R.id.rcv_LoaiChi);
-        addBtn = view.findViewById(R.id.addBtn);
-        girdBtn = view.findViewById(R.id.girdBtn);
-        danhsachBtn = view.findViewById(R.id.danhsachBtn);
+        init();
 
         daoIncomesExpenses = new DAOIncomesExpenses();
 
-        list = daoIncomesExpenses.getIE(1);
+        IEList = daoIncomesExpenses.getIE(1);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, list);
+        adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList);
         rcv.setAdapter(adapter);
-        girdBtn.setOnClickListener(new View.OnClickListener() {
+        btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.item_girl, list);
+                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.item_girl, IEList);
                 rcv.setAdapter(adapter);
             }
         });
-        danhsachBtn.setOnClickListener(new View.OnClickListener() {
+        btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, list);
+                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList);
                 rcv.setAdapter(adapter);
             }
         });
@@ -109,7 +93,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rcv);
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -122,12 +106,12 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                 if (dialog != null && dialog.getWindow() != null) {
                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
-                final EditText edt_ThemLoaiChi = dialog.findViewById(R.id.them_loai_thu);
-                Button xoa = dialog.findViewById(R.id.xoaTextLT);
-                final Button them = dialog.findViewById(R.id.btnThemLT);
-                final TextView title = dialog.findViewById(R.id.titleThemLoai);
-                title.setText("THÊM LOẠI CHI");
-                edt_ThemLoaiChi.setHint("Nhập loại chi");
+                final EditText edtAddIncomesType = dialog.findViewById(R.id.add_incomes_type);
+                Button btnCancel = dialog.findViewById(R.id.btnCancel);
+                final Button btnAdd = dialog.findViewById(R.id.btnAdd);
+                final TextView tvAddType = dialog.findViewById(R.id.tvAddType);
+                tvAddType.setText("THÊM LOẠI CHI");
+                edtAddIncomesType.setHint("Nhập loại chi");
 
                 DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
                 rcv.addItemDecoration(dividerItemDecoration);
@@ -135,14 +119,16 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                 itemTouchHelper.attachToRecyclerView(rcv);
 
 
-                them.setOnClickListener(new View.OnClickListener() {
+                btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String themText = edt_ThemLoaiChi.getText().toString();
-                        IncomesExpenses tc = new IncomesExpenses(0, themText, 1);
-                        if (daoIncomesExpenses.addIE(tc) == true) {
-                            list.clear();
-                            list.addAll(daoIncomesExpenses.getIE(1));
+                        String expensesTypeName = edtAddIncomesType.getText().toString();
+//                        String ieID TODO: add ieID
+                        IncomesExpenses incomesExpenses = new IncomesExpenses("", expensesTypeName, 1, new ArrayList<Transactions>());
+
+                        if (daoIncomesExpenses.addIE(incomesExpenses) == true) {
+                            IEList.clear();
+                            IEList.addAll(daoIncomesExpenses.getIE(1));
                             adapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -152,7 +138,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                     }
                 });
 
-                xoa.setOnClickListener(new View.OnClickListener() {
+                btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
@@ -163,4 +149,28 @@ public class Tab_ExpensesType_Fragment extends Fragment {
         });
         return view;
     }
+
+    private void init() {
+        rcv = view.findViewById(R.id.rcv_LoaiChi);
+        btnAdd = view.findViewById(R.id.addBtn);
+        btnGrid = view.findViewById(R.id.girdBtn);
+        btnList = view.findViewById(R.id.danhsachBtn);
+    }
+
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+
+            int fromPosition = viewHolder.getAdapterPosition();
+            int toPosition = target.getAdapterPosition();
+            Collections.swap(IEList, fromPosition, toPosition);
+            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+        }
+    };
 }

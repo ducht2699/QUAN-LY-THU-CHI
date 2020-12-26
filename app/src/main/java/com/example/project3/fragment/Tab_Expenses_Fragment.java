@@ -137,13 +137,13 @@ public class Tab_Expenses_Fragment extends Fragment {
                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
 
-                final TextView moTaGd = dialog.findViewById(R.id.them_mota_gd);
-                final TextView ngayGd = dialog.findViewById(R.id.them_ngay_gd);
-                final TextView tienGd = dialog.findViewById(R.id.them_tien_gd);
-                final Spinner spLoaiGd = dialog.findViewById(R.id.spLoaiGd);
-                final TextView title = dialog.findViewById(R.id.titleThemKhoan);
-                final Button huy = dialog.findViewById(R.id.huyThemGD);
-                final Button them = dialog.findViewById(R.id.btnThemGD);
+                final TextView moTaGd = dialog.findViewById(R.id.add_trans_description);
+                final TextView ngayGd = dialog.findViewById(R.id.add_trans_date);
+                final TextView tienGd = dialog.findViewById(R.id.add_trans_money);
+                final Spinner spLoaiGd = dialog.findViewById(R.id.spnTransType);
+                final TextView title = dialog.findViewById(R.id.titleAddTrans);
+                final Button huy = dialog.findViewById(R.id.btnCancelTrans);
+                final Button them = dialog.findViewById(R.id.btnAddTrans);
 
                 daoIncomesExpenses = new DAOIncomesExpenses();
                 listTC = daoIncomesExpenses.getIE(1);
@@ -191,12 +191,12 @@ public class Tab_Expenses_Fragment extends Fragment {
                         String tien = tienGd.getText().toString();
                         if (spLoaiGd.getSelectedItem() != null) {
                             IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
-                            int ma = tc.getIeID();
+                            String ma = tc.getIeID();
                             if (mota.isEmpty() || ngay.isEmpty() || tien.isEmpty()) {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
-                                    Transactions gd = new Transactions(0, mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
+                                    Transactions gd = new Transactions("", mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
 
                                     if (daoTransactions.addTrans(gd) == true) {
                                         list.clear();

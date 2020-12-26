@@ -24,72 +24,69 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
-import com.example.project3.dao.DAOTransactions;
-import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHolder> {
     private Context context;
-    public ArrayList<Transactions> list;
-    private DAOTransactions daoTransactions;
-    private ArrayList<IncomesExpenses> listTC = new ArrayList<>();
+    public List<Transactions> transactionsList;
+    private List<IncomesExpenses> IEList = new ArrayList<>();
     private int layout;
 
     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
-    private DAOIncomesExpenses daoIncomesExpenses;
+
     private DatePickerDialog datePickerDialog;
     boolean isDark = false;
+
+    DatabaseReference mData;
+    FirebaseAuth mAuth;
 
     public IncomesAdapter() {
     }
 
-    public IncomesAdapter(Context context, ArrayList<Transactions> list, Boolean isDark) {
+    public IncomesAdapter(Context context, List<Transactions> transactionsList, List<IncomesExpenses> IEList, Boolean isDark) {
         this.context = context;
-        this.list = list;
+        this.transactionsList = transactionsList;
         this.isDark = isDark;
+        this.IEList = IEList;
     }
 
 
-    public IncomesAdapter(Context context, ArrayList<Transactions> list) {
+    public IncomesAdapter(Context context, ArrayList<Transactions> transactionsList) {
         this.context = context;
-        this.list = list;
+        this.transactionsList = transactionsList;
 
     }
 
-    public IncomesAdapter(Context context, int layout, ArrayList<Transactions> list) {
+    public IncomesAdapter(Context context, int layout, List<Transactions> transactionsList, List<IncomesExpenses> IEList, DatabaseReference mData, FirebaseAuth mAuth) {
         this.context = context;
-        this.list = list;
+        this.transactionsList = transactionsList;
+        this.IEList = IEList;
         this.layout = layout;
-
+        this.mData = mData;
+        this.mAuth = mAuth;
     }
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView text;
-        private ImageView img_avataitem;
-        RelativeLayout relativeLayout;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            text = itemView.findViewById(R.id.textList);
-            img_avataitem = itemView.findViewById(R.id.img_avataitem);
-            relativeLayout = itemView.findViewById(R.id.relative_item);
-
-        }
-
-
-    }
 
     @NonNull
     @Override
@@ -101,57 +98,53 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.text.setText(list.get(position).getTransDescription());
+        holder.tvName.setText(transactionsList.get(position).getTransDescription());
 
-        daoTransactions = new DAOTransactions();
-        final Transactions gd = list.get(position);
-        //Khi nhấn nút sửa
+        final Transactions transaction = transactionsList.get(position);
+        //click on item
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(
-                        context, R.style.BottomSheetDialogTheme
-                );
+                final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context, R.style.BottomSheetDialogTheme);
 
                 View bottomSheetView = LayoutInflater.from(context).inflate(
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.txt_XemChiTiet);
-                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.txt_SuaThuChi);
-                TextView txtXoa = bottomSheetView.findViewById(R.id.txt_XoaThuChi);
-                txtSuaKhoanChi.setText("Sửa khoản thu");
+                TextView tvSeeDetails = bottomSheetView.findViewById(R.id.tvSeeDetail);
+                TextView tvEditIncomes = bottomSheetView.findViewById(R.id.tvEditIncomes);
+                TextView tvDeleteIncomes = bottomSheetView.findViewById(R.id.tvDeleteIE);
+                tvEditIncomes.setText("Sửa khoản thu");
 
-                txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
+                tvSeeDetails.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         bottomSheetDialog.dismiss();
                         if (position == RecyclerView.NO_POSITION) return;
-                        Transactions gd = list.get(position);
+                        Transactions transactionsTemp = transactionsList.get(position);
                         //Format money type
                         NumberFormat fm = new DecimalFormat("#,###");
                         //show transaction's info when click on item
                         Dialog dialog = new Dialog(context);
                         dialog.setContentView(R.layout.transaction_info);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
-                        TextView mota, ngay, tien, loai, title;
-                        mota = dialog.findViewById(R.id.mota_gd);
-                        ngay = dialog.findViewById(R.id.ngay_gd);
-                        tien = dialog.findViewById(R.id.tien_gd);
-                        loai = dialog.findViewById(R.id.loai_gd);
-                        title = dialog.findViewById(R.id.thongtinGD);
-                        title.setText("THÔNG TIN THU");
-                        mota.setText(gd.getTransDescription());
-                        ngay.setText(dfm.format(gd.getTransDate()));
-                        tien.setText(fm.format(gd.getAmountMoney()) + " VND");
-                        daoIncomesExpenses = new DAOIncomesExpenses();
-                        loai.setText(daoIncomesExpenses.getNameIE(gd.getIeID()));
+                        TextView tvDescription, tvDate, tvMoney, tvIEType, tvTitle;
+                        tvDescription = dialog.findViewById(R.id.tvTransDes);
+                        tvDate = dialog.findViewById(R.id.tvTransDate);
+                        tvMoney = dialog.findViewById(R.id.tvMoney);
+                        tvIEType = dialog.findViewById(R.id.tvIEType);
+                        tvTitle = dialog.findViewById(R.id.tvTransTitle);
+                        tvTitle.setText("THÔNG TIN THU");
+                        tvDescription.setText(transactionsTemp.getTransDescription());
+                        tvDate.setText(dfm.format(transactionsTemp.getTransDate()));
+                        tvMoney.setText(fm.format(transactionsTemp.getAmountMoney()) + " VND");
 
+                        String ieID = getNameIE(transactionsTemp.getIeID(), 0);
+                        tvIEType.setText(ieID);
                         dialog.show();
-
                     }
                 });
-                txtSuaKhoanChi.setOnClickListener(new View.OnClickListener() {
+                tvEditIncomes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
@@ -165,35 +158,35 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final EditText moTaGd = dialog.findViewById(R.id.them_mota_gd);
-                        final TextView ngayGd = dialog.findViewById(R.id.them_ngay_gd);
-                        final EditText tienGd = dialog.findViewById(R.id.them_tien_gd);
-                        final Spinner spLoaiGd = dialog.findViewById(R.id.spLoaiGd);
-                        final TextView title = dialog.findViewById(R.id.titleThemKhoan);
-                        final Button huy = dialog.findViewById(R.id.huyThemGD);
-                        final Button them = dialog.findViewById(R.id.btnThemGD);
-                        daoIncomesExpenses = new DAOIncomesExpenses();
-                        listTC = daoIncomesExpenses.getIE(0);
+                        final EditText edtTransDes = dialog.findViewById(R.id.add_trans_description);
+                        final TextView tvTransDate = dialog.findViewById(R.id.add_trans_date);
+                        final EditText edtTransMoney = dialog.findViewById(R.id.add_trans_money);
+                        final Spinner spnIEType = dialog.findViewById(R.id.spnTransType);
+                        final TextView tvTransTitle = dialog.findViewById(R.id.titleAddTrans);
+                        final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
+                        final Button btnEdit = dialog.findViewById(R.id.btnAddTrans);
+
                         //Set title, text
-                        title.setText("SỬA KHOẢN THU");
-                        them.setText("SỬA");
-                        moTaGd.setText(gd.getTransDescription());
-                        ngayGd.setText(String.valueOf(gd.getTransDate()));
-                        tienGd.setText(String.valueOf(gd.getAmountMoney()));
-                        final ArrayAdapter sp = new ArrayAdapter(context, R.layout.spiner, listTC);
-                        spLoaiGd.setAdapter(sp);
-                        int vitri = -1;
-                        for (int i = 0; i < listTC.size(); i++) {
-                            if (listTC.get(i).getIeName().equalsIgnoreCase(daoIncomesExpenses.getNameIE(gd.getIeID()))) {
-                                vitri = i;
+                        tvTransTitle.setText("SỬA KHOẢN THU");
+                        btnEdit.setText("SỬA");
+                        edtTransDes.setText(transaction.getTransDescription());
+                        tvTransDate.setText(String.valueOf(transaction.getTransDate()));
+                        edtTransMoney.setText(String.valueOf(transaction.getAmountMoney()));
+                        final ArrayAdapter spn = new ArrayAdapter(context, R.layout.spiner, IEList);
+                        spnIEType.setAdapter(spn);
+
+                        int pos = -1;
+                        for (int i = 0; i < IEList.size(); i++) {
+                            if (IEList.get(i).getIeName().equalsIgnoreCase(getNameIE(transaction.getIeID(), 0))) {
+                                pos = i;
                                 break;
                             }
                         }
-                        spLoaiGd.setSelection(vitri);
+                        spnIEType.setSelection(pos);
 
 
                         //click on date show date chooser
-                        ngayGd.setOnClickListener(new View.OnClickListener() {
+                        tvTransDate.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 final Calendar calendar = Calendar.getInstance();
@@ -203,8 +196,8 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 datePickerDialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
                                     @Override
                                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                        final String NgayGD = dayOfMonth + "/" + month + "/" + year;
-                                        ngayGd.setText(NgayGD);
+                                        final String transDate = dayOfMonth + "/" + month + "/" + year;
+                                        tvTransDate.setText(transDate);
                                     }
                                 }, y, m, d);
                                 datePickerDialog.show();
@@ -213,7 +206,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
 
 
                         //cclick on delete button
-                        huy.setOnClickListener(new View.OnClickListener() {
+                        btnCancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
@@ -221,30 +214,35 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         });
 
                         //click on edit button
-                        them.setOnClickListener(new View.OnClickListener() {
+                        btnEdit.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String mota = moTaGd.getText().toString();
-                                String ngay = ngayGd.getText().toString();
-                                String tien = tienGd.getText().toString();
-                                IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
-                                int ma = tc.getIeID();
-                                //Check lỗi
-                                if (mota.isEmpty() && ngay.isEmpty() && tien.isEmpty()) {
+                                String transDes = edtTransDes.getText().toString();
+                                String transDate = tvTransDate.getText().toString();
+                                String transMoney = edtTransMoney.getText().toString();
+                                IncomesExpenses incomesExpenses = (IncomesExpenses) spnIEType.getSelectedItem();
+                                String ieID = incomesExpenses.getIeID();
+
+                                if (transDes.isEmpty() && transDate.isEmpty() && transMoney.isEmpty()) {
                                     Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                                 } else {
                                     try {
-                                        Transactions transactions = new Transactions(gd.getTransID(), mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
-                                        if (daoTransactions.editTrans(transactions) == true) {
-                                            list.clear();
-                                            list.addAll(daoTransactions.getTransByIE(0));
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        } else {
-                                            Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        }
+                                        Transactions transactions = new Transactions(transaction.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
+                                        mData.child(transactions.getIeID()).child("transactions").child(transactions.getTransID()).setValue(transactions).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    //TODO: update trans list
+                                                    notifyDataSetChanged();
+                                                    Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
+                                                    dialog.dismiss();
+
+                                                } else {
+                                                    Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
+                                                    dialog.dismiss();
+                                                }
+                                            }
+                                        });
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }
@@ -255,7 +253,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                     }
                 });
 
-                txtXoa.setOnClickListener(new View.OnClickListener() {
+                tvDeleteIncomes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
@@ -268,37 +266,47 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView txt_Massage = dialog.findViewById(R.id.txt_Titleconfirm);
-                        Button xoa = dialog.findViewById(R.id.xoaTextLT);
-                        final Button them = dialog.findViewById(R.id.btnThemLT);
-                        final Button btn_Yes = dialog.findViewById(R.id.btn_yes);
-                        final Button btn_No = dialog.findViewById(R.id.btn_no);
+                        final TextView tvMessage = dialog.findViewById(R.id.txt_Titleconfirm);
+                        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+                        final Button btnAdd = dialog.findViewById(R.id.btnAdd);
+                        final Button btnYes = dialog.findViewById(R.id.btnYes);
+                        final Button btnNo = dialog.findViewById(R.id.btnNo);
                         final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
                         progressBar.setVisibility(View.INVISIBLE);
-                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getTransDescription() + " hay không ? ");
-                        btn_Yes.setOnClickListener(new View.OnClickListener() {
+                        tvMessage.setText("Bạn có muốn xóa " + transactionsList.get(position).getTransDescription() + " hay không ? ");
+                        btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (daoTransactions.deleteTrans(gd) == true) {
-                                    txt_Massage.setText("");
-                                    progressBar.setVisibility(View.VISIBLE);
-                                    progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            list.clear();
-                                            list.addAll(daoTransactions.getTransByIE(0));
-                                            notifyDataSetChanged();
-                                            dialog.dismiss();
-                                            Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }, 2000);
 
-                                }
+                                //TODO: delete trans in DB
+                                mData.child(transaction.getIeID()).child("transactions").child(transaction.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()) {
+                                            tvMessage.setText("");
+                                            progressBar.setVisibility(View.VISIBLE);
+                                            progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
+                                            new Handler().postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+//                                                    transactionsList.clear();
+//                                                    transactionsList.addAll(daoTransactions.getTransByIE(0));
+                                                    //TODO: update local trans list
+                                                    notifyDataSetChanged();
+                                                    dialog.dismiss();
+                                                    Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }, 2000);
+                                        } else {
+                                            Toast.makeText(context, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
 
                             }
                         });
-                        btn_No.setOnClickListener(new View.OnClickListener() {
+                        btnNo.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
@@ -323,17 +331,44 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
         });
 
 
-        holder.img_avataitem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
+        holder.imvAvatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
 
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
 
     }
 
 
-    @Override
-    public int getItemCount() {
-        return list.size();
+    private String getNameIE(String ieID, int ieType) {
+        String ieName = "";
+        for (IncomesExpenses ie : IEList) {
+            if (ie.getIeID().matches(ieID) && ie.getIeType() == ieType) {
+                ieName = ie.getIeName();
+                break;
+            }
+        }
+        return ieName;
     }
 
 
+    @Override
+    public int getItemCount() {
+        return transactionsList.size();
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvName;
+        private ImageView imvAvatarItem;
+        RelativeLayout relativeLayout;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvName = itemView.findViewById(R.id.textList);
+            imvAvatarItem = itemView.findViewById(R.id.img_avatarItem);
+            relativeLayout = itemView.findViewById(R.id.relative_item);
+
+        }
+
+
+    }
 }

@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/thongtinGD"
+        android:id="@+id/tvTransTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -28,7 +28,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"/>
     <TextView
-        android:id="@+id/mota_gd"
+        android:id="@+id/tvTransDes"
         android:textStyle="bold"
         android:textColor="@color/grey_dam"
         android:layout_width="match_parent"
@@ -50,7 +50,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"/>
     <TextView
-        android:id="@+id/ngay_gd"
+        android:id="@+id/tvTransDate"
         android:textStyle="bold"
         android:textColor="@color/grey_dam"
         android:layout_width="match_parent"
@@ -72,7 +72,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"/>
             <TextView
-                android:id="@+id/tien_gd"
+                android:id="@+id/tvMoney"
                 android:textStyle="bold"
                 android:textColor="@color/grey_dam"
                 android:layout_width="match_parent"
@@ -93,7 +93,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"/>
             <TextView
-                android:id="@+id/loai_gd"
+                android:id="@+id/tvIEType"
                 android:textStyle="bold"
                 android:textColor="@color/grey_dam"
                 android:layout_width="match_parent"

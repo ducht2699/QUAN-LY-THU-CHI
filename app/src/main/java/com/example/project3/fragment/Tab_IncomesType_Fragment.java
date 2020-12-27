@@ -22,10 +22,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.adapter.IncomesTypeAdapter;
 import com.example.project3.model.IncomesExpenses;
-import com.example.project3.model.Transactions;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,8 +35,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +45,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
     private static final String TAG = "TAB_INCOME_TYPE TAG";
     View view;
     private RecyclerView rcv;
-    private List<IncomesExpenses> IEList = new ArrayList<>();
+    private List<IncomesExpenses> IEList;
     FloatingActionButton btnGrid, btnList, btnAdd;
     IncomesTypeAdapter adapter;
     DatabaseReference mData;
@@ -68,6 +66,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__incomes_type, container, false);
         init();
+        setIEChildListener();
         //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
@@ -92,14 +91,12 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 rcv.setAdapter(adapter);
             }
         });
-        // drop item
+        // add divider
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         rcv.addItemDecoration(dividerItemDecoration);
-        //add touch helper
+        //add touch action
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rcv);
-
-        setChildListener();
         //add button click listener
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +120,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
                     public void onClick(View v) {
                         String incomesType = edtAddIncomesType.getText().toString();
                         String ID = mData.push().getKey();
-                        IncomesExpenses incomesExpenses = new IncomesExpenses(ID, incomesType, 0, new ArrayList<Transactions>());
+                        IncomesExpenses incomesExpenses = new IncomesExpenses(ID, incomesType, Constant.INCOME);
                         mData.child(incomesExpenses.getIeID()).setValue(incomesExpenses).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -149,7 +146,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
         return view;
     }
 
-    private void setChildListener() {
+    private void setIEChildListener() {
         mData.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -196,8 +193,9 @@ public class Tab_IncomesType_Fragment extends Fragment {
     }
 
     private void init() {
+        IEList = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpenses");
+        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpensesTypes");
         rcv = view.findViewById(R.id.rcv_LoaiThu);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.girdBtn);

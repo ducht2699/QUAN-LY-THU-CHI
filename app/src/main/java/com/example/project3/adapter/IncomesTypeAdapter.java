@@ -174,6 +174,7 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                                             new Handler().postDelayed(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    notifyDataSetChanged();
                                                     Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                                     dialog.dismiss();
                                                 }

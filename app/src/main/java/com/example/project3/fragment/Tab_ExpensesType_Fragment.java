@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.adapter.ExpensesTypeAdapter;
 import com.example.project3.dao.DAOIncomesExpenses;
@@ -124,7 +125,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                     public void onClick(View v) {
                         String expensesTypeName = edtAddIncomesType.getText().toString();
 //                        String ieID TODO: add ieID
-                        IncomesExpenses incomesExpenses = new IncomesExpenses("", expensesTypeName, 1, new ArrayList<Transactions>());
+                        IncomesExpenses incomesExpenses = new IncomesExpenses("", expensesTypeName, Constant.EXPENSES);
 
                         if (daoIncomesExpenses.addIE(incomesExpenses) == true) {
                             IEList.clear();

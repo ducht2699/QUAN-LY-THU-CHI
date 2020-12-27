@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
@@ -48,34 +50,18 @@ import java.util.Calendar;
 import java.util.List;
 
 public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHolder> {
+    private static final String TAG = "INCOMES_ADAPTER TAG";
     private Context context;
-    public List<Transactions> transactionsList;
+    public List<Transactions> transactionsList = new ArrayList<>();
     private List<IncomesExpenses> IEList = new ArrayList<>();
     private int layout;
-
     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
-
     private DatePickerDialog datePickerDialog;
     boolean isDark = false;
-
     DatabaseReference mData;
     FirebaseAuth mAuth;
 
     public IncomesAdapter() {
-    }
-
-    public IncomesAdapter(Context context, List<Transactions> transactionsList, List<IncomesExpenses> IEList, Boolean isDark) {
-        this.context = context;
-        this.transactionsList = transactionsList;
-        this.isDark = isDark;
-        this.IEList = IEList;
-    }
-
-
-    public IncomesAdapter(Context context, ArrayList<Transactions> transactionsList) {
-        this.context = context;
-        this.transactionsList = transactionsList;
-
     }
 
     public IncomesAdapter(Context context, int layout, List<Transactions> transactionsList, List<IncomesExpenses> IEList, DatabaseReference mData, FirebaseAuth mAuth) {
@@ -86,7 +72,6 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
         this.mData = mData;
         this.mAuth = mAuth;
     }
-
 
     @NonNull
     @Override
@@ -99,14 +84,12 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.tvName.setText(transactionsList.get(position).getTransDescription());
-
         final Transactions transaction = transactionsList.get(position);
         //click on item
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context, R.style.BottomSheetDialogTheme);
-
                 View bottomSheetView = LayoutInflater.from(context).inflate(
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
@@ -115,7 +98,6 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                 TextView tvEditIncomes = bottomSheetView.findViewById(R.id.tvEditIncomes);
                 TextView tvDeleteIncomes = bottomSheetView.findViewById(R.id.tvDeleteIE);
                 tvEditIncomes.setText("Sửa khoản thu");
-
                 tvSeeDetails.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -138,8 +120,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         tvDescription.setText(transactionsTemp.getTransDescription());
                         tvDate.setText(dfm.format(transactionsTemp.getTransDate()));
                         tvMoney.setText(fm.format(transactionsTemp.getAmountMoney()) + " VND");
-
-                        String ieID = getNameIE(transactionsTemp.getIeID(), 0);
+                        String ieID = getNameIE(transactionsTemp.getIeID(), Constant.INCOME);
                         tvIEType.setText(ieID);
                         dialog.show();
                     }
@@ -148,7 +129,6 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
-
                         final Dialog dialog = new Dialog(context);
                         dialog.setCancelable(false);
                         dialog.setContentView(R.layout.add_incomes_expenses);
@@ -165,26 +145,22 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         final TextView tvTransTitle = dialog.findViewById(R.id.titleAddTrans);
                         final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
                         final Button btnEdit = dialog.findViewById(R.id.btnAddTrans);
-
                         //Set title, text
                         tvTransTitle.setText("SỬA KHOẢN THU");
                         btnEdit.setText("SỬA");
                         edtTransDes.setText(transaction.getTransDescription());
-                        tvTransDate.setText(String.valueOf(transaction.getTransDate()));
+                        tvTransDate.setText(dfm.format(transaction.getTransDate()));
                         edtTransMoney.setText(String.valueOf(transaction.getAmountMoney()));
-                        final ArrayAdapter spn = new ArrayAdapter(context, R.layout.spiner, IEList);
-                        spnIEType.setAdapter(spn);
-
+                        final ArrayAdapter spnAdapter = new ArrayAdapter(context, R.layout.spiner, IEList);
+                        spnIEType.setAdapter(spnAdapter);
                         int pos = -1;
                         for (int i = 0; i < IEList.size(); i++) {
-                            if (IEList.get(i).getIeName().equalsIgnoreCase(getNameIE(transaction.getIeID(), 0))) {
+                            if (IEList.get(i).getIeName().equalsIgnoreCase(getNameIE(transaction.getIeID(), Constant.INCOME))) {
                                 pos = i;
                                 break;
                             }
                         }
                         spnIEType.setSelection(pos);
-
-
                         //click on date show date chooser
                         tvTransDate.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -203,16 +179,13 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 datePickerDialog.show();
                             }
                         });
-
-
-                        //cclick on delete button
+                        //click on cancel button
                         btnCancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
                             }
                         });
-
                         //click on edit button
                         btnEdit.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -222,28 +195,25 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 String transMoney = edtTransMoney.getText().toString();
                                 IncomesExpenses incomesExpenses = (IncomesExpenses) spnIEType.getSelectedItem();
                                 String ieID = incomesExpenses.getIeID();
-
                                 if (transDes.isEmpty() && transDate.isEmpty() && transMoney.isEmpty()) {
                                     Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                                 } else {
                                     try {
                                         Transactions transactions = new Transactions(transaction.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
-                                        mData.child(transactions.getIeID()).child("transactions").child(transactions.getTransID()).setValue(transactions).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        mData.child("transactions").child(transactions.getTransID()).setValue(transactions).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
-                                                    //TODO: update trans list
                                                     notifyDataSetChanged();
                                                     Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                                    dialog.dismiss();
-
                                                 } else {
                                                     Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-                                                    dialog.dismiss();
                                                 }
+                                                dialog.dismiss();
                                             }
                                         });
                                     } catch (Exception ex) {
+                                        Log.d(TAG, "error edit trans - " + ex);
                                         ex.printStackTrace();
                                     }
                                 }
@@ -252,13 +222,11 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         dialog.show();
                     }
                 });
-
                 tvDeleteIncomes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
                         final Dialog dialog = new Dialog(context);
-
                         dialog.setContentView(R.layout.dialog_delete);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         Window window = dialog.getWindow();
@@ -277,21 +245,16 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-
-                                //TODO: delete trans in DB
-                                mData.child(transaction.getIeID()).child("transactions").child(transaction.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mData.child("transactions").child(transaction.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        if(task.isSuccessful()) {
+                                        if (task.isSuccessful()) {
                                             tvMessage.setText("");
                                             progressBar.setVisibility(View.VISIBLE);
                                             progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
                                             new Handler().postDelayed(new Runnable() {
                                                 @Override
                                                 public void run() {
-//                                                    transactionsList.clear();
-//                                                    transactionsList.addAll(daoTransactions.getTransByIE(0));
-                                                    //TODO: update local trans list
                                                     notifyDataSetChanged();
                                                     dialog.dismiss();
                                                     Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
@@ -302,8 +265,6 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                         }
                                     }
                                 });
-
-
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {
@@ -312,10 +273,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 dialog.dismiss();
                             }
                         });
-
-
                         dialog.show();
-
                     }
                 });
                 bottomSheetView.findViewById(R.id.txt_Huy).setOnClickListener(new View.OnClickListener() {
@@ -326,17 +284,11 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                 });
                 bottomSheetDialog.setContentView(bottomSheetView);
                 bottomSheetDialog.show();
-
             }
         });
-
-
         holder.imvAvatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
-
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
-
     }
-
 
     private String getNameIE(String ieID, int ieType) {
         String ieName = "";
@@ -349,12 +301,10 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
         return ieName;
     }
 
-
     @Override
     public int getItemCount() {
         return transactionsList.size();
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvName;
@@ -366,9 +316,6 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
             tvName = itemView.findViewById(R.id.textList);
             imvAvatarItem = itemView.findViewById(R.id.img_avatarItem);
             relativeLayout = itemView.findViewById(R.id.relative_item);
-
         }
-
-
     }
 }

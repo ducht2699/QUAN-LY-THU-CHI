@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.dao.DAOTransactions;
 import com.example.project3.dao.DAOIncomesExpenses;
@@ -118,7 +119,7 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                             public void onClick(View v) {
                                 String themText = text.getText().toString();
 
-                                IncomesExpenses incomesExpenses = new IncomesExpenses(tc.getIeID(), themText, 1, new ArrayList<Transactions>());
+                                IncomesExpenses incomesExpenses = new IncomesExpenses(tc.getIeID(), themText, Constant.EXPENSES);
                                 if (daoIncomesExpenses.editIE(incomesExpenses) == true) {
                                     IEList.clear();
                                     IEList.addAll(daoIncomesExpenses.getIE(1));

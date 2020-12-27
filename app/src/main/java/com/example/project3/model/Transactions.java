@@ -3,6 +3,8 @@ package com.example.project3.model;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Transactions implements Serializable {
@@ -14,8 +16,6 @@ public class Transactions implements Serializable {
 
     public Transactions() {
     }
-
-
 
     public Transactions(String transID, String transDescription, Date transDate, int amountMoney, String IeID) {
         this.transID = transID;

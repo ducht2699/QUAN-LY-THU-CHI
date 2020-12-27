@@ -81,14 +81,13 @@ public class Tab_Incomes_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_tab_incomes, container, false);
         init();
-
         getTrans_IEList();
-
+        //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
         adapter = new IncomesAdapter(getActivity(), R.layout.oneitem_recylerview, transactionsList, IEList, mData, mAuth);
         rcv.setAdapter(adapter);
-
+        //add button click listener
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -268,14 +267,13 @@ public class Tab_Incomes_Fragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
 
     private void init() {
         mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpenses");
+        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpenses");
         rcv = view.findViewById(R.id.rcv_KhoanThu);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.girdBtn);
@@ -285,7 +283,6 @@ public class Tab_Incomes_Fragment extends Fragment {
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
             Collections.swap(transactionsList, fromPosition, toPosition);
@@ -295,7 +292,6 @@ public class Tab_Incomes_Fragment extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
         }
     };
 

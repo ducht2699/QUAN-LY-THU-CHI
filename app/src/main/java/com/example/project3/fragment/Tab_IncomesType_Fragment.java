@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,14 +44,12 @@ import java.util.List;
 
 
 public class Tab_IncomesType_Fragment extends Fragment {
+    private static final String TAG = "TAB_INCOME_TYPE TAG";
     View view;
     private RecyclerView rcv;
     private List<IncomesExpenses> IEList = new ArrayList<>();
-
     FloatingActionButton btnGrid, btnList, btnAdd;
     IncomesTypeAdapter adapter;
-
-
     DatabaseReference mData;
     FirebaseAuth mAuth;
 
@@ -58,11 +57,9 @@ public class Tab_IncomesType_Fragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -71,13 +68,12 @@ public class Tab_IncomesType_Fragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__incomes_type, container, false);
         init();
-
-
+        //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
         adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, mAuth, mData);
         rcv.setAdapter(adapter);
-
+        //add button click listener
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,7 +83,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 rcv.setAdapter(adapter);
             }
         });
-
         btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,16 +92,15 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 rcv.setAdapter(adapter);
             }
         });
-
         // drop item
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         rcv.addItemDecoration(dividerItemDecoration);
-
+        //add touch helper
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rcv);
 
         setChildListener();
-
+        //add button click listener
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,7 +117,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 Button cancel = dialog.findViewById(R.id.btnCancel);
                 final Button add = dialog.findViewById(R.id.btnAdd);
                 edtAddIncomesType.setHint("Thêm loại thu");
-
 
                 add.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -144,7 +137,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
                         });
                     }
                 });
-
                 cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -154,7 +146,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 dialog.show();
             }
         });
-
         return view;
     }
 
@@ -164,7 +155,8 @@ public class Tab_IncomesType_Fragment extends Fragment {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 IEList.add(ie);
-                adapter.notifyDataSetChanged();
+                adapter.notifyItemInserted(IEList.indexOf(ie));
+                Log.d(TAG, "add - " + IEList);
             }
 
             @Override
@@ -173,7 +165,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 for (IncomesExpenses x : IEList) {
                     if (x.getIeID().matches(ie.getIeID())) {
                         IEList.set(IEList.indexOf(x), ie);
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyItemChanged(IEList.indexOf(x));
                         break;
                     }
                 }
@@ -183,9 +175,11 @@ public class Tab_IncomesType_Fragment extends Fragment {
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(x.getIeID())) {
-                        IEList.remove(ie);
-                        adapter.notifyDataSetChanged();
+                    if (x.getIeID().matches(ie.getIeID())) {
+                        int pos = IEList.indexOf(x);
+                        IEList.remove(pos);
+                        adapter.notifyItemRemoved(pos);
+                        Log.d(TAG, "remove child - " + IEList);
                         break;
                     }
                 }
@@ -193,39 +187,17 @@ public class Tab_IncomesType_Fragment extends Fragment {
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void getIncomes() {
-        Query qr = mData.orderByChild("ieType").equalTo(0);
-        qr.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot i : snapshot.getChildren()) {
-                        IncomesExpenses ieTemp = i.getValue(IncomesExpenses.class);
-                        IEList.add(ieTemp);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
 
     private void init() {
         mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpenses");
+        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpenses");
         rcv = view.findViewById(R.id.rcv_LoaiThu);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.girdBtn);
@@ -235,7 +207,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
             Collections.swap(IEList, fromPosition, toPosition);
@@ -245,7 +216,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
         }
     };
 

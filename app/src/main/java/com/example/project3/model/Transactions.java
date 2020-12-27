@@ -1,5 +1,7 @@
 package com.example.project3.model;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -61,5 +63,11 @@ public class Transactions implements Serializable {
 
     public void setIeID(String ieID) {
         this.IeID = ieID;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return this.transDescription;
     }
 }

@@ -59,7 +59,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
         this.mData = mData;
     }
 
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -71,32 +70,27 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.tvUsername.setText(IEList.get(position).getIeName());
         final IncomesExpenses incomesExpenses = IEList.get(position);
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(
                         context, R.style.BottomSheetDialogTheme
                 );
-
                 View bottomSheetView = LayoutInflater.from(context).inflate(
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-
                 TextView tvSeeDetail = bottomSheetView.findViewById(R.id.tvSeeDetail);
                 tvSeeDetail.setVisibility(View.GONE);
                 TextView tvEditIE = bottomSheetView.findViewById(R.id.tvEditIncomes);
                 TextView tvDelete = bottomSheetView.findViewById(R.id.tvDeleteIE);
                 tvEditIE.setText("Sửa loại thu");
-
                 tvSeeDetail.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         bottomSheetDialog.dismiss();
                     }
                 });
-
                 tvEditIE.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -122,13 +116,10 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                             @Override
                             public void onClick(View v) {
                                 String incomeTypeNewName = edtAddIncomeType.getText().toString();
-                                IncomesExpenses incomesExpensesTemp = new IncomesExpenses(incomesExpenses.getIeID(), incomeTypeNewName, incomesExpenses.getIeType(), incomesExpenses.getTransactionsList());
-
-                                mData.child(incomesExpenses.getIeID()).setValue(incomesExpensesTemp).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mData.child(incomesExpenses.getIeID()).child("ieName").setValue(incomeTypeNewName).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            //TODO: edit data in transactions (local/DB)
                                             notifyDataSetChanged();
                                             Toast.makeText(context, "Sửa thành công!" + IEList.size(), Toast.LENGTH_SHORT).show();
                                             dialog.dismiss();
@@ -139,7 +130,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                                 });
                             }
                         });
-
                         btnCancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -149,7 +139,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                         dialog.show();
                     }
                 });
-
                 tvDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -185,14 +174,10 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                                             new Handler().postDelayed(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    IEList.clear();
-                                                    //TODO: query in DB
-                                                    getIncomes();
-                                                    notifyDataSetChanged();
                                                     Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                                     dialog.dismiss();
                                                 }
-                                            }, 2000);
+                                            }, 1000);
                                         } else {
                                             Toast.makeText(context, "Xóa thất bại", Toast.LENGTH_SHORT).show();
                                         }
@@ -207,7 +192,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                             }
                         });
                         dialog.show();
-
                     }
                 });
                 bottomSheetView.findViewById(R.id.txt_Huy).setOnClickListener(new View.OnClickListener() {
@@ -220,38 +204,15 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                 bottomSheetDialog.show();
             }
         });
-
         holder.img_avatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
-
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
 
-    }
-
-    private void getIncomes() {
-        Query qr = mData.orderByChild("ieType").equalTo(0);
-        qr.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot i: snapshot.getChildren()) {
-                        IncomesExpenses ieTemp = i.getValue(IncomesExpenses.class);
-                        IEList.add(ieTemp);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
         return IEList.size();
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvUsername;
@@ -263,7 +224,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
             tvUsername = itemView.findViewById(R.id.textList);
             img_avatarItem = itemView.findViewById(R.id.img_avatarItem);
             relativeLayout = itemView.findViewById(R.id.relative_item);
-
         }
     }
 }

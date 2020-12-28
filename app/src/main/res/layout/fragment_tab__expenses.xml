@@ -54,7 +54,7 @@
 
             >
             <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/danhsachBtn"
+                android:id="@+id/btnList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_menu"
@@ -63,7 +63,7 @@
                 fab:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/girdBtn"
+                android:id="@+id/btnGrid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_grid"

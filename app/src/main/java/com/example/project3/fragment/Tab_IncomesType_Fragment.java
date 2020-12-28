@@ -78,7 +78,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.TAB_IE);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
                 adapter = new IncomesTypeAdapter(getActivity(), R.layout.item_girl, IEList, transactionsList, mData);
                 rcv.setAdapter(adapter);
@@ -93,13 +93,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 rcv.setAdapter(adapter);
             }
         });
-        // add divider
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        rcv.addItemDecoration(dividerItemDecoration);
-        //add touch action
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(rcv);
-        //add button click listener
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,6 +137,12 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 dialog.show();
             }
         });
+        // add divider
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        rcv.addItemDecoration(dividerItemDecoration);
+        //add touch action
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rcv);
         return view;
     }
 
@@ -151,8 +150,10 @@ public class Tab_IncomesType_Fragment extends Fragment {
         mData.child("transactions").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions ie = snapshot.getValue(Transactions.class);
-                transactionsList.add(ie);
+                Transactions transactions = snapshot.getValue(Transactions.class);
+                if (isMatchIEType(transactions.getIeID()) == true) {
+                    transactionsList.add(transactions);
+                }
             }
 
             @Override
@@ -188,21 +189,34 @@ public class Tab_IncomesType_Fragment extends Fragment {
         });
     }
 
+    private boolean isMatchIEType(String ieID) {
+        boolean check = false;
+        for (IncomesExpenses x : IEList) {
+            if (x.getIeID().matches(ieID)) {
+                check = true;
+                break;
+            }
+        }
+        return check;
+    }
+
     private void setIEChildListener() {
         mData.child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                IEList.add(ie);
-                adapter.notifyItemInserted(IEList.indexOf(ie));
-                Log.d(Constant.TAG, "add - " + IEList);
+                if (ie.getIeType() == Constant.INCOME) {
+                    IEList.add(ie);
+                    adapter.notifyItemInserted(IEList.indexOf(ie));
+                    Log.d(Constant.TAG, "add - " + IEList);
+                }
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID())) {
+                    if (x.getIeID().matches(ie.getIeID()) && x.getIeType() == Constant.INCOME) {
                         IEList.set(IEList.indexOf(x), ie);
                         adapter.notifyItemChanged(IEList.indexOf(x));
                         break;
@@ -214,7 +228,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID())) {
+                    if (x.getIeID().matches(ie.getIeID()) && x.getIeType() == Constant.INCOME) {
                         int pos = IEList.indexOf(x);
                         IEList.remove(pos);
                         adapter.notifyItemRemoved(pos);
@@ -241,8 +255,8 @@ public class Tab_IncomesType_Fragment extends Fragment {
         mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString());
         rcv = view.findViewById(R.id.rcv_LoaiThu);
         btnAdd = view.findViewById(R.id.addBtn);
-        btnGrid = view.findViewById(R.id.girdBtn);
-        btnList = view.findViewById(R.id.danhsachBtn);
+        btnGrid = view.findViewById(R.id.btnGrid);
+        btnList = view.findViewById(R.id.btnList);
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {

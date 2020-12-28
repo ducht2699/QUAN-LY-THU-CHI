@@ -4,7 +4,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,44 +17,52 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHolder> {
     private Context context;
-    private static ArrayList<Transactions> transactionsList;
-    private ArrayList<IncomesExpenses> listTC = new ArrayList<>();
+    private List<Transactions> transactionsList;
+    private List<IncomesExpenses> IEList;
     private DatePickerDialog datePickerDialog;
     private int layout;
     private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
+    private DatabaseReference mData;
+    private FirebaseAuth mAuth;
 
     public ExpensesAdapter() {
     }
 
-    public ExpensesAdapter(Context context, ArrayList<Transactions> transactionsList) {
+    public ExpensesAdapter(Context context, int layout, List<Transactions> transactionsList, List<IncomesExpenses> IEList, DatabaseReference mData, FirebaseAuth mAuth) {
         this.context = context;
         this.transactionsList = transactionsList;
-    }
-
-    public ExpensesAdapter(Context context, int layout, ArrayList<Transactions> transactionsList) {
-        this.context = context;
-        this.transactionsList = transactionsList;
+        this.IEList = IEList;
         this.layout = layout;
+        this.mData = mData;
+        this.mAuth = mAuth;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -84,8 +94,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.text.setText(transactionsList.get(position).getTransDescription());
-//        daoTransactions = new DAOTransactions();
-        final Transactions gd = transactionsList.get(position);
+        final Transactions transactions = transactionsList.get(position);
+        //click on item
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,37 +106,37 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.tvSeeDetail);
-                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.tvEditIncomes);
-                TextView txtXoa = bottomSheetView.findViewById(R.id.tvDeleteIE);
-                txtSuaKhoanChi.setText("Sửa khoản chi");
-                txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
+                TextView tvSeeDetails = bottomSheetView.findViewById(R.id.tvSeeDetail);
+                TextView tvEditExpense = bottomSheetView.findViewById(R.id.tvEditIncomes);
+                TextView tvDelete = bottomSheetView.findViewById(R.id.tvDeleteIE);
+                tvEditExpense.setText("Sửa khoản chi");
+                tvSeeDetails.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         bottomSheetDialog.dismiss();
-                        Transactions gd = transactionsList.get(position);
+                        Transactions trans = transactionsList.get(position);
                         //Format money type
                         NumberFormat fm = new DecimalFormat("#,###");
                         //show transaction's info when click on item
                         Dialog dialog = new Dialog(context);
                         dialog.setContentView(R.layout.transaction_info);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
-                        TextView mota, ngay, tien, loai, title;
-                        title = dialog.findViewById(R.id.tvTransTitle);
-                        mota = dialog.findViewById(R.id.tvTransDes);
-                        ngay = dialog.findViewById(R.id.tvTransDate);
-                        tien = dialog.findViewById(R.id.tvMoney);
-                        loai = dialog.findViewById(R.id.tvIEType);
-                        title.setText("THÔNG TIN CHI");
-                        mota.setText(gd.getTransDescription());
-                        ngay.setText(String.valueOf(gd.getTransDate()));
-                        tien.setText(fm.format(Math.abs(gd.getAmountMoney())) + " VND");
-//                        daoIncomesExpenses = new DAOIncomesExpenses();
-//                        loai.setText(daoIncomesExpenses.getNameIE(gd.getIeID()));
+                        TextView tvTransDes, tvTransDate, tMoney, tvIEType, tvTitle;
+                        tvTitle = dialog.findViewById(R.id.tvTransTitle);
+                        tvTransDes = dialog.findViewById(R.id.tvTransDes);
+                        tvTransDate = dialog.findViewById(R.id.tvTransDate);
+                        tMoney = dialog.findViewById(R.id.tvMoney);
+                        tvIEType = dialog.findViewById(R.id.tvIEType);
+                        tvTitle.setText("THÔNG TIN CHI");
+                        tvTransDes.setText(trans.getTransDescription());
+                        tvTransDate.setText(dfm.format(trans.getTransDate()));
+                        tMoney.setText(fm.format(Math.abs(trans.getAmountMoney())) + " VND");
+                        String ieID = getNameIE(trans.getIeID(), Constant.EXPENSES);
+                        tvIEType.setText(ieID);
                         dialog.show();
                     }
                 });
-                txtSuaKhoanChi.setOnClickListener(new View.OnClickListener() {
+                tvEditExpense.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
@@ -139,34 +149,31 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView moTaGd = dialog.findViewById(R.id.add_trans_description);
-                        final TextView ngayGd = dialog.findViewById(R.id.add_trans_date);
-                        final TextView tienGd = dialog.findViewById(R.id.add_trans_money);
-                        final Spinner spLoaiGd = dialog.findViewById(R.id.spnTransType);
-                        final TextView title = dialog.findViewById(R.id.titleAddTrans);
-                        final Button huy = dialog.findViewById(R.id.btnCancelTrans);
-                        final Button them = dialog.findViewById(R.id.btnAddTrans);
-//                        daoIncomesExpenses = new DAOIncomesExpenses();
-//                        listTC = daoIncomesExpenses.getIE(1);
+                        final TextView edtTransDes = dialog.findViewById(R.id.add_trans_description);
+                        final TextView etvTransDate = dialog.findViewById(R.id.add_trans_date);
+                        final TextView edtTransMoney = dialog.findViewById(R.id.add_trans_money);
+                        final Spinner spnTransType = dialog.findViewById(R.id.spnTransType);
+                        final TextView tvTitle = dialog.findViewById(R.id.titleAddTrans);
+                        final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
+                        final Button btnEdit = dialog.findViewById(R.id.btnAddTrans);
                         //Set title, text
-                        title.setText("SỬA KHOẢN CHI");
-                        them.setText("SỬA");
-                        moTaGd.setText(gd.getTransDescription());
-                        ngayGd.setText(dfm.format(gd.getTransDate()));
-                        tienGd.setText(String.valueOf(gd.getAmountMoney()));
-                        final ArrayAdapter sp = new ArrayAdapter(context, R.layout.spiner, listTC);
-                        spLoaiGd.setAdapter(sp);
-                        int vitri = -1;
-//                        for (int i = 0; i < listTC.size(); i++) {
-//                            if (listTC.get(i).getIeName().equalsIgnoreCase(daoIncomesExpenses.getNameIE(gd.getIeID()))) {
-//                                vitri = i;
-//                                break;
-//                            }
-//                        }
-                        spLoaiGd.setSelection(vitri);
-
+                        tvTitle.setText("SỬA KHOẢN CHI");
+                        btnEdit.setText("SỬA");
+                        edtTransDes.setText(transactions.getTransDescription());
+                        etvTransDate.setText(dfm.format(transactions.getTransDate()));
+                        edtTransMoney.setText(String.valueOf(transactions.getAmountMoney()));
+                        final ArrayAdapter spnAdapter = new ArrayAdapter(context, R.layout.spiner, IEList);
+                        spnTransType.setAdapter(spnAdapter);
+                        int pos = -1;
+                        for (int i = 0; i < IEList.size(); i++) {
+                            if (IEList.get(i).getIeName().equalsIgnoreCase(getNameIE(transactions.getIeID(), Constant.INCOME))) {
+                                pos = i;
+                                break;
+                            }
+                        }
+                        spnTransType.setSelection(pos);
                         //click on date show date chooser
-                        ngayGd.setOnClickListener(new View.OnClickListener() {
+                        etvTransDate.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 final Calendar calendar = Calendar.getInstance();
@@ -176,104 +183,106 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                                 datePickerDialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
                                     @Override
                                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                        final String NgayGD = dayOfMonth + "/" + month + "/" + year;
-                                        ngayGd.setText(NgayGD);
+                                        final String tempTransDate = dayOfMonth + "/" + month + "/" + year;
+                                        etvTransDate.setText(tempTransDate);
                                     }
                                 }, y, m, d);
                                 datePickerDialog.show();
                             }
                         });
-
-                        //click on delete button
-                        huy.setOnClickListener(new View.OnClickListener() {
+                        btnCancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
-                                spLoaiGd.setAdapter(sp);
+                                spnTransType.setAdapter(spnAdapter);
                             }
                         });
-
-//                        //click on edit button
-//                        them.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//                                String mota = moTaGd.getText().toString();
-//                                String ngay = ngayGd.getText().toString();
-//                                String tien = tienGd.getText().toString();
-//                                IncomesExpenses tc = (IncomesExpenses) spLoaiGd.getSelectedItem();
-//                                int ma = tc.getIeID();
-//                                if (mota.isEmpty() && ngay.isEmpty() && tien.isEmpty()) {
-//                                    Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
-//                                } else {
-//                                    try {
-//                                        Transactions transactions = new Transactions(gd.getTransID(), mota, dfm.parse(ngay), Integer.parseInt(tien), ma);
-//                                        if (daoTransactions.editTrans(transactions) == true) {
-//                                            list.clear();
-//                                            list.addAll(daoTransactions.getTransByIE(1));
-//                                            notifyDataSetChanged();
-//                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-//                                            dialog.dismiss();
-//                                        } else {
-//                                            Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-//                                            dialog.dismiss();
-//                                        }
-//                                    } catch (Exception ex) {
-//                                        ex.printStackTrace();
-//                                    }
-//                                }
-//                            }
-//                        });
+                        btnEdit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String transDes = edtTransDes.getText().toString();
+                                String transDate = etvTransDate.getText().toString();
+                                String transMoney = edtTransMoney.getText().toString();
+                                IncomesExpenses tc = (IncomesExpenses) spnTransType.getSelectedItem();
+                                String ieID = tc.getIeID();
+                                if (transDes.isEmpty() && transDate.isEmpty() && transMoney.isEmpty()) {
+                                    Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    try {
+                                        Transactions trans = new Transactions(transactions.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
+                                        mData.child("transactions").child(trans.getTransID()).setValue(trans).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    notifyDataSetChanged();
+                                                    Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
+                                                }
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
                         dialog.show();
                     }
                 });
-
-//                txtXoa.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        bottomSheetDialog.dismiss();
-//                        final Dialog dialog = new Dialog(context);
-//                        dialog.setContentView(R.layout.dialog_delete);
-//                        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
-//                        Window window = dialog.getWindow();
-//                        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//                        if (dialog != null && dialog.getWindow() != null) {
-//                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//                        }
-//                        final TextView txt_Massage = dialog.findViewById(R.id.txt_Titleconfirm);
-//                        final Button btn_Yes = dialog.findViewById(R.id.btn_yes);
-//                        final Button btn_No = dialog.findViewById(R.id.btn_no);
-//                        final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
-//                        progressBar.setVisibility(View.INVISIBLE);
-//                        txt_Massage.setText("Bạn có muốn xóa " + list.get(position).getTransDescription() + " hay không ? ");
-//                        btn_Yes.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//                                if (daoTransactions.deleteTrans(gd) == true) {
-//                                    txt_Massage.setText("");
-//                                    progressBar.setVisibility(View.VISIBLE);
-//                                    progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-//                                    new Handler().postDelayed(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            list.clear();
-//                                            list.addAll(daoTransactions.getTransByIE(1));
-//                                            notifyDataSetChanged();
-//                                            Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-//                                            dialog.dismiss();
-//                                        }
-//                                    }, 2000);
-//                                }
-//                            }
-//                        });
-//                        btn_No.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//                                dialog.dismiss();
-//                            }
-//                        });
-//                        dialog.show();
-//                    }
-//                });
+                tvDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        bottomSheetDialog.dismiss();
+                        final Dialog dialog = new Dialog(context);
+                        dialog.setContentView(R.layout.dialog_delete);
+                        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+                        Window window = dialog.getWindow();
+                        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        if (dialog != null && dialog.getWindow() != null) {
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        }
+                        final TextView tvConfirmMessage = dialog.findViewById(R.id.txt_Titleconfirm);
+                        final Button btnYes = dialog.findViewById(R.id.btnYes);
+                        final Button btnNo = dialog.findViewById(R.id.btnNo);
+                        final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        tvConfirmMessage.setText("Bạn có muốn xóa " + transactionsList.get(position).getTransDescription() + " hay không ? ");
+                        btnYes.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mData.child("transactions").child(transactions.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            tvConfirmMessage.setText("");
+                                            progressBar.setVisibility(View.VISIBLE);
+                                            progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
+                                            new Handler().postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    notifyDataSetChanged();
+                                                    dialog.dismiss();
+                                                    Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }, 1000);
+                                        } else {
+                                            Toast.makeText(context, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                        btnNo.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog.show();
+                    }
+                });
                 bottomSheetView.findViewById(R.id.txt_Huy).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -286,6 +295,17 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
         });
         holder.img_avataitem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
+    }
+
+    private String getNameIE(String ieID, int ieType) {
+        String ieName = "";
+        for (IncomesExpenses ie : IEList) {
+            if (ie.getIeID().matches(ieID) && ie.getIeType() == ieType) {
+                ieName = ie.getIeName();
+                break;
+            }
+        }
+        return ieName;
     }
 
     @Override

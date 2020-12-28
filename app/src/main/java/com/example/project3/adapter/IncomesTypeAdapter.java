@@ -104,7 +104,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                         edtAddIncomeType.setHint("Nhập loại thu");
                         edtAddIncomeType.setText(incomesExpenses.getIeName());
                         btnEdit.setText("SỬA");
-
                         btnEdit.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -200,7 +199,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
         });
         holder.img_avatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
-
     }
 
     private void deleteChildWithIEIDEquals(String ieID) {

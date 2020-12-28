@@ -81,7 +81,6 @@ public class ChangePasswordFragment extends Fragment {
 
             }
         });
-
         btnEraseAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -51,14 +51,14 @@ import java.util.List;
 
 public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHolder> {
     private Context context;
-    public List<Transactions> transactionsList = new ArrayList<>();
-    private List<IncomesExpenses> IEList = new ArrayList<>();
+    private List<Transactions> transactionsList;
+    private List<IncomesExpenses> IEList;
     private int layout;
-    SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
+    private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
     private DatePickerDialog datePickerDialog;
-    boolean isDark = false;
-    DatabaseReference mData;
-    FirebaseAuth mAuth;
+    private boolean isDark = false;
+    private DatabaseReference mData;
+    private FirebaseAuth mAuth;
 
     public IncomesAdapter() {
     }

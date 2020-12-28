@@ -85,7 +85,7 @@ public class Tab_Incomes_Fragment extends Fragment {
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
                 adapter = new IncomesAdapter(getActivity(), R.layout.item_girl, transactionsList, IEList, mData, mAuth);
                 rcv.setAdapter(adapter);
@@ -100,13 +100,6 @@ public class Tab_Incomes_Fragment extends Fragment {
                 rcv.setAdapter(adapter);
             }
         });
-        //add divider
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        rcv.addItemDecoration(dividerItemDecoration);
-        //add touch action
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(rcv);
-        //add button click
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,8 +139,8 @@ public class Tab_Incomes_Fragment extends Fragment {
                     }
                 });
                 //pour data to spinner
-                final ArrayAdapter sp = new ArrayAdapter(getActivity(), R.layout.spiner, IEList);
-                spnTransType.setAdapter(sp);
+                final ArrayAdapter spnAdapter = new ArrayAdapter(getActivity(), R.layout.spiner, IEList);
+                spnTransType.setAdapter(spnAdapter);
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -158,17 +151,17 @@ public class Tab_Incomes_Fragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         String transDes = edtTransDescription.getText().toString();
-                        String txtTransDate = transDate.getText().toString();
-                        String txtTransMoney = transMoney.getText().toString();
+                        String tempTransDate = transDate.getText().toString();
+                        String tempTransMoney = transMoney.getText().toString();
                         if (spnTransType.getSelectedItem() != null) {
                             IncomesExpenses incomesExpenses = (IncomesExpenses) spnTransType.getSelectedItem();
                             String IeID = incomesExpenses.getIeID();
-                            if (transDes.isEmpty() && txtTransDate.isEmpty() && txtTransMoney.isEmpty()) {
+                            if (transDes.isEmpty() && tempTransDate.isEmpty() && tempTransMoney.isEmpty()) {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
                                     String transID = mData.push().getKey();
-                                    Transactions gd = new Transactions(transID, transDes, dfm.parse(txtTransDate), Integer.parseInt(txtTransMoney), IeID);
+                                    Transactions gd = new Transactions(transID, transDes, dfm.parse(tempTransDate), Integer.parseInt(tempTransMoney), IeID);
                                     mData.child("transactions").child(transID).setValue(gd).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
@@ -192,6 +185,12 @@ public class Tab_Incomes_Fragment extends Fragment {
                 dialog.show();
             }
         });
+        //add divider
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        rcv.addItemDecoration(dividerItemDecoration);
+        //add touch action
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rcv);
         return view;
     }
 
@@ -199,10 +198,12 @@ public class Tab_Incomes_Fragment extends Fragment {
         mData.child("transactions").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions ie = snapshot.getValue(Transactions.class);
-                transactionsList.add(ie);
-                adapter.notifyItemInserted(transactionsList.indexOf(ie));
-                Log.d(Constant.TAG, "add trans" + transactionsList);
+                Transactions transactions = snapshot.getValue(Transactions.class);
+                if (isMatchIEType(transactions.getIeID()) == true) {
+                    transactionsList.add(transactions);
+                    adapter.notifyItemInserted(transactionsList.indexOf(transactions));
+                    Log.d(Constant.TAG, "add trans" + transactionsList);
+                }
             }
 
             @Override
@@ -246,14 +247,16 @@ public class Tab_Incomes_Fragment extends Fragment {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                IEList.add(ie);
+                if (ie.getIeType() == Constant.INCOME) {
+                    IEList.add(ie);
+                }
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID())) {
+                    if (x.getIeID().matches(ie.getIeID()) && ie.getIeType() == Constant.INCOME) {
                         IEList.set(IEList.indexOf(x), ie);
                         break;
                     }
@@ -264,7 +267,7 @@ public class Tab_Incomes_Fragment extends Fragment {
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID())) {
+                    if (x.getIeID().matches(ie.getIeID()) && ie.getIeType() == Constant.INCOME) {
                         int pos = IEList.indexOf(x);
                         IEList.remove(pos);
                         break;
@@ -282,6 +285,16 @@ public class Tab_Incomes_Fragment extends Fragment {
         });
     }
 
+    private boolean isMatchIEType(String ieID) {
+        boolean check = false;
+        for (IncomesExpenses x : IEList) {
+            if (x.getIeID().matches(ieID)) {
+                check = true;
+                break;
+            }
+        }
+        return check;
+    }
 
     private void init() {
         IEList = new ArrayList<>();
@@ -290,8 +303,8 @@ public class Tab_Incomes_Fragment extends Fragment {
         mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString());
         rcv = view.findViewById(R.id.rcv_KhoanThu);
         btnAdd = view.findViewById(R.id.addBtn);
-        btnGrid = view.findViewById(R.id.girdBtn);
-        btnList = view.findViewById(R.id.danhsachBtn);
+        btnGrid = view.findViewById(R.id.btnGrid);
+        btnList = view.findViewById(R.id.btnList);
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {

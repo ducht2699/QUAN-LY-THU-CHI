@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +24,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.Constant;
 import com.example.project3.R;
-import com.example.project3.dao.DAOTransactions;
-import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +37,9 @@ import java.util.List;
 public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapter.ViewHolder> {
     private Context context;
     private List<IncomesExpenses> IEList;
-    private DAOIncomesExpenses daoIncomesExpenses;
-    private DAOTransactions daoTransactions;
+    private List<Transactions> transactionList;
     private int layout;
+    private DatabaseReference mData;
 
     public ExpensesTypeAdapter() {
     }
@@ -47,13 +49,13 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
         this.IEList = IEList;
     }
 
-    public ExpensesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList) {
+    public ExpensesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList, List<Transactions> transactionList, DatabaseReference mData) {
         this.context = context;
+        this.mData = mData;
+        this.transactionList = transactionList;
         this.IEList = IEList;
         this.layout = layout;
     }
-
-
 
     @NonNull
     @Override
@@ -66,35 +68,29 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.text.setText(IEList.get(position).getIeName());
-        daoIncomesExpenses = new DAOIncomesExpenses();
-        daoTransactions = new DAOTransactions();
-        final IncomesExpenses tc = IEList.get(position);
-
+        final IncomesExpenses incomesExpenses = IEList.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(
                         context, R.style.BottomSheetDialogTheme
                 );
-
                 View bottomSheetView = LayoutInflater.from(context).inflate(
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
                 );
-                TextView txtXemchiTiet = bottomSheetView.findViewById(R.id.tvSeeDetail);
-                txtXemchiTiet.setVisibility(View.GONE);
-                TextView txtSuaKhoanChi = bottomSheetView.findViewById(R.id.tvEditIncomes);
-                TextView txtXoa = bottomSheetView.findViewById(R.id.tvDeleteIE);
-                txtSuaKhoanChi.setText("Sửa loại chi");
-
-                txtXemchiTiet.setOnClickListener(new View.OnClickListener() {
+                TextView tvDetails = bottomSheetView.findViewById(R.id.tvSeeDetail);
+                tvDetails.setVisibility(View.GONE);
+                TextView tvEditExpense = bottomSheetView.findViewById(R.id.tvEditIncomes);
+                TextView tvDeleteExpense = bottomSheetView.findViewById(R.id.tvDeleteIE);
+                tvEditExpense.setText("Sửa loại chi");
+                tvDetails.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         bottomSheetDialog.dismiss();
-
                     }
                 });
-                txtSuaKhoanChi.setOnClickListener(new View.OnClickListener() {
+                tvEditExpense.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
@@ -106,49 +102,46 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView text = dialog.findViewById(R.id.add_incomes_type);
-                        Button xoa = dialog.findViewById(R.id.btnCancel);
-                        final Button them = dialog.findViewById(R.id.btnAdd);
-                        final TextView title = dialog.findViewById(R.id.tvAddType);
-                        title.setText("SỬA LOẠI CHI");
-                        text.setText(tc.getIeName());
-                        them.setText("SỬA");
-
-                        them.setOnClickListener(new View.OnClickListener() {
+                        final TextView tvExpenseType = dialog.findViewById(R.id.add_incomes_type);
+                        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+                        final Button btEdit = dialog.findViewById(R.id.btnAdd);
+                        final TextView tvTitle = dialog.findViewById(R.id.tvAddType);
+                        tvTitle.setText("SỬA LOẠI CHI");
+                        tvExpenseType.setText(incomesExpenses.getIeName());
+                        btEdit.setText("SỬA");
+                        btEdit.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String themText = text.getText().toString();
-
-                                IncomesExpenses incomesExpenses = new IncomesExpenses(tc.getIeID(), themText, Constant.EXPENSES);
-                                if (daoIncomesExpenses.editIE(incomesExpenses) == true) {
-                                    IEList.clear();
-                                    IEList.addAll(daoIncomesExpenses.getIE(1));
-                                    notifyDataSetChanged();
-                                    Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
-                                } else {
-                                    Toast.makeText(context, "Thêm thất bại!", Toast.LENGTH_SHORT).show();
-                                }
+                                String expenseTypeNewName = tvExpenseType.getText().toString();
+                                IncomesExpenses ie = new IncomesExpenses(incomesExpenses.getIeID(), expenseTypeNewName, Constant.EXPENSES);
+                                mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).child("ieName").setValue(expenseTypeNewName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            notifyDataSetChanged();
+                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
+                                        } else {
+                                            Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                             }
                         });
-
-                        xoa.setOnClickListener(new View.OnClickListener() {
+                        btnCancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
                             }
                         });
                         dialog.show();
-
                     }
                 });
-
-                txtXoa.setOnClickListener(new View.OnClickListener() {
+                tvDeleteExpense.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();
                         final Dialog dialog = new Dialog(context);
-
                         dialog.setContentView(R.layout.dialog_delete);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
                         Window window = dialog.getWindow();
@@ -156,45 +149,46 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView txt_Massage = dialog.findViewById(R.id.txt_Titleconfirm);
-                        Button xoa = dialog.findViewById(R.id.btnCancel);
-                        final Button them = dialog.findViewById(R.id.btnAdd);
-                        final Button btn_Yes = dialog.findViewById(R.id.btnYes);
-                        final Button btn_No = dialog.findViewById(R.id.btnNo);
+                        final TextView tvConfirmMessage = dialog.findViewById(R.id.txt_Titleconfirm);
+                        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+                        final Button btnAdd = dialog.findViewById(R.id.btnAdd);
+                        final Button btnYes = dialog.findViewById(R.id.btnYes);
+                        final Button btnNo = dialog.findViewById(R.id.btnNo);
                         final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
                         progressBar.setVisibility(View.INVISIBLE);
-                        txt_Massage.setText("Bạn có muốn xóa " + IEList.get(position).getIeName() + " hay không ? ");
-                        btn_Yes.setOnClickListener(new View.OnClickListener() {
+                        tvConfirmMessage.setText("Bạn có muốn xóa " + IEList.get(position).getIeName() + " hay không ? ");
+                        btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (daoIncomesExpenses.deleteIE(tc)) {
-                                    txt_Massage.setText("");
-                                    progressBar.setVisibility(View.VISIBLE);
-                                    progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            IEList.clear();
-                                            IEList.addAll(daoIncomesExpenses.getIE(1));
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-
+                                mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            deleteChildWithIEIDEquals(incomesExpenses.getIeID());
+                                            tvConfirmMessage.setText("");
+                                            progressBar.setVisibility(View.VISIBLE);
+                                            progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
+                                            new Handler().postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    notifyDataSetChanged();
+                                                    Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                                                    dialog.dismiss();
+                                                }
+                                            }, 1000);
+                                        } else {
+                                            Toast.makeText(context, "Xóa thất bại", Toast.LENGTH_SHORT).show();
                                         }
-                                    }, 2000);
-
-                                }
-
+                                    }
+                                });
                             }
                         });
-                        btn_No.setOnClickListener(new View.OnClickListener() {
+                        btnNo.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
                             }
                         });
-
-
                         dialog.show();
                     }
                 });
@@ -208,9 +202,30 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                 bottomSheetDialog.show();
             }
         });
-        holder.img_avataitem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
-
+        holder.imvAvatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
+    }
+
+    private void deleteChildWithIEIDEquals(String ieID) {
+        for (Transactions trans : transactionList) {
+            if (trans.getIeID().matches(ieID)) {
+                mData.child("transactions").child(trans.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(Constant.TAG, "delete trans - " + transactionList);
+                        } else {
+                            Log.d(Constant.TAG, "delete trans failed");
+                        }
+                    }
+                });
+            }
+        }
+        for (int i = 0; i < transactionList.size();i ++) {
+            if (transactionList.get(i).getIeID().matches(ieID)) {
+                transactionList.remove(i);
+            }
+        }
     }
 
     @Override
@@ -220,15 +235,14 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView text;
-        private ImageView img_avataitem;
+        private ImageView imvAvatarItem;
         RelativeLayout relativeLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.textList);
-            img_avataitem = itemView.findViewById(R.id.img_avatarItem);
+            imvAvatarItem = itemView.findViewById(R.id.img_avatarItem);
             relativeLayout = itemView.findViewById(R.id.relative_item);
-
         }
     }
 }

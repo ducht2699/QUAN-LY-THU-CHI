@@ -29,15 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChangePasswordFragment extends Fragment {
-    EditText edtUsername, edtOldPass, edtNewPass;
-    Button btnChangePass, btnEraseAll;
-
-    Animation animation;
-    LinearLayout linearLayout;
-    List<Users> usersList = new ArrayList<>();
-    View view;
-
-    boolean changePassCheck = false;
+    private EditText edtUsername, edtOldPass, edtNewPass;
+    private Button btnChangePass, btnEraseAll;
+    private Animation animation;
+    private LinearLayout linearLayout;
+    private List<Users> usersList = new ArrayList<>();
+    private View view;
+    private boolean changePassCheck = false;
 
     public ChangePasswordFragment() {
         // Required empty public constructor
@@ -46,7 +44,6 @@ public class ChangePasswordFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -55,25 +52,18 @@ public class ChangePasswordFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_changepassword, container, false);
         init();
-
-        animation = AnimationUtils.loadAnimation(getContext(), R.anim.ogin_signin_animation);
-        linearLayout.setAnimation(animation);
-
         btnChangePass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean xetMk = true;
-
                 String userName = edtUsername.getText().toString();
                 String oldPass = edtOldPass.getText().toString();
                 String newPass = edtNewPass.getText().toString();
-
                 if (oldPass.matches(newPass)) {
                     xetMk = false;
                 } else {
                     xetMk = true;
                 }
-
                 if (userName.isEmpty()) {
                     Toast.makeText(getContext(), "Tên tài khoản không được để trống!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -104,7 +94,7 @@ public class ChangePasswordFragment extends Fragment {
     }
 
     private void changePass(String userName, String oldPass, final String newPass) {
-        //FIXME: check account and password
+        //TODO: check account and password
         DatabaseReference mData = FirebaseDatabase.getInstance().getReference("Users");
         mData.child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("password").setValue(newPass).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -122,7 +112,6 @@ public class ChangePasswordFragment extends Fragment {
                 } else changePassCheck = false;
             }
         });
-
         if (changePassCheck) {
             Toast.makeText(getContext(), "Thay đổi mật khẩu thành công!", Toast.LENGTH_SHORT).show();
         } else {
@@ -140,6 +129,7 @@ public class ChangePasswordFragment extends Fragment {
         btnChangePass = view.findViewById(R.id.btnChange);
         btnEraseAll = view.findViewById(R.id.btnRelay);
         linearLayout = view.findViewById(R.id.linearLayoutchange);
+        animation = AnimationUtils.loadAnimation(getContext(), R.anim.ogin_signin_animation);
+        linearLayout.setAnimation(animation);
     }
-
 }

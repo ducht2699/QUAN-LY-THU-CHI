@@ -43,15 +43,14 @@ import java.util.List;
 
 
 public class Tab_IncomesType_Fragment extends Fragment {
-    private static final String TAG = "TAB_INCOME_TYPE TAG";
-    View view;
+    private View view;
     private RecyclerView rcv;
     private List<IncomesExpenses> IEList;
     private List<Transactions> transactionsList;
-    FloatingActionButton btnGrid, btnList, btnAdd;
-    IncomesTypeAdapter adapter;
-    DatabaseReference mData;
-    FirebaseAuth mAuth;
+    private FloatingActionButton btnGrid, btnList, btnAdd;
+    private IncomesTypeAdapter adapter;
+    private DatabaseReference mData;
+    private FirebaseAuth mAuth;
 
     public Tab_IncomesType_Fragment() {
         // Required empty public constructor
@@ -117,7 +116,6 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 Button cancel = dialog.findViewById(R.id.btnCancel);
                 final Button add = dialog.findViewById(R.id.btnAdd);
                 edtAddIncomesType.setHint("Thêm loại thu");
-
                 add.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -197,7 +195,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 IEList.add(ie);
                 adapter.notifyItemInserted(IEList.indexOf(ie));
-                Log.d(TAG, "add - " + IEList);
+                Log.d(Constant.TAG, "add - " + IEList);
             }
 
             @Override
@@ -220,7 +218,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
                         int pos = IEList.indexOf(x);
                         IEList.remove(pos);
                         adapter.notifyItemRemoved(pos);
-                        Log.d(TAG, "remove child - " + IEList);
+                        Log.d(Constant.TAG, "remove child - " + IEList);
                         break;
                     }
                 }

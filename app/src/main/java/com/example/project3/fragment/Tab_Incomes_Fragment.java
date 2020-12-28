@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.adapter.IncomesAdapter;
 import com.example.project3.model.Transactions;
@@ -49,7 +50,6 @@ import java.util.List;
 
 
 public class Tab_Incomes_Fragment extends Fragment {
-    private static final String TAG = "TAB_INCOME TAG";
     private View view;
     private RecyclerView rcv;
     private List<Transactions> transactionsList;
@@ -202,7 +202,7 @@ public class Tab_Incomes_Fragment extends Fragment {
                 Transactions ie = snapshot.getValue(Transactions.class);
                 transactionsList.add(ie);
                 adapter.notifyItemInserted(transactionsList.indexOf(ie));
-                Log.d(TAG, "add trans" + transactionsList);
+                Log.d(Constant.TAG, "add trans" + transactionsList);
             }
 
             @Override
@@ -225,7 +225,7 @@ public class Tab_Incomes_Fragment extends Fragment {
                         int pos = transactionsList.indexOf(x);
                         transactionsList.remove(pos);
                         adapter.notifyDataSetChanged();
-                        Log.d(TAG, "trans removed by deleting incomesType - " + transactionsList);
+                        Log.d(Constant.TAG, "trans removed by deleting incomesType - " + transactionsList);
                         break;
                     }
                 }

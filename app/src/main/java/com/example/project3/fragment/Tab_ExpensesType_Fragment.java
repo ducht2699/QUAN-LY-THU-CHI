@@ -35,23 +35,20 @@ import java.util.List;
 
 
 public class Tab_ExpensesType_Fragment extends Fragment {
-    View view;
+    private View view;
     private RecyclerView rcv;
     private List<IncomesExpenses> IEList = new ArrayList<>();
     private DAOIncomesExpenses daoIncomesExpenses;
     private ExpensesTypeAdapter adapter;
-    FloatingActionButton btnGrid, btnList, btnAdd;
-
+    private FloatingActionButton btnGrid, btnList, btnAdd;
 
     public Tab_ExpensesType_Fragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -60,11 +57,8 @@ public class Tab_ExpensesType_Fragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__expenses_type, container, false);
         init();
-
         daoIncomesExpenses = new DAOIncomesExpenses();
-
-        IEList = daoIncomesExpenses.getIE(1);
-
+        IEList = daoIncomesExpenses.getIE(Constant.EXPENSES);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
         adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList);
@@ -87,17 +81,15 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                 rcv.setAdapter(adapter);
             }
         });
-
-
+        //add divider
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         rcv.addItemDecoration(dividerItemDecoration);
+        //add touch action
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rcv);
-
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 final Dialog dialog = new Dialog(getContext());
                 dialog.setCancelable(false);
                 dialog.setContentView(R.layout.add_incomes_expenses_type);
@@ -113,23 +105,19 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                 final TextView tvAddType = dialog.findViewById(R.id.tvAddType);
                 tvAddType.setText("THÊM LOẠI CHI");
                 edtAddIncomesType.setHint("Nhập loại chi");
-
                 DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
                 rcv.addItemDecoration(dividerItemDecoration);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
                 itemTouchHelper.attachToRecyclerView(rcv);
-
-
                 btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         String expensesTypeName = edtAddIncomesType.getText().toString();
 //                        String ieID TODO: add ieID
                         IncomesExpenses incomesExpenses = new IncomesExpenses("", expensesTypeName, Constant.EXPENSES);
-
                         if (daoIncomesExpenses.addIE(incomesExpenses) == true) {
                             IEList.clear();
-                            IEList.addAll(daoIncomesExpenses.getIE(1));
+                            IEList.addAll(daoIncomesExpenses.getIE(Constant.EXPENSES));
                             adapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -138,7 +126,6 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                         }
                     }
                 });
-
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -161,7 +148,6 @@ public class Tab_ExpensesType_Fragment extends Fragment {
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
             Collections.swap(IEList, fromPosition, toPosition);
@@ -171,7 +157,6 @@ public class Tab_ExpensesType_Fragment extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
         }
     };
 }

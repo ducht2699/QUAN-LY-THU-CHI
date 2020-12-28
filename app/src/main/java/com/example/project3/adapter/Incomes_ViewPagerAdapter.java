@@ -11,7 +11,6 @@ import com.example.project3.fragment.Tab_IncomesType_Fragment;
 public class Incomes_ViewPagerAdapter extends FragmentStatePagerAdapter {
     int numberTab = 2;
 
-
     public Incomes_ViewPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
     }

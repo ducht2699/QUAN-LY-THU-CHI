@@ -24,15 +24,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "MAIN ACTIVITY TAG";
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
-
-    boolean doubleBackToExitPressedOnce = false;
-
-    FrameLayout frameLayout;
+    private boolean doubleBackToExitPressedOnce = false;
+    private FrameLayout frameLayout;
 
     @Override
     protected void onStop() {
@@ -91,10 +87,8 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
             return;
         }
-
         this.doubleBackToExitPressedOnce = true;
         Toast.makeText(this, "Nhấn Back một lần nữa để logout!", Toast.LENGTH_SHORT).show();
-
         new Handler().postDelayed(new Runnable() {
 
             @Override
@@ -137,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                 Intro_Fragment settingsFragment = new Intro_Fragment();
                 replaceFragment(settingsFragment);
                 break;
-
             case R.id.doimatkhau:
                 setTitle("ĐỔI MẬT KHẨU");
                 ChangePasswordFragment changepasswordFragment = new ChangePasswordFragment();
@@ -163,6 +156,4 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
     }
-
-
 }

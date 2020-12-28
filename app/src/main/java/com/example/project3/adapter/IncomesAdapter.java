@@ -50,7 +50,6 @@ import java.util.Calendar;
 import java.util.List;
 
 public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHolder> {
-    private static final String TAG = "INCOMES_ADAPTER TAG";
     private Context context;
     public List<Transactions> transactionsList = new ArrayList<>();
     private List<IncomesExpenses> IEList = new ArrayList<>();
@@ -213,7 +212,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                             }
                                         });
                                     } catch (Exception ex) {
-                                        Log.d(TAG, "error edit trans - " + ex);
+                                        Log.d(Constant.TAG, "error edit trans - " + ex);
                                         ex.printStackTrace();
                                     }
                                 }

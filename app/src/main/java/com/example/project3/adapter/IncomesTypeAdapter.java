@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
@@ -34,7 +35,6 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.List;
 
 public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.ViewHolder> {
-    private static final String TAG = "INCOMES_TYPE_ADAPTER";
     private Context context;
     private List<IncomesExpenses> IEList;
     private List<Transactions> transactionList;
@@ -210,9 +210,9 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "delete trans - " + transactionList);
+                            Log.d(Constant.TAG, "delete trans - " + transactionList);
                         } else {
-                            Log.d(TAG, "delete trans failed");
+                            Log.d(Constant.TAG, "delete trans failed");
                         }
                     }
                 });

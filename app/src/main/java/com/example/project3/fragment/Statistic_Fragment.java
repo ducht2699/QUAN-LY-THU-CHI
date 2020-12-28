@@ -23,11 +23,11 @@ import java.util.Calendar;
 
 
 public class Statistic_Fragment extends Fragment {
-    private TextView tungay, denngay, thu, chi, conlai;
+    private TextView fromDate, toDate, income, expense, left;
     private Button btnShow;
     private DatePickerDialog datePickerDialog;
     private DAOTransactions daoTransactions;
-    SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
+    private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
 
     public Statistic_Fragment() {
     }
@@ -35,7 +35,6 @@ public class Statistic_Fragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -43,14 +42,14 @@ public class Statistic_Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_statistic, container, false);
-        tungay = view.findViewById(R.id.tungay);
-        denngay = view.findViewById(R.id.denngay);
-        thu = view.findViewById(R.id.tienThu);
-        chi = view.findViewById(R.id.tienChi);
-        conlai = view.findViewById(R.id.tienConLai);
+        fromDate = view.findViewById(R.id.tungay);
+        toDate = view.findViewById(R.id.denngay);
+        income = view.findViewById(R.id.tienThu);
+        expense = view.findViewById(R.id.tienChi);
+        left = view.findViewById(R.id.tienConLai);
         btnShow = view.findViewById(R.id.btnShow);
         daoTransactions = new DAOTransactions();
-        //Format dạng tiền
+        //Format money
         final NumberFormat fm = new DecimalFormat("#,###");
         final ArrayList<Transactions> listThu = daoTransactions.getTransByIE(0);
         final ArrayList<Transactions> listChi = daoTransactions.getTransByIE(1);
@@ -61,11 +60,11 @@ public class Statistic_Fragment extends Fragment {
         for (int i = 0; i < listChi.size(); i++) {
             tongChi += Math.abs(listChi.get(i).getAmountMoney());
         }
-        thu.setText(fm.format(tongThu) + " VND");
-        chi.setText(fm.format(tongChi) + " VND");
-        conlai.setText(fm.format(tongThu - tongChi) + " VND");
+        income.setText(fm.format(tongThu) + " VND");
+        expense.setText(fm.format(tongChi) + " VND");
+        left.setText(fm.format(tongThu - tongChi) + " VND");
         //choose from date
-        tungay.setOnClickListener(new View.OnClickListener() {
+        fromDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
@@ -76,14 +75,13 @@ public class Statistic_Fragment extends Fragment {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         String NgayDau = dayOfMonth + "/" + (month + 1) + "/" + year;
-                        tungay.setText(NgayDau);
+                        fromDate.setText(NgayDau);
                     }
                 }, y, m, d);
                 datePickerDialog.show();
             }
         });
-
-        denngay.setOnClickListener(new View.OnClickListener() {
+        toDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
@@ -94,7 +92,7 @@ public class Statistic_Fragment extends Fragment {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         String NgayCuoi = dayOfMonth + "/" + (month + 1) + "/" + year;
-                        denngay.setText(NgayCuoi);
+                        toDate.setText(NgayCuoi);
                     }
                 }, y, m, d);
                 datePickerDialog.show();
@@ -103,8 +101,8 @@ public class Statistic_Fragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         int Thu = 0, Chi = 0;
-                        String bd = tungay.getText().toString();
-                        String kt = denngay.getText().toString();
+                        String bd = fromDate.getText().toString();
+                        String kt = toDate.getText().toString();
                         //calculate money by day
                         for (int i = 0; i < listThu.size(); i++) {
                             try {
@@ -124,9 +122,9 @@ public class Statistic_Fragment extends Fragment {
                                 ex.printStackTrace();
                             }
                         }
-                        thu.setText(fm.format(Thu) + " VND");
-                        chi.setText(fm.format(Chi) + " VND");
-                        conlai.setText(fm.format(Thu - Chi) + " VND");
+                        income.setText(fm.format(Thu) + " VND");
+                        expense.setText(fm.format(Chi) + " VND");
+                        left.setText(fm.format(Thu - Chi) + " VND");
                     }
                 });
             }

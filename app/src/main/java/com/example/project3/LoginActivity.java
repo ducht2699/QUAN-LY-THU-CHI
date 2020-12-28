@@ -33,15 +33,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = "LOGIN ACTIVITY TAG ";
     private Button btReg, btLogin;
-    EditText edtUsername, edtPassword;
-    CheckBox cbAutoLogin;
-    LinearLayout linearLayout;
-    Animation animation;
-    boolean doubleBackToExitPressedOnce = false;
-    DatabaseReference mData;
-    FirebaseAuth mAuth;
+    private EditText edtUsername, edtPassword;
+    private CheckBox cbAutoLogin;
+    private LinearLayout linearLayout;
+    private Animation animation;
+    private boolean doubleBackToExitPressedOnce = false;
+    private DatabaseReference mData;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,13 +89,13 @@ public class LoginActivity extends AppCompatActivity {
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
                                     } else {
-                                        Log.d(TAG, "add DB failed + " + task.getException());
+                                        Log.d(Constant.TAG, "add DB failed + " + task.getException());
                                     }
                                 }
                             });
                         } else {
                             Toast.makeText(LoginActivity.this, "Tên tài khoản hoặc mật khẩu không chính xác!", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "login failed - " + task.getException());
+                            Log.d(Constant.TAG, "login failed - " + task.getException());
                         }
                     }
                 });
@@ -123,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         //check if user is logged in --> sign out
         if (mAuth.getCurrentUser() != null) {
-            Log.d(TAG, "user existed");
+            Log.d(Constant.TAG, "user existed");
             mAuth.signOut();
         }
         linearLayout = findViewById(R.id.linearLayoutlogin);
@@ -153,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "Resume end");
+        Log.d(Constant.TAG, "Resume end");
     }
 
     @Override
@@ -184,7 +183,7 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 doubleBackToExitPressedOnce = false;
             }
-        }, 2000);
+        }, 1500);
     }
 }
 

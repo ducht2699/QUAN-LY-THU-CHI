@@ -12,7 +12,6 @@ import com.example.project3.fragment.Tab_ExpensesType_Fragment;
 public class Expenses_ViewPagerAdapter extends FragmentStatePagerAdapter {
     int numberTab = 2;
 
-
     public Expenses_ViewPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
     }

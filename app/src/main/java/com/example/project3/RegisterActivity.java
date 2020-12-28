@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -19,50 +18,36 @@ import com.example.project3.model.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.EmailAuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
-import java.util.concurrent.Executor;
-
 public class RegisterActivity extends AppCompatActivity {
-    private static final String TAG = "REG ACTIVITY TAG";
-    private RelativeLayout rlayout;
+    private RelativeLayout rLayout;
     private Animation animation;
-    EditText edtRegUsername, edtRegPassword, edtRegPassCheck;
-    Button btnRegister, btnEraseAll;
-
-    DatabaseReference mData;
-    FirebaseAuth mAuth;
+    private EditText edtRegUsername, edtRegPassword, edtRegPassCheck;
+    private Button btnRegister, btnEraseAll;
+    private DatabaseReference mData;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
         init();
-
-
-
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "btn reg click");
+                Log.d(Constant.TAG, "btn reg click");
                 String userName = edtRegUsername.getText().toString();
                 String password = edtRegPassword.getText().toString();
                 String confirmPass = edtRegPassCheck.getText().toString();
-
                 boolean accountCheck = true, passCheck = false;
-
-
                 if (password.matches(confirmPass)) {
                     passCheck = true;
                 } else {
                     passCheck = false;
                 }
-
                 if (userName.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Tên tài khoản không được để trống!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -84,7 +69,6 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         });
-
         btnEraseAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,32 +101,28 @@ public class RegisterActivity extends AppCompatActivity {
                                         finish();
                                     } else {
                                         Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, "add database failed - " + task.getException());
+                                        Log.d(Constant.TAG, "add database failed - " + task.getException());
                                     }
                                 }
                             });
-
-
                         } else {
                             Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "auth failed - " + task.getException());
+                            Log.d(Constant.TAG, "auth failed - " + task.getException());
                         }
                     }
                 });
     }
 
     private void init() {
-
-        mData = FirebaseDatabase.getInstance().getReference("Users");
+        mData = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
-
         edtRegUsername = findViewById(R.id.edtRegUser);
         edtRegPassword = findViewById(R.id.edtRegPassword);
         edtRegPassCheck = findViewById(R.id.edtRePassword);
         btnRegister = findViewById(R.id.btnReg);
         btnEraseAll = findViewById(R.id.btnRelay);
-        rlayout = findViewById(R.id.rlayout);
+        rLayout = findViewById(R.id.rlayout);
         animation = AnimationUtils.loadAnimation(this, R.anim.ogin_signin_animation);
-        rlayout.setAnimation(animation);
+        rLayout.setAnimation(animation);
     }
 }

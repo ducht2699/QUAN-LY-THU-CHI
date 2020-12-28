@@ -35,28 +35,25 @@ import java.util.Calendar;
 
 public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHolder> {
     private Context context;
-    public static ArrayList<Transactions> list;
-
+    private static ArrayList<Transactions> transactionsList;
     private ArrayList<IncomesExpenses> listTC = new ArrayList<>();
-
     private DatePickerDialog datePickerDialog;
-    int layout;
-    SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
+    private int layout;
+    private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
 
     public ExpensesAdapter() {
     }
 
-    public ExpensesAdapter(Context context, ArrayList<Transactions> list) {
+    public ExpensesAdapter(Context context, ArrayList<Transactions> transactionsList) {
         this.context = context;
-        this.list = list;
+        this.transactionsList = transactionsList;
     }
 
-    public ExpensesAdapter(Context context, int layout, ArrayList<Transactions> list) {
+    public ExpensesAdapter(Context context, int layout, ArrayList<Transactions> transactionsList) {
         this.context = context;
-        this.list = list;
+        this.transactionsList = transactionsList;
         this.layout = layout;
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView text;
@@ -73,7 +70,6 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
 
         @Override
         public void onClick(View v) {
-
         }
     }
 
@@ -87,16 +83,15 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.text.setText(list.get(position).getTransDescription());
+        holder.text.setText(transactionsList.get(position).getTransDescription());
 //        daoTransactions = new DAOTransactions();
-        final Transactions gd = list.get(position);
+        final Transactions gd = transactionsList.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(
                         context, R.style.BottomSheetDialogTheme
                 );
-
                 View bottomSheetView = LayoutInflater.from(context).inflate(
                         R.layout.bottom_sheet_action,
                         (LinearLayout) bottomSheetDialog.findViewById(R.id.bottomSheetContainer)
@@ -109,7 +104,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                     @Override
                     public void onClick(View view) {
                         bottomSheetDialog.dismiss();
-                        Transactions gd = list.get(position);
+                        Transactions gd = transactionsList.get(position);
                         //Format money type
                         NumberFormat fm = new DecimalFormat("#,###");
                         //show transaction's info when click on item
@@ -170,7 +165,6 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
 //                        }
                         spLoaiGd.setSelection(vitri);
 
-
                         //click on date show date chooser
                         ngayGd.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -227,13 +221,9 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
 //                                        ex.printStackTrace();
 //                                    }
 //                                }
-//
 //                            }
 //                        });
-
                         dialog.show();
-
-
                     }
                 });
 
@@ -294,14 +284,12 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                 bottomSheetDialog.show();
             }
         });
-
         holder.img_avataitem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
-
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return transactionsList.size();
     }
 }

@@ -138,8 +138,8 @@ public class Tab_Incomes_Fragment extends Fragment {
                         datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                final String NgayGD = dayOfMonth + "/" + (month + 1) + "/" + year;
-                                transDate.setText(NgayGD);
+                                final String tempTransDate = dayOfMonth + "/" + (month + 1) + "/" + year;
+                                transDate.setText(tempTransDate);
                             }
                         }, y, m, d);
                         datePickerDialog.show();
@@ -224,7 +224,8 @@ public class Tab_Incomes_Fragment extends Fragment {
                     if (x.getTransID().matches(trans.getTransID())) {
                         int pos = transactionsList.indexOf(x);
                         transactionsList.remove(pos);
-                        adapter.notifyItemRemoved(pos);
+                        adapter.notifyDataSetChanged();
+                        Log.d(TAG, "trans removed by deleting incomesType - " + transactionsList);
                         break;
                     }
                 }
@@ -246,7 +247,6 @@ public class Tab_Incomes_Fragment extends Fragment {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
                 IEList.add(ie);
-                adapter.notifyItemInserted(IEList.indexOf(ie));
             }
 
             @Override
@@ -255,7 +255,6 @@ public class Tab_Incomes_Fragment extends Fragment {
                 for (IncomesExpenses x : IEList) {
                     if (x.getIeID().matches(ie.getIeID())) {
                         IEList.set(IEList.indexOf(x), ie);
-                        adapter.notifyItemChanged(IEList.indexOf(x));
                         break;
                     }
                 }
@@ -268,7 +267,6 @@ public class Tab_Incomes_Fragment extends Fragment {
                     if (x.getIeID().matches(ie.getIeID())) {
                         int pos = IEList.indexOf(x);
                         IEList.remove(pos);
-                        adapter.notifyItemRemoved(pos);
                         break;
                     }
                 }

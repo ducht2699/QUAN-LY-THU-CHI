@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,38 +25,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.R;
 import com.example.project3.model.IncomesExpenses;
+import com.example.project3.model.Transactions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
 public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.ViewHolder> {
+    private static final String TAG = "INCOMES_TYPE_ADAPTER";
     private Context context;
     private List<IncomesExpenses> IEList;
+    private List<Transactions> transactionList;
     private int layout;
-    private FirebaseAuth mAuth;
     private DatabaseReference mData;
 
     public IncomesTypeAdapter() {
     }
 
-    public IncomesTypeAdapter(Context context, List<IncomesExpenses> IEList) {
+    public IncomesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList, List<Transactions> transactionList, DatabaseReference mData) {
         this.context = context;
         this.IEList = IEList;
-    }
-
-    public IncomesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList, FirebaseAuth mAuth, DatabaseReference mData) {
-        this.context = context;
-        this.IEList = IEList;
+        this.transactionList = transactionList;
         this.layout = layout;
-        this.mAuth = mAuth;
         this.mData = mData;
     }
 
@@ -115,13 +108,13 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                         btnEdit.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String incomeTypeNewName = edtAddIncomeType.getText().toString();
-                                mData.child(incomesExpenses.getIeID()).child("ieName").setValue(incomeTypeNewName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                final String incomeTypeNewName = edtAddIncomeType.getText().toString();
+                                mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).child("ieName").setValue(incomeTypeNewName).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             notifyDataSetChanged();
-                                            Toast.makeText(context, "Sửa thành công!" + IEList.size(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
                                             dialog.dismiss();
                                         } else {
                                             Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
@@ -163,11 +156,11 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //TODO: delete income type
-                                mData.child(incomesExpenses.getIeID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
+                                            deleteChildWithIEIDEquals(incomesExpenses.getIeID());
                                             tvMessage.setText("");
                                             progressBar.setVisibility(View.VISIBLE);
                                             progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -208,6 +201,28 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
         holder.img_avatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
 
+    }
+
+    private void deleteChildWithIEIDEquals(String ieID) {
+        for (Transactions trans : transactionList) {
+            if (trans.getIeID().matches(ieID)) {
+                mData.child("transactions").child(trans.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "delete trans - " + transactionList);
+                        } else {
+                            Log.d(TAG, "delete trans failed");
+                        }
+                    }
+                });
+            }
+        }
+        for (int i = 0; i < transactionList.size();i ++) {
+            if (transactionList.get(i).getIeID().matches(ieID)) {
+                transactionList.remove(i);
+            }
+        }
     }
 
     @Override

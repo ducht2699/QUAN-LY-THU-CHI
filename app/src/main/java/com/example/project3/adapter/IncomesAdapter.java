@@ -259,7 +259,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                                     dialog.dismiss();
                                                     Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                                 }
-                                            }, 2000);
+                                            }, 1000);
                                         } else {
                                             Toast.makeText(context, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
                                         }

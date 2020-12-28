@@ -26,6 +26,7 @@ import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.adapter.IncomesTypeAdapter;
 import com.example.project3.model.IncomesExpenses;
+import com.example.project3.model.Transactions;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -46,6 +47,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
     View view;
     private RecyclerView rcv;
     private List<IncomesExpenses> IEList;
+    private List<Transactions> transactionsList;
     FloatingActionButton btnGrid, btnList, btnAdd;
     IncomesTypeAdapter adapter;
     DatabaseReference mData;
@@ -67,18 +69,19 @@ public class Tab_IncomesType_Fragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_tab__incomes_type, container, false);
         init();
         setIEChildListener();
+        setTransListener();
         //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, mAuth, mData);
+        adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, transactionsList, mData);
         rcv.setAdapter(adapter);
         //add button click listener
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.TAB_IE);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new IncomesTypeAdapter(getActivity(), R.layout.item_girl, IEList, mAuth, mData);
+                adapter = new IncomesTypeAdapter(getActivity(), R.layout.item_girl, IEList, transactionsList, mData);
                 rcv.setAdapter(adapter);
             }
         });
@@ -87,7 +90,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, mAuth, mData);
+                adapter = new IncomesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, transactionsList, mData);
                 rcv.setAdapter(adapter);
             }
         });
@@ -119,9 +122,9 @@ public class Tab_IncomesType_Fragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         String incomesType = edtAddIncomesType.getText().toString();
-                        String ID = mData.push().getKey();
+                        String ID = mData.child("incomesExpensesTypes").push().getKey();
                         IncomesExpenses incomesExpenses = new IncomesExpenses(ID, incomesType, Constant.INCOME);
-                        mData.child(incomesExpenses.getIeID()).setValue(incomesExpenses).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).setValue(incomesExpenses).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
@@ -146,8 +149,49 @@ public class Tab_IncomesType_Fragment extends Fragment {
         return view;
     }
 
+    private void setTransListener() {
+        mData.child("transactions").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Transactions ie = snapshot.getValue(Transactions.class);
+                transactionsList.add(ie);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Transactions trans = snapshot.getValue(Transactions.class);
+                for (Transactions x : transactionsList) {
+                    if (x.getTransID().matches(trans.getTransID())) {
+                        transactionsList.set(transactionsList.indexOf(x), trans);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                Transactions trans = snapshot.getValue(Transactions.class);
+                for (Transactions x : transactionsList) {
+                    if (x.getTransID().matches(trans.getTransID())) {
+                        int pos = transactionsList.indexOf(x);
+                        transactionsList.remove(pos);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
     private void setIEChildListener() {
-        mData.addChildEventListener(new ChildEventListener() {
+        mData.child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
@@ -194,8 +238,9 @@ public class Tab_IncomesType_Fragment extends Fragment {
 
     private void init() {
         IEList = new ArrayList<>();
+        transactionsList = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString()).child("incomesExpensesTypes");
+        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString());
         rcv = view.findViewById(R.id.rcv_LoaiThu);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.girdBtn);

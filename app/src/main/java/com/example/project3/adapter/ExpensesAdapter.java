@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.Constant;
 import com.example.project3.R;
+import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -50,19 +51,17 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
     private DatePickerDialog datePickerDialog;
     private int layout;
     private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
-    private DatabaseReference mData;
-    private FirebaseAuth mAuth;
+    private DAOIncomesExpenses daoIncomesExpenses;
 
     public ExpensesAdapter() {
     }
 
-    public ExpensesAdapter(Context context, int layout, List<Transactions> transactionsList, List<IncomesExpenses> IEList, DatabaseReference mData, FirebaseAuth mAuth) {
+    public ExpensesAdapter(Context context, int layout, List<Transactions> transactionsList, List<IncomesExpenses> IEList, DAOIncomesExpenses daoIncomesExpenses) {
         this.context = context;
         this.transactionsList = transactionsList;
         this.IEList = IEList;
         this.layout = layout;
-        this.mData = mData;
-        this.mAuth = mAuth;
+        this.daoIncomesExpenses = daoIncomesExpenses;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -210,18 +209,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                                 } else {
                                     try {
                                         Transactions trans = new Transactions(transactions.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
-                                        mData.child("transactions").child(trans.getTransID()).setValue(trans).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    notifyDataSetChanged();
-                                                    Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-                                                }
-                                                dialog.dismiss();
-                                            }
-                                        });
+                                        daoIncomesExpenses.editTransaction(trans, context, dialog);
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }
@@ -252,26 +240,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                mData.child("transactions").child(transactions.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            tvConfirmMessage.setText("");
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-                                            new Handler().postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    notifyDataSetChanged();
-                                                    dialog.dismiss();
-                                                    Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }, 1000);
-                                        } else {
-                                            Toast.makeText(context, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                                daoIncomesExpenses.deleteTransaction(tvConfirmMessage, progressBar, dialog, context, transactions);
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {

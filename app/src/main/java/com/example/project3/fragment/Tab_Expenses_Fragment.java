@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -28,23 +26,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.Constant;
 import com.example.project3.R;
-import com.example.project3.adapter.ExpensesAdapter;
-import com.example.project3.dao.DAOTransactions;
 import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.github.clans.fab.FloatingActionButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
@@ -52,14 +39,10 @@ import java.util.Collections;
 public class Tab_Expenses_Fragment extends Fragment {
     private View view;
     private RecyclerView rcv;
-    private ArrayList<Transactions> transactionsList;
     private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
     private DatePickerDialog datePickerDialog;
-    private ArrayList<IncomesExpenses> IEList;
-    private ExpensesAdapter adapter;
     private FloatingActionButton btnGrid, btnList, btnAdd;
-    private DatabaseReference mData;
-    private FirebaseAuth mAuth;
+    private DAOIncomesExpenses daoIncomesExpenses;
 
     public Tab_Expenses_Fragment() {
         // Required empty public constructor
@@ -76,21 +59,17 @@ public class Tab_Expenses_Fragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__expenses, container, false);
         init();
-        setIEChildListener();
-        setTransChildListener();
         //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new ExpensesAdapter(getActivity(), R.layout.oneitem_recylerview, transactionsList, IEList, mData, mAuth);
-        rcv.setAdapter(adapter);
+        rcv.setAdapter(daoIncomesExpenses.getExpensesAdapter());
         //add button click listener
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new ExpensesAdapter(getActivity(), R.layout.item_girl, transactionsList, IEList, mData, mAuth);
-                rcv.setAdapter(adapter);
+                rcv.setAdapter(daoIncomesExpenses.getExpensesAdapter());
             }
         });
         btnList.setOnClickListener(new View.OnClickListener() {
@@ -98,8 +77,7 @@ public class Tab_Expenses_Fragment extends Fragment {
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new ExpensesAdapter(getActivity(), R.layout.oneitem_recylerview, transactionsList, IEList, mData, mAuth);
-                rcv.setAdapter(adapter);
+                rcv.setAdapter(daoIncomesExpenses.getExpensesAdapter());
             }
         });
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +119,7 @@ public class Tab_Expenses_Fragment extends Fragment {
                     }
                 });
                 //pour data to spinner
-                final ArrayAdapter spnAdapter = new ArrayAdapter(getActivity(), R.layout.spiner, IEList);
+                final ArrayAdapter spnAdapter = new ArrayAdapter(getActivity(), R.layout.spiner, daoIncomesExpenses.getIEList());
                 spnTransType.setAdapter(spnAdapter);
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -162,19 +140,8 @@ public class Tab_Expenses_Fragment extends Fragment {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
-                                    String transID = mData.push().getKey();
-                                    Transactions gd = new Transactions(transID, transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
-                                    mData.child("transactions").child(transID).setValue(gd).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(getActivity(), "Thêm thất bại!", Toast.LENGTH_SHORT).show();
-                                            }
-                                            dialog.dismiss();
-                                        }
-                                    });
+                                    Transactions transaction = new Transactions("", transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
+                                    daoIncomesExpenses.addTransaction(getActivity(), dialog, transaction);
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -197,116 +164,11 @@ public class Tab_Expenses_Fragment extends Fragment {
     }
 
     private void init() {
-        IEList = new ArrayList<>();
-        transactionsList = new ArrayList<>();
-        mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString());
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.EXPENSES_ADAPTER, Constant.EXPENSES);
         rcv = view.findViewById(R.id.rcv_KhoanChi);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);
         btnList = view.findViewById(R.id.btnList);
-    }
-
-    private void setTransChildListener() {
-        mData.child("transactions").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions transactions = snapshot.getValue(Transactions.class);
-                if (isMatchIEType(transactions.getIeID()) == true) {
-                    transactionsList.add(transactions);
-                    adapter.notifyItemInserted(transactionsList.indexOf(transactions));
-                    Log.d(Constant.TAG, "add trans" + transactionsList);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions trans = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(trans.getTransID())) {
-                        transactionsList.set(transactionsList.indexOf(x), trans);
-                        adapter.notifyItemChanged(transactionsList.indexOf(x));
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                Transactions trans = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(trans.getTransID())) {
-                        int pos = transactionsList.indexOf(x);
-                        transactionsList.remove(pos);
-                        adapter.notifyDataSetChanged();
-                        Log.d(Constant.TAG, "trans removed by deleting incomesType - " + transactionsList);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private void setIEChildListener() {
-        mData.child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                if (ie.getIeType() == Constant.EXPENSES) {
-                    IEList.add(ie);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID()) && ie.getIeType() == Constant.INCOME) {
-                        IEList.set(IEList.indexOf(x), ie);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID()) && ie.getIeType() == Constant.INCOME) {
-                        int pos = IEList.indexOf(x);
-                        IEList.remove(pos);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private boolean isMatchIEType(String ieID) {
-        boolean check = false;
-        for (IncomesExpenses x : IEList) {
-            if (x.getIeID().matches(ieID)) {
-                check = true;
-                break;
-            }
-        }
-        return check;
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
@@ -314,7 +176,7 @@ public class Tab_Expenses_Fragment extends Fragment {
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
-            Collections.swap(transactionsList, fromPosition, toPosition);
+            Collections.swap(daoIncomesExpenses.getTransactionsList(), fromPosition, toPosition);
             recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
             return false;
         }

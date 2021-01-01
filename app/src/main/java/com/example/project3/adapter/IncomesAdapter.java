@@ -25,27 +25,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.Constant;
 import com.example.project3.R;
+import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -57,19 +50,17 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
     private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
     private DatePickerDialog datePickerDialog;
     private boolean isDark = false;
-    private DatabaseReference mData;
-    private FirebaseAuth mAuth;
+    private DAOIncomesExpenses daoIncomesExpenses;
 
     public IncomesAdapter() {
     }
 
-    public IncomesAdapter(Context context, int layout, List<Transactions> transactionsList, List<IncomesExpenses> IEList, DatabaseReference mData, FirebaseAuth mAuth) {
+    public IncomesAdapter(Context context, int layout, List<Transactions>transactionsList, List<IncomesExpenses> IEList, DAOIncomesExpenses daoIncomesExpenses) {
         this.context = context;
+        this.layout = layout;
+        this.daoIncomesExpenses = daoIncomesExpenses;
         this.transactionsList = transactionsList;
         this.IEList = IEList;
-        this.layout = layout;
-        this.mData = mData;
-        this.mAuth = mAuth;
     }
 
     @NonNull
@@ -199,18 +190,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 } else {
                                     try {
                                         Transactions transactions = new Transactions(transaction.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
-                                        mData.child("transactions").child(transactions.getTransID()).setValue(transactions).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    notifyDataSetChanged();
-                                                    Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-                                                }
-                                                dialog.dismiss();
-                                            }
-                                        });
+                                        daoIncomesExpenses.editTransaction(transactions, context, dialog);
                                     } catch (Exception ex) {
                                         Log.d(Constant.TAG, "error edit trans - " + ex);
                                         ex.printStackTrace();
@@ -244,26 +224,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                mData.child("transactions").child(transaction.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            tvMessage.setText("");
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-                                            new Handler().postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    notifyDataSetChanged();
-                                                    dialog.dismiss();
-                                                    Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }, 1000);
-                                        } else {
-                                            Toast.makeText(context, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                                daoIncomesExpenses.deleteTransaction(tvMessage, progressBar, dialog, context, transaction);
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {

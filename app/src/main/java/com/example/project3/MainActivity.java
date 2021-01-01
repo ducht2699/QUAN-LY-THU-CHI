@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
         super.onStop();
-        FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
     }
 
     @Override
@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
         FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("true");
+        super.onResume();
     }
 
     @Override
@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-        toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupDrawerContent(navigationView);
         setTitle("KHOẢN THU");
@@ -78,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
-            FirebaseAuth.getInstance().signOut();
             SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("autoLogin", false);
@@ -97,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2000);
     }
-
 
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -137,14 +131,11 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(changepasswordFragment);
                 break;
             case R.id.logout:
-                FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid().toString()).child("loggedIn").setValue("false");
-                FirebaseAuth.getInstance().signOut();
                 SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("autoLogin", false);
                 editor.commit();
                 finish();
-                startActivity(new Intent(this, LoginActivity.class));
                 break;
         }
         item.setChecked(true);
@@ -155,5 +146,8 @@ public class MainActivity extends AppCompatActivity {
         frameLayout = findViewById(R.id.frame_layout);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
     }
 }

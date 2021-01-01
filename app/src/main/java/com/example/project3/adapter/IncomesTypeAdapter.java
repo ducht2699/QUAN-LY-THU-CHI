@@ -25,11 +25,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.Constant;
 import com.example.project3.R;
+import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.List;
@@ -38,18 +40,18 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
     private Context context;
     private List<IncomesExpenses> IEList;
     private List<Transactions> transactionList;
+    private DAOIncomesExpenses daoIncomesExpenses;
     private int layout;
-    private DatabaseReference mData;
 
     public IncomesTypeAdapter() {
     }
 
-    public IncomesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList, List<Transactions> transactionList, DatabaseReference mData) {
+    public IncomesTypeAdapter(Context context, int layout, List<IncomesExpenses> IEList, List<Transactions> transactionsList, DAOIncomesExpenses daoIncomesExpenses) {
         this.context = context;
-        this.IEList = IEList;
-        this.transactionList = transactionList;
         this.layout = layout;
-        this.mData = mData;
+        this.daoIncomesExpenses = daoIncomesExpenses;
+        this.IEList = IEList;
+        this.transactionList = transactionsList;
     }
 
     @NonNull
@@ -108,18 +110,7 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                             @Override
                             public void onClick(View v) {
                                 final String incomeTypeNewName = edtAddIncomeType.getText().toString();
-                                mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).child("ieName").setValue(incomeTypeNewName).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "Sửa thành công!", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        } else {
-                                            Toast.makeText(context, "Sửa thất bại!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                                daoIncomesExpenses.editIEType(incomesExpenses.getIeID(), incomeTypeNewName, context, dialog);
                             }
                         });
                         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -155,27 +146,7 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            deleteChildWithIEIDEquals(incomesExpenses.getIeID());
-                                            tvMessage.setText("");
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-                                            new Handler().postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    notifyDataSetChanged();
-                                                    Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                                                    dialog.dismiss();
-                                                }
-                                            }, 1000);
-                                        } else {
-                                            Toast.makeText(context, "Xóa thất bại", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                                daoIncomesExpenses.deleteIEType(incomesExpenses.getIeID(), tvMessage, progressBar, dialog, context);
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {
@@ -199,28 +170,6 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
         });
         holder.img_avatarItem.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
         holder.relativeLayout.setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
-    }
-
-    private void deleteChildWithIEIDEquals(String ieID) {
-        for (Transactions trans : transactionList) {
-            if (trans.getIeID().matches(ieID)) {
-                mData.child("transactions").child(trans.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(Constant.TAG, "delete trans - " + transactionList);
-                        } else {
-                            Log.d(Constant.TAG, "delete trans failed");
-                        }
-                    }
-                });
-            }
-        }
-        for (int i = 0; i < transactionList.size();i ++) {
-            if (transactionList.get(i).getIeID().matches(ieID)) {
-                transactionList.remove(i);
-            }
-        }
     }
 
     @Override

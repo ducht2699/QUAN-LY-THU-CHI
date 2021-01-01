@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.project3.dao.DAOUsers;
 import com.example.project3.model.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,8 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Animation animation;
     private EditText edtRegUsername, edtRegPassword, edtRegPassCheck;
     private Button btnRegister, btnEraseAll;
-    private DatabaseReference mData;
-    private FirebaseAuth mAuth;
+    private DAOUsers daoUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +54,9 @@ public class RegisterActivity extends AppCompatActivity {
                     if (password.isEmpty() || confirmPass.isEmpty()) {
                         Toast.makeText(RegisterActivity.this, "Mật khẩu không được để trống!", Toast.LENGTH_SHORT).show();
                     } else {
-                        if (accountCheck == true) {
-                            if (passCheck == true) {
-                                addUser(userName, password);
+                        if (accountCheck) {
+                            if (passCheck) {
+                                daoUsers.userSignIn(userName, password, RegisterActivity.this);
                             } else {
                                 Toast.makeText(RegisterActivity.this, "Mật khẩu không khớp nhau!", Toast.LENGTH_SHORT).show();
                             }
@@ -79,43 +79,8 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void addUser(String userName, String password) {
-        final String usn = userName + "@gmail.com";
-        final String pwd = password;
-        mAuth.createUserWithEmailAndPassword(usn, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Users tempUser = new Users(usn.substring(0, usn.length() - 10), pwd, FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
-                            //add user in db
-                            mData.child(tempUser.getUID()).setValue(tempUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-                                        Intent i = new Intent();
-                                        i.putExtra("userName", usn.substring(0, usn.length() - 10));
-                                        i.putExtra("pass", pwd);
-                                        setResult(RESULT_OK, i);
-                                        finish();
-                                    } else {
-                                        Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
-                                        Log.d(Constant.TAG, "add database failed - " + task.getException());
-                                    }
-                                }
-                            });
-                        } else {
-                            Toast.makeText(RegisterActivity.this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
-                            Log.d(Constant.TAG, "auth failed - " + task.getException());
-                        }
-                    }
-                });
-    }
-
     private void init() {
-        mData = FirebaseDatabase.getInstance().getReference().child("Users");
-        mAuth = FirebaseAuth.getInstance();
+        daoUsers = new DAOUsers();
         edtRegUsername = findViewById(R.id.edtRegUser);
         edtRegPassword = findViewById(R.id.edtRegPassword);
         edtRegPassCheck = findViewById(R.id.edtRePassword);

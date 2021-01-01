@@ -47,12 +47,9 @@ import java.util.List;
 public class Tab_ExpensesType_Fragment extends Fragment {
     private View view;
     private RecyclerView rcv;
-    private List<IncomesExpenses> IEList;
-    private List<Transactions> transactionsList;
-    private ExpensesTypeAdapter adapter;
     private FloatingActionButton btnGrid, btnList, btnAdd;
-    private DatabaseReference mData;
-    private FirebaseAuth mAuth;
+    private DAOIncomesExpenses daoIncomesExpenses;
+
     public Tab_ExpensesType_Fragment() {
         // Required empty public constructor
     }
@@ -68,21 +65,17 @@ public class Tab_ExpensesType_Fragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_tab__expenses_type, container, false);
         init();
-        setIEChildListener();
-        setTransListener();
         //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, transactionsList, mData);
-        rcv.setAdapter(adapter);
+        rcv.setAdapter(daoIncomesExpenses.getExpensesTypeAdapter());
         //add button click listener
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.item_girl, IEList, transactionsList, mData);
-                rcv.setAdapter(adapter);
+                rcv.setAdapter(daoIncomesExpenses.getExpensesTypeAdapter());
             }
         });
         btnList.setOnClickListener(new View.OnClickListener() {
@@ -90,8 +83,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new ExpensesTypeAdapter(getActivity(), R.layout.oneitem_recylerview, IEList, transactionsList, mData);
-                rcv.setAdapter(adapter);
+                rcv.setAdapter(daoIncomesExpenses.getExpensesTypeAdapter());
             }
         });
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -119,20 +111,8 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                 btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String expenseType = edtAddExpenseType.getText().toString();
-                        String ID = mData.child("incomesExpensesTypes").push().getKey();
-                        IncomesExpenses incomesExpenses = new IncomesExpenses(ID, expenseType, Constant.EXPENSES);
-                        mData.child("incomesExpensesTypes").child(incomesExpenses.getIeID()).setValue(incomesExpenses).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
-                                } else {
-                                    Toast.makeText(getActivity(), "Thêm thất bại!", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
+                        String IEName = edtAddExpenseType.getText().toString();
+                        daoIncomesExpenses.addIEType(getContext(), IEName, dialog, Constant.EXPENSES);
                     }
                 });
                 btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -154,116 +134,11 @@ public class Tab_ExpensesType_Fragment extends Fragment {
     }
 
     private void init() {
-        mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString());
-        IEList = new ArrayList<>();
-        transactionsList = new ArrayList<>();
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.EXPENSES_TYPE_ADAPTER, Constant.EXPENSES);
         rcv = view.findViewById(R.id.rcv_ExpenesesTypes);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);
         btnList = view.findViewById(R.id.btnList);
-    }
-
-    private void setTransListener() {
-        mData.child("transactions").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions transactions = snapshot.getValue(Transactions.class);
-                if (isMatchIEType(transactions.getIeID()) == true) {
-                    transactionsList.add(transactions);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions trans = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(trans.getTransID())) {
-                        transactionsList.set(transactionsList.indexOf(x), trans);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                Transactions trans = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(trans.getTransID())) {
-                        int pos = transactionsList.indexOf(x);
-                        transactionsList.remove(pos);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private void setIEChildListener() {
-        mData.child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                if (ie.getIeType() == Constant.EXPENSES) {
-                    IEList.add(ie);
-                    adapter.notifyItemInserted(IEList.indexOf(ie));
-                    Log.d(Constant.TAG, "add - " + IEList);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID()) && x.getIeType() == Constant.EXPENSES) {
-                        IEList.set(IEList.indexOf(x), ie);
-                        adapter.notifyItemChanged(IEList.indexOf(x));
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID()) && x.getIeType() == Constant.EXPENSES) {
-                        int pos = IEList.indexOf(x);
-                        IEList.remove(pos);
-                        adapter.notifyItemRemoved(pos);
-                        Log.d(Constant.TAG, "remove child - " + IEList);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private boolean isMatchIEType(String ieID) {
-        boolean check = false;
-        for (IncomesExpenses x : IEList) {
-            if (x.getIeID().matches(ieID)) {
-                check = true;
-                break;
-            }
-        }
-        return check;
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
@@ -271,7 +146,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
-            Collections.swap(IEList, fromPosition, toPosition);
+            Collections.swap(daoIncomesExpenses.getIEList(), fromPosition, toPosition);
             recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
             return false;
         }

@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.adapter.IncomesAdapter;
+import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.github.clans.fab.FloatingActionButton;
@@ -52,14 +53,10 @@ import java.util.List;
 public class Tab_Incomes_Fragment extends Fragment {
     private View view;
     private RecyclerView rcv;
-    private List<Transactions> transactionsList;
-    private List<IncomesExpenses> IEList;
     private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
     private DatePickerDialog datePickerDialog;
-    private IncomesAdapter adapter;
     private FloatingActionButton btnGrid, btnList, btnAdd;
-    private DatabaseReference mData;
-    private FirebaseAuth mAuth;
+    private DAOIncomesExpenses daoIncomesExpenses;
 
     public Tab_Incomes_Fragment() {
         // Required empty public constructor
@@ -74,21 +71,17 @@ public class Tab_Incomes_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_tab_incomes, container, false);
         init();
-        setIEChildListener();
-        setTransChildListener();
         //set list to recycle view
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         rcv.setLayoutManager(layoutManager);
-        adapter = new IncomesAdapter(getActivity(), R.layout.oneitem_recylerview, transactionsList, IEList, mData, mAuth);
-        rcv.setAdapter(adapter);
+        rcv.setAdapter(daoIncomesExpenses.getIncomesAdapter());
         //add button click listener
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
-                adapter = new IncomesAdapter(getActivity(), R.layout.item_girl, transactionsList, IEList, mData, mAuth);
-                rcv.setAdapter(adapter);
+                rcv.setAdapter(daoIncomesExpenses.getIncomesAdapter());
             }
         });
         btnList.setOnClickListener(new View.OnClickListener() {
@@ -96,8 +89,7 @@ public class Tab_Incomes_Fragment extends Fragment {
             public void onClick(View view) {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 rcv.setLayoutManager(layoutManager);
-                adapter = new IncomesAdapter(getActivity(), R.layout.oneitem_recylerview, transactionsList, IEList, mData, mAuth);
-                rcv.setAdapter(adapter);
+                rcv.setAdapter(daoIncomesExpenses.getIncomesAdapter());
             }
         });
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +131,7 @@ public class Tab_Incomes_Fragment extends Fragment {
                     }
                 });
                 //pour data to spinner
-                final ArrayAdapter spnAdapter = new ArrayAdapter(getActivity(), R.layout.spiner, IEList);
+                final ArrayAdapter spnAdapter = new ArrayAdapter(getActivity(), R.layout.spiner, daoIncomesExpenses.getIEList());
                 spnTransType.setAdapter(spnAdapter);
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -160,19 +152,8 @@ public class Tab_Incomes_Fragment extends Fragment {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
-                                    String transID = mData.push().getKey();
-                                    Transactions gd = new Transactions(transID, transDes, dfm.parse(tempTransDate), Integer.parseInt(tempTransMoney), IeID);
-                                    mData.child("transactions").child(transID).setValue(gd).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                Toast.makeText(getActivity(), "Thêm thành công!", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(getActivity(), "Thêm thất bại!", Toast.LENGTH_SHORT).show();
-                                            }
-                                            dialog.dismiss();
-                                        }
-                                    });
+                                    Transactions transaction = new Transactions("", transDes, dfm.parse(tempTransDate), Integer.parseInt(tempTransMoney), IeID);
+                                    daoIncomesExpenses.addTransaction(getActivity(), dialog, transaction);
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -194,113 +175,8 @@ public class Tab_Incomes_Fragment extends Fragment {
         return view;
     }
 
-    private void setTransChildListener() {
-        mData.child("transactions").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions transactions = snapshot.getValue(Transactions.class);
-                if (isMatchIEType(transactions.getIeID()) == true) {
-                    transactionsList.add(transactions);
-                    adapter.notifyItemInserted(transactionsList.indexOf(transactions));
-                    Log.d(Constant.TAG, "add trans" + transactionsList);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions trans = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(trans.getTransID())) {
-                        transactionsList.set(transactionsList.indexOf(x), trans);
-                        adapter.notifyItemChanged(transactionsList.indexOf(x));
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                Transactions trans = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(trans.getTransID())) {
-                        int pos = transactionsList.indexOf(x);
-                        transactionsList.remove(pos);
-                        adapter.notifyDataSetChanged();
-                        Log.d(Constant.TAG, "trans removed by deleting incomesType - " + transactionsList);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private void setIEChildListener() {
-        mData.child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                if (ie.getIeType() == Constant.INCOME) {
-                    IEList.add(ie);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID()) && ie.getIeType() == Constant.INCOME) {
-                        IEList.set(IEList.indexOf(x), ie);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID()) && ie.getIeType() == Constant.INCOME) {
-                        int pos = IEList.indexOf(x);
-                        IEList.remove(pos);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private boolean isMatchIEType(String ieID) {
-        boolean check = false;
-        for (IncomesExpenses x : IEList) {
-            if (x.getIeID().matches(ieID)) {
-                check = true;
-                break;
-            }
-        }
-        return check;
-    }
-
     private void init() {
-        IEList = new ArrayList<>();
-        transactionsList = new ArrayList<>();
-        mAuth = FirebaseAuth.getInstance();
-        mData = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid().toString());
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.INCOMES_ADAPTER, Constant.INCOME);
         rcv = view.findViewById(R.id.rcv_KhoanThu);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);
@@ -312,7 +188,7 @@ public class Tab_Incomes_Fragment extends Fragment {
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
-            Collections.swap(transactionsList, fromPosition, toPosition);
+            Collections.swap(daoIncomesExpenses.getTransactionsList(), fromPosition, toPosition);
             recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
             return false;
         }

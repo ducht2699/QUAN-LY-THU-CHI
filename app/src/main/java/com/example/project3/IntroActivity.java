@@ -21,15 +21,15 @@ public class IntroActivity extends AppCompatActivity {
         setContentView(R.layout.activity_intro);
         txtTitle = findViewById(R.id.txt_Tiltintro);
         img_intro = findViewById(R.id.img_intro);
-        animationText = AnimationUtils.loadAnimation(this, R.anim.text_intro_animation);
-        txtTitle.setAnimation(animationText);
-        animationImage = AnimationUtils.loadAnimation(this, R.anim.image_intro_animation);
+//        animationText = AnimationUtils.loadAnimation(this, R.anim.text_intro_animation);
+//        txtTitle.setAnimation(animationText);
+//        animationImage = AnimationUtils.loadAnimation(this, R.anim.image_intro_animation);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 startActivity(new Intent(IntroActivity.this, LoginActivity.class));
                 finish();
             }
-        }, 3000);
+        }, 2000);
     }
 }

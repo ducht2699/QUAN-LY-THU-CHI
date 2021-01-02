@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -29,25 +27,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project3.Constant;
 import com.example.project3.R;
-import com.example.project3.adapter.IncomesAdapter;
 import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.github.clans.fab.FloatingActionButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.List;
 
 
 public class Tab_Incomes_Fragment extends Fragment {
@@ -177,7 +164,7 @@ public class Tab_Incomes_Fragment extends Fragment {
 
     private void init() {
         daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.INCOMES_ADAPTER, Constant.INCOME);
-        rcv = view.findViewById(R.id.rcv_KhoanThu);
+        rcv = view.findViewById(R.id.rcv_IncomesType);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);
         btnList = view.findViewById(R.id.btnList);

@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupDrawerContent(navigationView);
         setTitle("KHOẢN THU");
-        replaceFragment(new Incomes_Fragment());
+        replaceFragment(new Statistic_Fragment());
     }
 
     @Override

@@ -9,18 +9,19 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constant;
 import com.example.project3.R;
+import com.example.project3.adapter.StatisticAdapter;
 
 import java.text.SimpleDateFormat;
 
 
 public class Statistic_Fragment extends Fragment {
-    private TextView fromDate, toDate, income, expense, left;
-    private Button btnShow;
-    private DatePickerDialog datePickerDialog;
-    //private DAOTransactions daoTransactions;
-    private SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
+    private View view;
+    private RecyclerView rcvStatistic;
 
     public Statistic_Fragment() {
     }
@@ -34,94 +35,16 @@ public class Statistic_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_statistic, container, false);
-        fromDate = view.findViewById(R.id.tungay);
-        toDate = view.findViewById(R.id.denngay);
-        income = view.findViewById(R.id.tienThu);
-        expense = view.findViewById(R.id.tienChi);
-        left = view.findViewById(R.id.tienConLai);
-        btnShow = view.findViewById(R.id.btnShow);
-//        daoTransactions = new DAOTransactions();
-//        //Format money
-//        final NumberFormat fm = new DecimalFormat("#,###");
-//        final ArrayList<Transactions> listThu = daoTransactions.getTransByIE(0);
-//        final ArrayList<Transactions> listChi = daoTransactions.getTransByIE(1);
-//        int tongThu = 0, tongChi = 0;
-//        for (int i = 0; i < listThu.size(); i++) {
-//            tongThu += listThu.get(i).getAmountMoney();
-//        }
-//        for (int i = 0; i < listChi.size(); i++) {
-//            tongChi += Math.abs(listChi.get(i).getAmountMoney());
-//        }
-//        income.setText(fm.format(tongThu) + " VND");
-//        expense.setText(fm.format(tongChi) + " VND");
-//        left.setText(fm.format(tongThu - tongChi) + " VND");
-//        //choose from date
-//        fromDate.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final Calendar calendar = Calendar.getInstance();
-//                int d = calendar.get(Calendar.DAY_OF_MONTH);
-//                int m = calendar.get(Calendar.MONTH);
-//                int y = calendar.get(Calendar.YEAR);
-//                datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
-//                    @Override
-//                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-//                        String NgayDau = dayOfMonth + "/" + (month + 1) + "/" + year;
-//                        fromDate.setText(NgayDau);
-//                    }
-//                }, y, m, d);
-//                datePickerDialog.show();
-//            }
-//        });
-//        toDate.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final Calendar calendar = Calendar.getInstance();
-//                int d = calendar.get(Calendar.DAY_OF_MONTH);
-//                int m = calendar.get(Calendar.MONTH);
-//                int y = calendar.get(Calendar.YEAR);
-//                datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
-//                    @Override
-//                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-//                        String NgayCuoi = dayOfMonth + "/" + (month + 1) + "/" + year;
-//                        toDate.setText(NgayCuoi);
-//                    }
-//                }, y, m, d);
-//                datePickerDialog.show();
-//                //click on show sort IE by day
-//                btnShow.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        int Thu = 0, Chi = 0;
-//                        String bd = fromDate.getText().toString();
-//                        String kt = toDate.getText().toString();
-//                        //calculate money by day
-//                        for (int i = 0; i < listThu.size(); i++) {
-//                            try {
-//                                if (listThu.get(i).getTransDate().compareTo(dfm.parse(bd)) >= 0 && listThu.get(i).getTransDate().compareTo(dfm.parse(kt)) <= 0) {
-//                                    Thu += listThu.get(i).getAmountMoney();
-//                                }
-//                            } catch (Exception ex) {
-//                                ex.printStackTrace();
-//                            }
-//                        }
-//                        for (int i = 0; i < listChi.size(); i++) {
-//                            try {
-//                                if (listChi.get(i).getTransDate().compareTo(dfm.parse(bd)) >= 0 && listChi.get(i).getTransDate().compareTo(dfm.parse(kt)) <= 0) {
-//                                    Chi += listChi.get(i).getAmountMoney();
-//                                }
-//                            } catch (Exception ex) {
-//                                ex.printStackTrace();
-//                            }
-//                        }
-//                        income.setText(fm.format(Thu) + " VND");
-//                        expense.setText(fm.format(Chi) + " VND");
-//                        left.setText(fm.format(Thu - Chi) + " VND");
-//                    }
-//                });
-//            }
-//        });
+        view = inflater.inflate(R.layout.fragment_statistic, container, false);
+        init();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
+        rcvStatistic.setLayoutManager(gridLayoutManager);
+        StatisticAdapter statisticAdapter = new StatisticAdapter(getContext(), R.layout.item_grid);
+        rcvStatistic.setAdapter(statisticAdapter);
         return view;
+    }
+
+    private void init() {
+        rcvStatistic = view.findViewById(R.id.rcvStatisticType);
     }
 }

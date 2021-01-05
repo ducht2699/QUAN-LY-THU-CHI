@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void init() {
-        daoUsers = new DAOUsers();
+        daoUsers = new DAOUsers(this);
         //check if user is logged in --> sign out
         if (daoUsers.userIsLoggedIn() == true) {
             Log.d(Constant.TAG, "user existed");

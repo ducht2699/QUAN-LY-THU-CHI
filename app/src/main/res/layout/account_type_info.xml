@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvTransTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textColor="@color/grey_dam"
+        android:text="THÔNG TIN TÀI KHOẢN"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="30dp">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:src="@drawable/icon_motagiaodich"
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
+    <TextView
+        android:id="@+id/tvAccountTypeName"
+        android:textStyle="bold"
+        android:textColor="@color/grey_dam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:hint="Tên tài khoản"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:textSize="20dp"
+        android:gravity="center_horizontal" />
+</LinearLayout>
+
+<LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/icon_moneymotagaodich"
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <TextView
+                android:id="@+id/tvMoney"
+                android:textStyle="bold"
+                android:textColor="@color/grey_dam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:hint="Số tiền"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textSize="20dp"
+                android:gravity="center_horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+</LinearLayout>

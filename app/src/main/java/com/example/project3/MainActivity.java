@@ -1,10 +1,8 @@
 package com.example.project3;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -14,10 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.project3.fragment.AccountTypeFragment;
 import com.example.project3.fragment.ChangePasswordFragment;
-import com.example.project3.fragment.Expenses_Fragment;
+import com.example.project3.fragment.income_expense.Expenses_Fragment;
 import com.example.project3.fragment.Intro_Fragment;
-import com.example.project3.fragment.Incomes_Fragment;
+import com.example.project3.fragment.income_expense.Incomes_Fragment;
 import com.example.project3.fragment.Statistic_Fragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         init();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupDrawerContent(navigationView);
-        setTitle("KHOẢN THU");
+        setTitle("THỐNG KÊ");
         replaceFragment(new Statistic_Fragment());
     }
 
@@ -74,58 +73,68 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("autoLogin", false);
-            editor.commit();
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (count != 0) {
             super.onBackPressed();
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Nhấn Back một lần nữa để logout!", Toast.LENGTH_SHORT).show();
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
+        } else {
+            if (doubleBackToExitPressedOnce) {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("autoLogin", false);
+                editor.commit();
+                super.onBackPressed();
+                return;
             }
-        }, 2000);
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Nhấn Back một lần nữa để logout!", Toast.LENGTH_SHORT).show();
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce = false;
+                }
+            }, 2000);
+        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                selectedItemDrawer(item);
+                setSelectedItemDrawer(item);
                 return true;
             }
         });
     }
 
-    private void selectedItemDrawer(MenuItem item) {
+    private void setSelectedItemDrawer(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.khoanthu:
+            case R.id.accountType:
+                setTitle("VÍ CÁ NHÂN");
+                AccountTypeFragment accountTypeFragment = new AccountTypeFragment();
+                replaceFragment(accountTypeFragment);
+                break;
+            case R.id.income:
                 setTitle("KHOẢN THU");
                 Incomes_Fragment incomes_fragment = new Incomes_Fragment();
                 replaceFragment(incomes_fragment);
                 break;
-            case R.id.khoanchi:
+            case R.id.expense:
                 setTitle("KHOẢN CHI");
                 Expenses_Fragment expenses_fragment = new Expenses_Fragment();
                 replaceFragment(expenses_fragment);
                 break;
-            case R.id.thongke:
+            case R.id.statistic:
                 setTitle("THỐNG KÊ");
                 Statistic_Fragment searchFragment = new Statistic_Fragment();
                 replaceFragment(searchFragment);
                 break;
-            case R.id.gioithieu:
+            case R.id.introduce:
                 setTitle("GIỚI THIỆU");
                 Intro_Fragment settingsFragment = new Intro_Fragment();
                 replaceFragment(settingsFragment);
                 break;
-            case R.id.doimatkhau:
+            case R.id.changePass:
                 setTitle("ĐỔI MẬT KHẨU");
                 ChangePasswordFragment changepasswordFragment = new ChangePasswordFragment();
                 replaceFragment(changepasswordFragment);

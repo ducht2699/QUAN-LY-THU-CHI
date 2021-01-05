@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,8 +31,6 @@ import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.text.DecimalFormat;
@@ -132,7 +129,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         final TextView tvTransDate = dialog.findViewById(R.id.add_trans_date);
                         final EditText edtTransMoney = dialog.findViewById(R.id.add_trans_money);
                         final Spinner spnIEType = dialog.findViewById(R.id.spnTransType);
-                        final TextView tvTransTitle = dialog.findViewById(R.id.titleAddTrans);
+                        final TextView tvTransTitle = dialog.findViewById(R.id.titleAddAccount);
                         final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
                         final Button btnEdit = dialog.findViewById(R.id.btnAddTrans);
                         //Set title, text
@@ -213,7 +210,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView tvMessage = dialog.findViewById(R.id.txt_Titleconfirm);
+                        final TextView tvMessage = dialog.findViewById(R.id.tvConfirmTitle);
                         Button btnCancel = dialog.findViewById(R.id.btnCancel);
                         final Button btnAdd = dialog.findViewById(R.id.btnAdd);
                         final Button btnYes = dialog.findViewById(R.id.btnYes);
@@ -236,7 +233,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         dialog.show();
                     }
                 });
-                bottomSheetView.findViewById(R.id.txt_Huy).setOnClickListener(new View.OnClickListener() {
+                bottomSheetView.findViewById(R.id.tvCancel).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();

@@ -1,4 +1,4 @@
-package com.example.project3.fragment;
+package com.example.project3.fragment.income_expense;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -95,7 +95,7 @@ public class Tab_Incomes_Fragment extends Fragment {
                 final TextView transDate = dialog.findViewById(R.id.add_trans_date);
                 final EditText transMoney = dialog.findViewById(R.id.add_trans_money);
                 final Spinner spnTransType = dialog.findViewById(R.id.spnTransType);
-                final TextView tvTitleAddTrans = dialog.findViewById(R.id.titleAddTrans);
+                final TextView tvTitleAddTrans = dialog.findViewById(R.id.titleAddAccount);
                 final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
                 final Button btnAdd = dialog.findViewById(R.id.btnAddTrans);
                 tvTitleAddTrans.setText("THÊM KHOẢN THU");
@@ -135,7 +135,7 @@ public class Tab_Incomes_Fragment extends Fragment {
                         if (spnTransType.getSelectedItem() != null) {
                             IncomesExpenses incomesExpenses = (IncomesExpenses) spnTransType.getSelectedItem();
                             String IeID = incomesExpenses.getIeID();
-                            if (transDes.isEmpty() && tempTransDate.isEmpty() && tempTransMoney.isEmpty()) {
+                            if (transDes.isEmpty() || tempTransDate.isEmpty() || tempTransMoney.isEmpty()) {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {

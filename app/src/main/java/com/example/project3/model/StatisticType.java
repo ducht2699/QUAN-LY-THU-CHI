@@ -3,10 +3,16 @@ package com.example.project3.model;
 public class StatisticType {
     private String typeName;
     private int typeImage;
+    private String statisticID;
 
-    public StatisticType(String typeName, int typeImage) {
+    public StatisticType() {
+
+    }
+
+    public StatisticType(String typeName, int typeImage, String statisticID) {
         this.typeName = typeName;
         this.typeImage = typeImage;
+        this.statisticID = statisticID;
     }
 
     public String getTypeName() {
@@ -23,5 +29,18 @@ public class StatisticType {
 
     public void setTypeImage(int typeImage) {
         this.typeImage = typeImage;
+    }
+
+    public String getStatisticID() {
+        return statisticID;
+    }
+
+    public void setStatisticID(String statisticID) {
+        this.statisticID = statisticID;
+    }
+
+    @Override
+    public String toString() {
+        return typeName;
     }
 }

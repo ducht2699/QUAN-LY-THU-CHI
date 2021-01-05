@@ -13,7 +13,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"/>
     <TextView
-        android:id="@+id/txt_Titleconfirm"
+        android:id="@+id/tvConfirmTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
@@ -26,7 +26,7 @@
         android:textSize="18dp" />
 
     <LinearLayout
-        android:layout_below="@+id/txt_Titleconfirm"
+        android:layout_below="@+id/tvConfirmTitle"
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:orientation="horizontal"

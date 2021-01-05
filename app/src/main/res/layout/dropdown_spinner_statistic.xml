@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="32dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imvIcon"
+        android:src="@drawable/ic_current_finance"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvName"
+        android:text="thifnh thinh thu chi"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:layout_toRightOf="@+id/imvIcon"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"/>
+</RelativeLayout>

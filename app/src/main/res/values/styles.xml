@@ -19,6 +19,7 @@
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:minWidth">250dp</item>
     </style>
+
     <style name="AppTheme.ProfileTheme">
         <item name="colorPrimaryDark">@color/blue</item>
         <item name="colorAccent">@color/profileAccentColor</item>
@@ -79,23 +80,27 @@
         <item name="android:layout_marginLeft">10dp</item>
     </style>
 
-    <style name="proifleDetailsView">
+    <style name="profileDetailsView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">2dp</item>
         <item name="android:background">@color/profileAccentColor</item>
         <item name="android:layout_marginTop">5dp</item>
     </style>
+
     <style name="DialogTheme">
         <item name="android:windowEnterAnimation">@anim/popup</item>
         <item name="android:windowExitAnimation">@anim/popdown</item>
     </style>
+
     <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
+
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>

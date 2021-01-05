@@ -91,7 +91,7 @@
         android:background="@color/grey_nhat" />
 
     <TextView
-        android:id="@+id/txt_Huy"
+        android:id="@+id/tvCancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"

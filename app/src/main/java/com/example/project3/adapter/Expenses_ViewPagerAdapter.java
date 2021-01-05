@@ -6,8 +6,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.example.project3.Constant;
-import com.example.project3.fragment.Tab_Expenses_Fragment;
-import com.example.project3.fragment.Tab_ExpensesType_Fragment;
+import com.example.project3.fragment.income_expense.Tab_Expenses_Fragment;
+import com.example.project3.fragment.income_expense.Tab_ExpensesType_Fragment;
 
 
 public class Expenses_ViewPagerAdapter extends FragmentStatePagerAdapter {

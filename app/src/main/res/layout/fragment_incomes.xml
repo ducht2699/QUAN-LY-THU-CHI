@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_nhat"
-    tools:context=".fragment.Expenses_Fragment">
+    tools:context=".fragment.income_expense.Expenses_Fragment">
 
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout

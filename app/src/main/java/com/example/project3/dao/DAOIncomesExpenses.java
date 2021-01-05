@@ -20,6 +20,7 @@ import com.example.project3.adapter.ExpensesTypeAdapter;
 import com.example.project3.adapter.IncomesAdapter;
 import com.example.project3.adapter.IncomesTypeAdapter;
 import com.example.project3.database.Database;
+import com.example.project3.fragment.statistic_details.IEEventFragment;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,12 +41,134 @@ public class DAOIncomesExpenses {
     private ExpensesAdapter expensesAdapter;
     private ExpensesTypeAdapter expensesTypeAdapter;
 
+    public DAOIncomesExpenses() {
+        this.database = new Database();
+        IEList = new ArrayList<>();
+        transactionsList = new ArrayList<>();
+        getAllIEType();
+        getAllTransaction();
+    }
+
     public DAOIncomesExpenses(Activity activity, String adapterType, int IEType) {
         this.database = new Database();
         IEList = new ArrayList<>();
         transactionsList = new ArrayList<>();
         setListener(IEType, adapterType);
         createAdapter(activity, adapterType);
+    }
+
+    public int calculateIE(int type) {
+        int totalMoney = 0;
+        for (IncomesExpenses x: IEList) {
+            if (x.getIeType() == type) {
+                List<Transactions> transactionsList = getTransByIEID(x.getIeID());
+                for (Transactions x1: transactionsList) {
+                    totalMoney += x1.getAmountMoney();
+                }
+            }
+
+        }
+        return totalMoney;
+    }
+
+    public List<IncomesExpenses> getIEListByType(int type) {
+        List<IncomesExpenses> incomesExpensesList = new ArrayList<>();
+        for (IncomesExpenses x : IEList) {
+            if (x.getIeType() == type) {
+                incomesExpensesList.add(x);
+            }
+        }
+        return incomesExpensesList;
+    }
+
+    public List<Transactions> getTransByIEID(String ieID) {
+        List<Transactions> transactionsList1 = new ArrayList<>();
+        for (Transactions x : transactionsList) {
+            if (x.getIeID().matches(ieID)) {
+                transactionsList1.add(x);
+            }
+        }
+        return transactionsList1;
+    }
+
+    private void getAllTransaction() {
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("transactions").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Transactions transactions = snapshot.getValue(Transactions.class);
+                transactionsList.add(transactions);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Transactions transactions = snapshot.getValue(Transactions.class);
+                for (Transactions x: transactionsList) {
+                    if (x.getTransID().matches(transactions.getTransID())) {
+                        transactionsList.set(transactionsList.indexOf(x), transactions);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                Transactions transactions = snapshot.getValue(Transactions.class);
+                for (Transactions x: transactionsList) {
+                    if (x.getTransID().matches(transactions.getTransID())) {
+                        transactionsList.remove(x);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void getAllIEType() {
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
+                IEList.add(ie);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
+                for (IncomesExpenses x: IEList) {
+                    if (x.getIeID().matches(ie.getIeID())) {
+                        IEList.set(IEList.indexOf(x), ie);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
+                for (IncomesExpenses x: IEList) {
+                    if (x.getIeID().matches(ie.getIeID())) {
+                        IEList.remove(x);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 
     private void setListener(int IEType, String adapterType) {
@@ -314,7 +437,7 @@ public class DAOIncomesExpenses {
                 if (isMatchIEType(transactions.getIeID()) == true) {
                     transactionsList.add(transactions);
                     if (isNotify)
-                    notifyItemInserted(transactionsList.indexOf(transactions), adapterType);
+                        notifyItemInserted(transactionsList.indexOf(transactions), adapterType);
                     Log.d(Constant.TAG, "trans add - " + transactionsList + " - " + adapterType);
                 }
             }
@@ -326,7 +449,7 @@ public class DAOIncomesExpenses {
                     if (x.getTransID().matches(trans.getTransID())) {
                         transactionsList.set(transactionsList.indexOf(x), trans);
                         if (isNotify)
-                        notifyItemChanged(transactionsList.indexOf(trans), adapterType);
+                            notifyItemChanged(transactionsList.indexOf(trans), adapterType);
                         Log.d(Constant.TAG, "trans change - " + transactionsList + " - " + adapterType);
                         break;
                     }

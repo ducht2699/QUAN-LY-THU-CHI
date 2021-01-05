@@ -80,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void init() {
-        daoUsers = new DAOUsers();
+        daoUsers = new DAOUsers(this);
         edtRegUsername = findViewById(R.id.edtRegUser);
         edtRegPassword = findViewById(R.id.edtRegPassword);
         edtRegPassCheck = findViewById(R.id.edtRePassword);

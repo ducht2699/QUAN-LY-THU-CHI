@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.project3.Constant;
 import com.example.project3.R;
 import com.example.project3.adapter.StatisticAdapter;
+import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.dao.DAOStatisticType;
+import com.example.project3.model.StatisticType;
 
 import java.text.SimpleDateFormat;
 
@@ -37,10 +40,11 @@ public class Statistic_Fragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_statistic, container, false);
         init();
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
         rcvStatistic.setLayoutManager(gridLayoutManager);
-        StatisticAdapter statisticAdapter = new StatisticAdapter(getContext(), R.layout.item_grid);
-        rcvStatistic.setAdapter(statisticAdapter);
+        StatisticAdapter adapter = new StatisticAdapter(getContext(), R.layout.item_grid);
+        rcvStatistic.setAdapter(adapter);
         return view;
     }
 

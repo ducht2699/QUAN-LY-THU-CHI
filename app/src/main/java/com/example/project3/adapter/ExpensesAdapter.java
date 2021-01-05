@@ -4,9 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,16 +29,11 @@ import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -152,7 +145,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         final TextView etvTransDate = dialog.findViewById(R.id.add_trans_date);
                         final TextView edtTransMoney = dialog.findViewById(R.id.add_trans_money);
                         final Spinner spnTransType = dialog.findViewById(R.id.spnTransType);
-                        final TextView tvTitle = dialog.findViewById(R.id.titleAddTrans);
+                        final TextView tvTitle = dialog.findViewById(R.id.titleAddAccount);
                         final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
                         final Button btnEdit = dialog.findViewById(R.id.btnAddTrans);
                         //Set title, text
@@ -231,7 +224,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         if (dialog != null && dialog.getWindow() != null) {
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         }
-                        final TextView tvConfirmMessage = dialog.findViewById(R.id.txt_Titleconfirm);
+                        final TextView tvConfirmMessage = dialog.findViewById(R.id.tvConfirmTitle);
                         final Button btnYes = dialog.findViewById(R.id.btnYes);
                         final Button btnNo = dialog.findViewById(R.id.btnNo);
                         final ProgressBar progressBar = dialog.findViewById(R.id.progress_loadconfirm);
@@ -252,7 +245,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                         dialog.show();
                     }
                 });
-                bottomSheetView.findViewById(R.id.txt_Huy).setOnClickListener(new View.OnClickListener() {
+                bottomSheetView.findViewById(R.id.tvCancel).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         bottomSheetDialog.dismiss();

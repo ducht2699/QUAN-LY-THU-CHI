@@ -115,7 +115,9 @@ public class AccountTypeFragment extends Fragment {
     }
 
     private void init() {
-        daoUsers = new DAOUsers(view.getContext());
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener();
+        daoUsers.createAccountTypeAdapter(view.getContext());
         rcv = view.findViewById(R.id.rcvAccountType);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);

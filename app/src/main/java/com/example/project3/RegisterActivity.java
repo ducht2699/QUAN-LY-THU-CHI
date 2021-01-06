@@ -43,11 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = edtRegPassword.getText().toString();
                 String confirmPass = edtRegPassCheck.getText().toString();
                 boolean accountCheck = true, passCheck = false;
-                if (password.matches(confirmPass)) {
-                    passCheck = true;
-                } else {
-                    passCheck = false;
-                }
+                passCheck = password.matches(confirmPass);
                 if (userName.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Tên tài khoản không được để trống!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -80,7 +76,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void init() {
-        daoUsers = new DAOUsers(this);
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener();
+        daoUsers.createAccountTypeAdapter(this);
         edtRegUsername = findViewById(R.id.edtRegUser);
         edtRegPassword = findViewById(R.id.edtRegPassword);
         edtRegPassCheck = findViewById(R.id.edtRePassword);

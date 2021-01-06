@@ -42,11 +42,9 @@ public class DAOUsers {
     private List<AccountType> accountTypeList;
     private AccountTypeAdapter accountTypeAdapter;
 
-    public DAOUsers(Context context) {
+    public DAOUsers() {
         this.database = new Database();
         accountTypeList = new ArrayList<>();
-        addAccountTypeListener();
-        accountTypeAdapter = new AccountTypeAdapter(context, accountTypeList, R.layout.oneitem_recylerview, DAOUsers.this);
     }
 
     public long getTotalMoney() {
@@ -157,8 +155,12 @@ public class DAOUsers {
     public void userSignOut() {
         database.getAuthentication().signOut();
     }
+
+    public void createAccountTypeAdapter(Context context) {
+        accountTypeAdapter = new AccountTypeAdapter(context, accountTypeList, R.layout.oneitem_recylerview, DAOUsers.this);
+    }
     
-    private void addAccountTypeListener() {
+    public void addAccountTypeListener() {
         database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("account").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

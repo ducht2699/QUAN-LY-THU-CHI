@@ -47,7 +47,9 @@ public class StatisticAdapter extends RecyclerView.Adapter<StatisticAdapter.View
         daoStatisticType = new DAOStatisticType();
         statisticTypeList = daoStatisticType.getStatisticTypesList();
         daoIncomesExpenses = new DAOIncomesExpenses();
-        daoUsers = new DAOUsers(context);
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener();
+        daoUsers.createAccountTypeAdapter(context);
     }
 
     @NonNull

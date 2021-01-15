@@ -15,10 +15,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.MainActivity;
 import com.example.project3.R;
-import com.example.project3.RegisterActivity;
 import com.example.project3.adapter.AccountTypeAdapter;
 import com.example.project3.database.Database;
 import com.example.project3.model.AccountType;
@@ -34,12 +33,11 @@ import com.google.firebase.database.DatabaseError;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 public class DAOUsers {
-    private Database database;
-    private boolean check = false;
-    private List<AccountType> accountTypeList;
+    private final Database database;
+    private final boolean check = false;
+    private final List<AccountType> accountTypeList;
     private AccountTypeAdapter accountTypeAdapter;
 
     public DAOUsers() {
@@ -49,7 +47,7 @@ public class DAOUsers {
 
     public long getTotalMoney() {
         long total = 0;
-        for (AccountType x: accountTypeList) {
+        for (AccountType x : accountTypeList) {
             total += x.getAmountMoney();
         }
         return total;
@@ -71,7 +69,7 @@ public class DAOUsers {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             //change log in state in DB
-                            database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("loggedIn").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
+                            database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid()).child("loggedIn").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
@@ -82,19 +80,19 @@ public class DAOUsers {
                                         activity.overridePendingTransition(R.anim.ani_intent, R.anim.ani_intenexit);
                                     } else {
 
-                                        Log.d(Constant.TAG, "add DB failed + " + task.getException());
+                                        Log.d(Constants.TAG, "add DB failed + " + task.getException());
                                     }
                                 }
                             });
                         } else {
-                            Log.d(Constant.TAG, "login failed - " + task.getException());
+                            Log.d(Constants.TAG, "login failed - " + task.getException());
                         }
                     }
                 });
     }
 
     private void saveUserData(String userName, String pass, Context context, boolean check) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("UserData", context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserData", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         if (!check) {
             editor.clear();
@@ -114,7 +112,7 @@ public class DAOUsers {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Users tempUser = new Users(usn.substring(0, usn.length() - 10), pwd, FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
+                            Users tempUser = new Users(usn.substring(0, usn.length() - 10), pwd, FirebaseAuth.getInstance().getCurrentUser().getUid());
                             //add user in db
                             database.getDatabase().child("Users").child(tempUser.getUID()).setValue(tempUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
@@ -129,13 +127,13 @@ public class DAOUsers {
                                         activity.finish();
                                     } else {
                                         Toast.makeText(context, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
-                                        Log.d(Constant.TAG, "add database failed - " + task.getException());
+                                        Log.d(Constants.TAG, "add database failed - " + task.getException());
                                     }
                                 }
                             });
                         } else {
                             Toast.makeText(context, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
-                            Log.d(Constant.TAG, "auth failed - " + task.getException());
+                            Log.d(Constants.TAG, "auth failed - " + task.getException());
                         }
                     }
                 });
@@ -146,10 +144,7 @@ public class DAOUsers {
     }
 
     public boolean userIsLoggedIn() {
-        if (database.getAuthentication().getCurrentUser() != null) {
-            return true;
-        }
-        return false;
+        return database.getAuthentication().getCurrentUser() != null;
     }
 
     public void userSignOut() {
@@ -159,23 +154,25 @@ public class DAOUsers {
     public void createAccountTypeAdapter(Context context) {
         accountTypeAdapter = new AccountTypeAdapter(context, accountTypeList, R.layout.oneitem_recylerview, DAOUsers.this);
     }
-    
-    public void addAccountTypeListener() {
-        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("account").addChildEventListener(new ChildEventListener() {
+
+    public void addAccountTypeListener(final boolean isNotify) {
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid()).child("account").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 AccountType accountType = snapshot.getValue(AccountType.class);
                 accountTypeList.add(accountType);
-                accountTypeAdapter.notifyItemInserted(accountTypeList.indexOf(accountType));
+                if (isNotify)
+                    accountTypeAdapter.notifyItemInserted(accountTypeList.indexOf(accountType));
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 AccountType accountType = snapshot.getValue(AccountType.class);
-                for (AccountType x: accountTypeList) {
+                for (AccountType x : accountTypeList) {
                     if (x.getAccountTypeID().matches(accountType.getAccountTypeID())) {
                         accountTypeList.set(accountTypeList.indexOf(x), accountType);
-                        accountTypeAdapter.notifyItemChanged(accountTypeList.indexOf(accountType));
+                        if (isNotify)
+                            accountTypeAdapter.notifyItemChanged(accountTypeList.indexOf(accountType));
                         break;
                     }
                 }
@@ -184,9 +181,10 @@ public class DAOUsers {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 AccountType accountType = snapshot.getValue(AccountType.class);
-                for (AccountType x: accountTypeList) {
+                for (AccountType x : accountTypeList) {
                     if (x.getAccountTypeID().matches(accountType.getAccountTypeID())) {
-                        accountTypeAdapter.notifyItemRemoved(accountTypeList.indexOf(x));
+                        if (isNotify)
+                            accountTypeAdapter.notifyItemRemoved(accountTypeList.indexOf(x));
                         accountTypeList.remove(x);
                         break;
                     }
@@ -207,7 +205,7 @@ public class DAOUsers {
 
     public void addAccountType(String accountType, long money, final Context context) {
         AccountType accountType1 = new AccountType(database.getDatabase().push().getKey(), accountType, money);
-        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("account").child(accountType1.getAccountTypeID()).setValue(accountType1)
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid()).child("account").child(accountType1.getAccountTypeID()).setValue(accountType1)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -221,7 +219,7 @@ public class DAOUsers {
     }
 
     public void deleteAccountType(final Context context, AccountType accountType, final TextView tvMessage, final ProgressBar progressBar, final Dialog dialog) {
-        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("account")
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid()).child("account")
                 .child(accountType.getAccountTypeID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -245,7 +243,7 @@ public class DAOUsers {
     }
 
     public void editAccountType(AccountType accountType, final Context context, final Dialog dialog) {
-        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("account")
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid()).child("account")
                 .child(accountType.getAccountTypeID()).setValue(accountType).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -257,5 +255,60 @@ public class DAOUsers {
                 dialog.dismiss();
             }
         });
+    }
+
+    public void editAccountType(AccountType accountType) {
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid()).child("account")
+                .child(accountType.getAccountTypeID()).setValue(accountType);
+    }
+
+    public void notifyTransactionChange(Transactions transaction, int IEType) {
+        for (AccountType x : accountTypeList) {
+            if (x.getAccountTypeID().matches(transaction.getWalletID())) {
+                long tempMoney = x.getAmountMoney();
+                switch (IEType) {
+                    case Constants.INCOME:
+                    case Constants.RETURN_EXPENSES:
+                        tempMoney += transaction.getAmountMoney();
+                        break;
+                    case Constants.EXPENSES:
+                    case Constants.RETURN_INCOME:
+                        tempMoney -= transaction.getAmountMoney();
+                        break;
+                }
+                x.setAmountMoney(tempMoney);
+                editAccountType(x);
+            }
+        }
+
+    }
+
+    public void notifyTransactionChange(Transactions transactionNew, Transactions transactionsOld, int IEType) {
+        if (transactionNew.getWalletID().matches(transactionsOld.getWalletID())) {
+            for (AccountType x : accountTypeList) {
+                if (x.getAccountTypeID().matches(transactionNew.getWalletID())) {
+                    long tempMoney = x.getAmountMoney();
+                    switch (IEType) {
+                        case Constants.INCOME:
+                            tempMoney += transactionNew.getAmountMoney() - transactionsOld.getAmountMoney();
+                            break;
+                        case Constants.EXPENSES:
+                            long midMoney = transactionNew.getAmountMoney() - transactionsOld.getAmountMoney();
+                            tempMoney -= midMoney;
+                            break;
+                    }
+                    x.setAmountMoney(tempMoney);
+                    editAccountType(x);
+                }
+            }
+        } else {
+            notifyTransactionChange(transactionNew, IEType);
+            notifyTransactionChange(transactionsOld, -IEType);
+        }
+
+    }
+
+    public void addTransactionListener(final boolean isNotify) {
+
     }
 }

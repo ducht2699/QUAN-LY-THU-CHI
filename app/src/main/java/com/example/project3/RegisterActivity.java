@@ -1,9 +1,7 @@
 package com.example.project3;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,13 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.project3.dao.DAOUsers;
-import com.example.project3.model.Users;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
     private RelativeLayout rLayout;
@@ -38,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(Constant.TAG, "btn reg click");
+                Log.d(Constants.TAG, "btn reg click");
                 String userName = edtRegUsername.getText().toString();
                 String password = edtRegPassword.getText().toString();
                 String confirmPass = edtRegPassCheck.getText().toString();
@@ -77,8 +68,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void init() {
         daoUsers = new DAOUsers();
-        daoUsers.addAccountTypeListener();
-        daoUsers.createAccountTypeAdapter(this);
         edtRegUsername = findViewById(R.id.edtRegUser);
         edtRegPassword = findViewById(R.id.edtRegPassword);
         edtRegPassCheck = findViewById(R.id.edtRePassword);

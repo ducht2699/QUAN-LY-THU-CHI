@@ -28,7 +28,7 @@
             android:id="@+id/add_incomes_type"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/background_edttext"
+            android:background="@drawable/bg_edt"
             android:padding="12dp"
             android:drawableTint="@color/grey_dam"
             android:textColorHint="@color/grey_dam"

@@ -1,25 +1,17 @@
 package com.example.project3.fragment;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.adapter.StatisticAdapter;
-import com.example.project3.dao.DAOIncomesExpenses;
-import com.example.project3.dao.DAOStatisticType;
-import com.example.project3.model.StatisticType;
-
-import java.text.SimpleDateFormat;
 
 
 public class Statistic_Fragment extends Fragment {
@@ -41,7 +33,7 @@ public class Statistic_Fragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_statistic, container, false);
         init();
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constants.GRID_COLUMN);
         rcvStatistic.setLayoutManager(gridLayoutManager);
         StatisticAdapter adapter = new StatisticAdapter(getContext(), R.layout.item_grid);
         rcvStatistic.setAdapter(adapter);

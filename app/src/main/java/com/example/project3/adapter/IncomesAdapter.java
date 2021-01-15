@@ -26,9 +26,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.dao.DAOUsers;
+import com.example.project3.model.AccountType;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -48,6 +50,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
     private DatePickerDialog datePickerDialog;
     private boolean isDark = false;
     private DAOIncomesExpenses daoIncomesExpenses;
+    private DAOUsers daoUsers;
 
     public IncomesAdapter() {
     }
@@ -58,6 +61,9 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
         this.daoIncomesExpenses = daoIncomesExpenses;
         this.transactionsList = transactionsList;
         this.IEList = IEList;
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener(false);
+
     }
 
     @NonNull
@@ -97,18 +103,21 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         Dialog dialog = new Dialog(context);
                         dialog.setContentView(R.layout.transaction_info);
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
-                        TextView tvDescription, tvDate, tvMoney, tvIEType, tvTitle;
+                        TextView tvDescription, tvDate, tvMoney, tvIEType, tvWalletType, tvTitle;
                         tvDescription = dialog.findViewById(R.id.tvTransDes);
                         tvDate = dialog.findViewById(R.id.tvTransDate);
                         tvMoney = dialog.findViewById(R.id.tvMoney);
                         tvIEType = dialog.findViewById(R.id.tvIEType);
                         tvTitle = dialog.findViewById(R.id.tvTransTitle);
+                        tvWalletType = dialog.findViewById(R.id.tvWalletType);
                         tvTitle.setText("THÔNG TIN THU");
                         tvDescription.setText(transactionsTemp.getTransDescription());
                         tvDate.setText(dfm.format(transactionsTemp.getTransDate()));
                         tvMoney.setText(fm.format(transactionsTemp.getAmountMoney()) + " VND");
-                        String ieID = getNameIE(transactionsTemp.getIeID(), Constant.INCOME);
+                        String ieID = getNameIE(transactionsTemp.getIeID(), Constants.INCOME);
                         tvIEType.setText(ieID);
+                        String walletID = getWalletName(transactionsTemp.getWalletID());
+                        tvWalletType.setText(walletID);
                         dialog.show();
                     }
                 });
@@ -129,9 +138,12 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         final TextView tvTransDate = dialog.findViewById(R.id.add_trans_date);
                         final EditText edtTransMoney = dialog.findViewById(R.id.add_trans_money);
                         final Spinner spnIEType = dialog.findViewById(R.id.spnTransType);
+                        final Spinner spnWalletType = dialog.findViewById(R.id.spnWalletType);
                         final TextView tvTransTitle = dialog.findViewById(R.id.titleAddAccount);
                         final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
                         final Button btnEdit = dialog.findViewById(R.id.btnAddTrans);
+                        final TextView tvTitleIEType = dialog.findViewById(R.id.tvTitleIEType);
+                        tvTitleIEType.setText("Loại Thu");
                         //Set title, text
                         tvTransTitle.setText("SỬA KHOẢN THU");
                         btnEdit.setText("SỬA");
@@ -142,12 +154,23 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                         spnIEType.setAdapter(spnAdapter);
                         int pos = -1;
                         for (int i = 0; i < IEList.size(); i++) {
-                            if (IEList.get(i).getIeName().equalsIgnoreCase(getNameIE(transaction.getIeID(), Constant.INCOME))) {
+                            if (IEList.get(i).getIeName().equalsIgnoreCase(getNameIE(transaction.getIeID(), Constants.INCOME))) {
                                 pos = i;
                                 break;
                             }
                         }
                         spnIEType.setSelection(pos);
+                        //set data spinner wallet type
+                        final ArrayAdapter spnAdapter2 = new ArrayAdapter(context, R.layout.spiner, daoUsers.getAccountTypeList());
+                        spnWalletType.setAdapter(spnAdapter2);
+                        pos = -1;
+                        for (int i = 0; i < daoUsers.getAccountTypeList().size(); i++) {
+                            if (daoUsers.getAccountTypeList().get(i).getAccountTypeID().matches(transaction.getWalletID())) {
+                                pos = i;
+                                break;
+                            }
+                        }
+                        spnWalletType.setSelection(pos);
                         //click on date show date chooser
                         tvTransDate.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -181,15 +204,17 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 String transDate = tvTransDate.getText().toString();
                                 String transMoney = edtTransMoney.getText().toString();
                                 IncomesExpenses incomesExpenses = (IncomesExpenses) spnIEType.getSelectedItem();
+                                AccountType accountType = (AccountType) spnWalletType.getSelectedItem();
                                 String ieID = incomesExpenses.getIeID();
                                 if (transDes.isEmpty() && transDate.isEmpty() && transMoney.isEmpty()) {
                                     Toast.makeText(context, "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                                 } else {
                                     try {
-                                        Transactions transactions = new Transactions(transaction.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
+                                        Transactions transactions = new Transactions(transaction.getTransID(), transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID, accountType.getAccountTypeID());
                                         daoIncomesExpenses.editTransaction(transactions, context, dialog);
+                                        daoUsers.notifyTransactionChange(transactions, transaction, Constants.INCOME);
                                     } catch (Exception ex) {
-                                        Log.d(Constant.TAG, "error edit trans - " + ex);
+                                        Log.d(Constants.TAG, "error edit trans - " + ex);
                                         ex.printStackTrace();
                                     }
                                 }
@@ -222,6 +247,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                             @Override
                             public void onClick(View v) {
                                 daoIncomesExpenses.deleteTransaction(tvMessage, progressBar, dialog, context, transaction);
+                                daoUsers.notifyTransactionChange(transaction, Constants.RETURN_INCOME);
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {
@@ -252,6 +278,17 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
         for (IncomesExpenses ie : IEList) {
             if (ie.getIeID().matches(ieID) && ie.getIeType() == ieType) {
                 ieName = ie.getIeName();
+                break;
+            }
+        }
+        return ieName;
+    }
+
+    private String getWalletName(String ieID) {
+        String ieName = "";
+        for (AccountType ie : daoUsers.getAccountTypeList()) {
+            if (ie.getAccountTypeID().matches(ieID)) {
+                ieName = ie.getAccountName();
                 break;
             }
         }

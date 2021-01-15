@@ -19,16 +19,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
-import com.example.project3.model.IncomesExpenses;
-import com.example.project3.model.Transactions;
 import com.github.clans.fab.FloatingActionButton;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 
 public class Tab_IncomesType_Fragment extends Fragment {
@@ -60,7 +56,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constants.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
                 rcv.setAdapter(daoIncomesExpenses.getIncomesTypeAdapter());
             }
@@ -93,7 +89,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         String IEType = edtAddIncomesType.getText().toString();
-                        daoIncomesExpenses.addIEType(getContext(), IEType, dialog, Constant.INCOME);
+                        daoIncomesExpenses.addIEType(getContext(), IEType, dialog, Constants.INCOME);
                     }
                 });
                 cancel.setOnClickListener(new View.OnClickListener() {
@@ -115,7 +111,7 @@ public class Tab_IncomesType_Fragment extends Fragment {
     }
 
     private void init() {
-        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.INCOMES_TYPE_ADAPTER, Constant.INCOME);
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constants.INCOMES_TYPE_ADAPTER, Constants.INCOME);
         rcv = view.findViewById(R.id.rcv_LoaiThu);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);

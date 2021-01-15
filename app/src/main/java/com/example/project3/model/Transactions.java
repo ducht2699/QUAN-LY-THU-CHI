@@ -13,16 +13,26 @@ public class Transactions implements Serializable {
     private Date transDate;
     private int amountMoney;
     private String IeID;
+    private String walletID;
 
     public Transactions() {
     }
 
-    public Transactions(String transID, String transDescription, Date transDate, int amountMoney, String IeID) {
+    public Transactions(String transID, String transDescription, Date transDate, int amountMoney, String IeID, String walletID) {
         this.transID = transID;
         this.transDescription = transDescription;
         this.transDate = transDate;
         this.amountMoney = amountMoney;
         this.IeID = IeID;
+        this.walletID = walletID;
+    }
+
+    public String getWalletID() {
+        return walletID;
+    }
+
+    public void setWalletID(String walletID) {
+        this.walletID = walletID;
     }
 
     public String getTransID() {

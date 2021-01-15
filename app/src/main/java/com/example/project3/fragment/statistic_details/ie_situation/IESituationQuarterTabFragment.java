@@ -1,4 +1,4 @@
-package com.example.project3.fragment.statistic_details;
+package com.example.project3.fragment.statistic_details.ie_situation;
 
 import android.os.Bundle;
 
@@ -12,10 +12,10 @@ import com.example.project3.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link IESituationFragment#newInstance} factory method to
+ * Use the {@link IESituationQuarterTabFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class IESituationFragment extends Fragment {
+public class IESituationQuarterTabFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +26,7 @@ public class IESituationFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public IESituationFragment() {
+    public IESituationQuarterTabFragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +36,11 @@ public class IESituationFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment IESituationFragment.
+     * @return A new instance of fragment IESituationQuarterTabFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static IESituationFragment newInstance(String param1, String param2) {
-        IESituationFragment fragment = new IESituationFragment();
+    public static IESituationQuarterTabFragment newInstance(String param1, String param2) {
+        IESituationQuarterTabFragment fragment = new IESituationQuarterTabFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,6 +61,6 @@ public class IESituationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_i_e_situation, container, false);
+        return inflater.inflate(R.layout.fragment_i_e_situation_quarter_tab, container, false);
     }
 }

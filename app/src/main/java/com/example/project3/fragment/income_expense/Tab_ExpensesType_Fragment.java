@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -23,25 +20,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
-import com.example.project3.adapter.ExpensesTypeAdapter;
 import com.example.project3.dao.DAOIncomesExpenses;
-import com.example.project3.model.IncomesExpenses;
-import com.example.project3.model.Transactions;
 import com.github.clans.fab.FloatingActionButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 
 public class Tab_ExpensesType_Fragment extends Fragment {
@@ -73,7 +57,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constants.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
                 rcv.setAdapter(daoIncomesExpenses.getExpensesTypeAdapter());
             }
@@ -112,7 +96,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         String IEName = edtAddExpenseType.getText().toString();
-                        daoIncomesExpenses.addIEType(getContext(), IEName, dialog, Constant.EXPENSES);
+                        daoIncomesExpenses.addIEType(getContext(), IEName, dialog, Constants.EXPENSES);
                     }
                 });
                 btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -134,7 +118,7 @@ public class Tab_ExpensesType_Fragment extends Fragment {
     }
 
     private void init() {
-        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.EXPENSES_TYPE_ADAPTER, Constant.EXPENSES);
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constants.EXPENSES_TYPE_ADAPTER, Constants.EXPENSES);
         rcv = view.findViewById(R.id.rcv_ExpenesesTypes);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);

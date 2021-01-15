@@ -4,21 +4,21 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
-    android:padding="10dp"
     android:background="@drawable/background_dialog"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="10dp">
 
     <TextView
-        android:textColor="@color/grey_dam"
-        android:layout_marginTop="10dp"
         android:id="@+id/titleAddAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
         android:padding="10dp"
         android:text="THÊM KHOẢN THU"
+        android:textColor="@color/grey_dam"
         android:textSize="20dp"
-        android:textStyle="bold"
-        android:gravity="center_horizontal" />
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,59 +31,110 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-           android:drawableRight="@drawable/ic_mota"
-            android:padding="12dp"
-            android:textColorHint="@color/grey_dam"
+            android:background="@drawable/bg_edt"
+            android:drawableRight="@drawable/ic_mota"
             android:drawableTint="@color/grey_dam"
-            android:background="@drawable/background_edttext"
+            android:hint="Mô tả giao dịch"
+            android:padding="12dp"
             android:paddingLeft="10dp"
             android:paddingRight="20dp"
-            android:hint="Mô tả giao dịch"
-            android:textSize="16dp"
-         />
+            android:textColorHint="@color/grey_dam"
+            android:textSize="16dp" />
 
         <TextView
             android:id="@+id/add_trans_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
+            android:background="@drawable/bg_edt"
+            android:drawableRight="@drawable/ic_date"
+            android:drawableTint="@color/grey_dam"
             android:hint="Ngày giao dịch"
-            android:paddingRight="20dp"
+            android:padding="12dp"
+            android:paddingLeft="10dp"
             android:paddingTop="8dp"
+            android:paddingRight="20dp"
             android:paddingBottom="8dp"
             android:textColor="#000000"
-            android:background="@drawable/background_edttext"
-            android:drawableRight="@drawable/ic_date"
-            android:padding="12dp"
             android:textColorHint="@color/grey_dam"
-            android:drawableTint="@color/grey_dam"
-            android:paddingLeft="10dp"
-            android:textSize="16dp"
-           />
+            android:textSize="16dp" />
 
         <EditText
 
             android:id="@+id/add_trans_money"
-            android:paddingRight="20dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_marginBottom="10dp"
-            android:drawableRight="@drawable/ic_money"
-            android:padding="12dp"
-            android:background="@drawable/background_edttext"
-            android:textColorHint="@color/grey_dam"
-            android:drawableTint="@color/grey_dam"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_edt"
+            android:drawableRight="@drawable/ic_money"
+            android:drawableTint="@color/grey_dam"
             android:hint="Số tiền"
             android:inputType="number"
-            android:textSize="16dp"
- />
-        <Spinner
-            android:id="@+id/spnTransType"
+            android:padding="12dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="8dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="8dp"
+            android:textColorHint="@color/grey_dam"
+            android:textSize="16dp" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/tvTitleIEType"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="Loại thu"
+                android:textAlignment="center"
+                android:textColor="@color/grey_dam" />
+
+            <TextView
+                android:id="@+id/tvTitleWalletType"
+                android:layout_width="0dp"
+                android:textSize="15sp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:text="Loại Ví"
+                android:textAlignment="center"
+                android:textColor="@color/grey_dam" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Spinner
+                android:id="@+id/spnTransType"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edt" />
+
+            <Spinner
+                android:id="@+id/spnWalletType"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edt" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -93,28 +144,26 @@
 
             <Button
                 android:id="@+id/btnCancelTrans"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/bg_ui"
-                android:layout_marginRight="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginRight="10dp"
                 android:layout_weight="1"
+                android:background="@drawable/bg_ui"
                 android:text="Hủy"
-           />
+                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/btnAddTrans"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/bg_ui"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
                 android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-
+                android:background="@drawable/bg_ui"
                 android:text="Thêm"
-            />
+
+                android:textColor="#FFFFFF" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

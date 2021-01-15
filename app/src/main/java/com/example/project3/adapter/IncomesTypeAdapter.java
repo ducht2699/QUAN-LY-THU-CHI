@@ -20,8 +20,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.dao.DAOUsers;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -33,6 +35,7 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
     private List<IncomesExpenses> IEList;
     private List<Transactions> transactionList;
     private DAOIncomesExpenses daoIncomesExpenses;
+    private DAOUsers daoUsers;
     private int layout;
 
     public IncomesTypeAdapter() {
@@ -44,6 +47,8 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
         this.daoIncomesExpenses = daoIncomesExpenses;
         this.IEList = IEList;
         this.transactionList = transactionsList;
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener(false);
     }
 
     @NonNull
@@ -138,7 +143,7 @@ public class IncomesTypeAdapter extends RecyclerView.Adapter<IncomesTypeAdapter.
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                daoIncomesExpenses.deleteIEType(incomesExpenses.getIeID(), tvMessage, progressBar, dialog, context);
+                                daoIncomesExpenses.deleteIEType(incomesExpenses.getIeID(), tvMessage, progressBar, dialog, context, daoUsers, Constants.RETURN_INCOME);
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {

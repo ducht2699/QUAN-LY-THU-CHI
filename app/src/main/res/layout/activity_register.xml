@@ -51,7 +51,7 @@
                     android:id="@+id/edtRegUser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/background_edttext"
+                    android:background="@drawable/bg_edt"
                     android:hint="Nhập tên tài khoản"
                     android:padding="14dp"
                     android:textColorHint="@color/grey_dam" />
@@ -72,7 +72,7 @@
                     android:hint="Nhập mật khẩu"
                     android:textColorHint="@color/grey_dam"
                     android:padding="14dp"
-                    android:background="@drawable/background_edttext"
+                    android:background="@drawable/bg_edt"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -91,7 +91,7 @@
                     android:hint="Nhập mật khẩu xác nhận"
                     android:padding="14dp"
                     android:textColorHint="@color/grey_dam"
-                    android:background="@drawable/background_edttext"
+                    android:background="@drawable/bg_edt"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 

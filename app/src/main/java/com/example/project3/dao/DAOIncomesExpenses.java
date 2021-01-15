@@ -13,14 +13,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.adapter.ExpensesAdapter;
 import com.example.project3.adapter.ExpensesTypeAdapter;
 import com.example.project3.adapter.IncomesAdapter;
 import com.example.project3.adapter.IncomesTypeAdapter;
 import com.example.project3.database.Database;
-import com.example.project3.fragment.statistic_details.IEEventFragment;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +28,11 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class DAOIncomesExpenses {
@@ -57,12 +60,66 @@ public class DAOIncomesExpenses {
         createAdapter(activity, adapterType);
     }
 
+    public int calculateIE(int IEType, int timeType) {
+        final Calendar calendar = Calendar.getInstance();
+        int w = calendar.get(Calendar.WEEK_OF_MONTH);
+        int d = calendar.get(Calendar.DAY_OF_MONTH);
+        int m = calendar.get(Calendar.MONTH) + 1;
+        int y = calendar.get(Calendar.YEAR);
+        SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = new Date();
+        try {
+            date = dfm.parse(d + "/" + m + "/" + y);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int totalMoney = 0;
+        for (IncomesExpenses x : IEList) {
+            if (x.getIeType() == IEType) {
+                List<Transactions> transactionsList = getTransByIEID(x.getIeID());
+                for (Transactions x1 : transactionsList) {
+                    Calendar transCal = Calendar.getInstance();
+                    transCal.setTime(x1.getTransDate());
+                    switch (timeType) {
+                        case Constants.NOW:
+                            if (calendar.get(Calendar.DAY_OF_YEAR) == transCal.get(Calendar.DAY_OF_YEAR)) {
+                                totalMoney += x1.getAmountMoney();
+                            }
+                            break;
+                        case Constants.WEEK:
+                            if (calendar.get(Calendar.WEEK_OF_YEAR) == transCal.get(Calendar.WEEK_OF_YEAR)) {
+                                totalMoney += x1.getAmountMoney();
+                            }
+                            break;
+                        case Constants.MONTH:
+                            if (calendar.get(Calendar.MONTH) == transCal.get(Calendar.MONTH)) {
+                                totalMoney += x1.getAmountMoney();
+                            }
+                            break;
+                        case Constants.QUARTER:
+                            if ((m - 1) / 3 + 1 == (transCal.get(Calendar.MONTH) / 3 + 1)) {
+                                totalMoney += x1.getAmountMoney();
+                            }
+                            break;
+                        case Constants.YEAR:
+                            if (calendar.get(Calendar.YEAR) == transCal.get(Calendar.YEAR)) {
+                                totalMoney += x1.getAmountMoney();
+                            }
+                            break;
+                    }
+                }
+            }
+
+        }
+        return totalMoney;
+    }
+
     public int calculateIE(int type) {
         int totalMoney = 0;
-        for (IncomesExpenses x: IEList) {
+        for (IncomesExpenses x : IEList) {
             if (x.getIeType() == type) {
                 List<Transactions> transactionsList = getTransByIEID(x.getIeID());
-                for (Transactions x1: transactionsList) {
+                for (Transactions x1 : transactionsList) {
                     totalMoney += x1.getAmountMoney();
                 }
             }
@@ -102,7 +159,7 @@ public class DAOIncomesExpenses {
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Transactions transactions = snapshot.getValue(Transactions.class);
-                for (Transactions x: transactionsList) {
+                for (Transactions x : transactionsList) {
                     if (x.getTransID().matches(transactions.getTransID())) {
                         transactionsList.set(transactionsList.indexOf(x), transactions);
                         break;
@@ -113,7 +170,7 @@ public class DAOIncomesExpenses {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 Transactions transactions = snapshot.getValue(Transactions.class);
-                for (Transactions x: transactionsList) {
+                for (Transactions x : transactionsList) {
                     if (x.getTransID().matches(transactions.getTransID())) {
                         transactionsList.remove(x);
                         break;
@@ -142,7 +199,7 @@ public class DAOIncomesExpenses {
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x: IEList) {
+                for (IncomesExpenses x : IEList) {
                     if (x.getIeID().matches(ie.getIeID())) {
                         IEList.set(IEList.indexOf(x), ie);
                         break;
@@ -153,7 +210,7 @@ public class DAOIncomesExpenses {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x: IEList) {
+                for (IncomesExpenses x : IEList) {
                     if (x.getIeID().matches(ie.getIeID())) {
                         IEList.remove(x);
                         break;
@@ -172,27 +229,27 @@ public class DAOIncomesExpenses {
     }
 
     private void setListener(int IEType, String adapterType) {
-        if (adapterType.matches(Constant.EXPENSES_TYPE_ADAPTER) || adapterType.matches(Constant.INCOMES_TYPE_ADAPTER)) {
-            setIETypeListener(IEType, adapterType, Constant.IS_NOTIFY);
-            setTransactionListener(adapterType, Constant.NO_NOTIFY);
-        } else if (adapterType.matches(Constant.EXPENSES_ADAPTER) || adapterType.matches(Constant.INCOMES_ADAPTER)) {
-            setIETypeListener(IEType, adapterType, Constant.NO_NOTIFY);
-            setTransactionListener(adapterType, Constant.IS_NOTIFY);
+        if (adapterType.matches(Constants.EXPENSES_TYPE_ADAPTER) || adapterType.matches(Constants.INCOMES_TYPE_ADAPTER)) {
+            setIETypeListener(IEType, adapterType, Constants.IS_NOTIFY);
+            setTransactionListener(adapterType, Constants.NO_NOTIFY);
+        } else if (adapterType.matches(Constants.EXPENSES_ADAPTER) || adapterType.matches(Constants.INCOMES_ADAPTER)) {
+            setIETypeListener(IEType, adapterType, Constants.NO_NOTIFY);
+            setTransactionListener(adapterType, Constants.IS_NOTIFY);
         }
     }
 
     public void createAdapter(Activity activity, String adapterType) {
         switch (adapterType) {
-            case Constant.INCOMES_ADAPTER:
+            case Constants.INCOMES_ADAPTER:
                 incomesAdapter = new IncomesAdapter(activity, R.layout.oneitem_recylerview, transactionsList, IEList, DAOIncomesExpenses.this);
                 break;
-            case Constant.INCOMES_TYPE_ADAPTER:
+            case Constants.INCOMES_TYPE_ADAPTER:
                 incomesTypeAdapter = new IncomesTypeAdapter(activity, R.layout.oneitem_recylerview, IEList, transactionsList, DAOIncomesExpenses.this);
                 break;
-            case Constant.EXPENSES_ADAPTER:
+            case Constants.EXPENSES_ADAPTER:
                 expensesAdapter = new ExpensesAdapter(activity, R.layout.oneitem_recylerview, transactionsList, IEList, DAOIncomesExpenses.this);
                 break;
-            case Constant.EXPENSES_TYPE_ADAPTER:
+            case Constants.EXPENSES_TYPE_ADAPTER:
                 expensesTypeAdapter = new ExpensesTypeAdapter(activity, R.layout.oneitem_recylerview, IEList, transactionsList, DAOIncomesExpenses.this);
                 break;
         }
@@ -255,12 +312,12 @@ public class DAOIncomesExpenses {
         });
     }
 
-    public void deleteIEType(final String ieID, final TextView tvMessage, final ProgressBar progressBar, final Dialog dialog, final Context context) {
+    public void deleteIEType(final String ieID, final TextView tvMessage, final ProgressBar progressBar, final Dialog dialog, final Context context, final DAOUsers daoUsers, final int IEType) {
         database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("incomesExpensesTypes").child(ieID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    deleteChildWithIEIDEquals(ieID);
+                    deleteChildWithIEIDEquals(ieID, daoUsers, IEType);
                     tvMessage.setText("");
                     progressBar.setVisibility(View.VISIBLE);
                     progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -322,7 +379,7 @@ public class DAOIncomesExpenses {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d(Constant.TAG, "addtrans - " + IEList);
+                    Log.d(Constants.TAG, "addtrans - " + IEList);
                     Toast.makeText(activity, "Thêm thành công!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(activity, "Thêm thất bại!", Toast.LENGTH_SHORT).show();
@@ -345,16 +402,16 @@ public class DAOIncomesExpenses {
 
     private void notifyItemInserted(int pos, final String adapterType) {
         switch (adapterType) {
-            case Constant.INCOMES_ADAPTER:
+            case Constants.INCOMES_ADAPTER:
                 incomesAdapter.notifyItemInserted(pos);
                 break;
-            case Constant.INCOMES_TYPE_ADAPTER:
+            case Constants.INCOMES_TYPE_ADAPTER:
                 incomesTypeAdapter.notifyItemInserted(pos);
                 break;
-            case Constant.EXPENSES_ADAPTER:
+            case Constants.EXPENSES_ADAPTER:
                 expensesAdapter.notifyItemInserted(pos);
                 break;
-            case Constant.EXPENSES_TYPE_ADAPTER:
+            case Constants.EXPENSES_TYPE_ADAPTER:
                 expensesTypeAdapter.notifyItemInserted(pos);
                 break;
         }
@@ -362,16 +419,16 @@ public class DAOIncomesExpenses {
 
     private void notifyItemChanged(int pos, final String adapterType) {
         switch (adapterType) {
-            case Constant.INCOMES_ADAPTER:
+            case Constants.INCOMES_ADAPTER:
                 incomesAdapter.notifyItemChanged(pos);
                 break;
-            case Constant.INCOMES_TYPE_ADAPTER:
+            case Constants.INCOMES_TYPE_ADAPTER:
                 incomesTypeAdapter.notifyItemChanged(pos);
                 break;
-            case Constant.EXPENSES_ADAPTER:
+            case Constants.EXPENSES_ADAPTER:
                 expensesAdapter.notifyItemChanged(pos);
                 break;
-            case Constant.EXPENSES_TYPE_ADAPTER:
+            case Constants.EXPENSES_TYPE_ADAPTER:
                 expensesTypeAdapter.notifyItemChanged(pos);
                 break;
         }
@@ -386,7 +443,7 @@ public class DAOIncomesExpenses {
                     IEList.add(ie);
                     if (isNotify)
                         notifyItemInserted(IEList.indexOf(ie), adapterType);
-                    Log.d(Constant.TAG, "IE add - " + IEList + " - " + adapterType);
+                    Log.d(Constants.TAG, "IE add - " + IEList + " - " + adapterType);
                 }
             }
 
@@ -398,7 +455,7 @@ public class DAOIncomesExpenses {
                         IEList.set(IEList.indexOf(x), ie);
                         if (isNotify)
                             notifyItemChanged(IEList.indexOf(ie), adapterType);
-                        Log.d(Constant.TAG, "IE change - " + IEList + " - " + adapterType);
+                        Log.d(Constants.TAG, "IE change - " + IEList + " - " + adapterType);
                         break;
                     }
                 }
@@ -413,7 +470,7 @@ public class DAOIncomesExpenses {
                         IEList.remove(pos);
                         if (isNotify)
                             notifyDataChange(adapterType);
-                        Log.d(Constant.TAG, "IE remove - " + IEList + " - " + adapterType);
+                        Log.d(Constants.TAG, "IE remove - " + IEList + " - " + adapterType);
                         break;
                     }
                 }
@@ -438,7 +495,7 @@ public class DAOIncomesExpenses {
                     transactionsList.add(transactions);
                     if (isNotify)
                         notifyItemInserted(transactionsList.indexOf(transactions), adapterType);
-                    Log.d(Constant.TAG, "trans add - " + transactionsList + " - " + adapterType);
+                    Log.d(Constants.TAG, "trans add - " + transactionsList + " - " + adapterType);
                 }
             }
 
@@ -450,7 +507,7 @@ public class DAOIncomesExpenses {
                         transactionsList.set(transactionsList.indexOf(x), trans);
                         if (isNotify)
                             notifyItemChanged(transactionsList.indexOf(trans), adapterType);
-                        Log.d(Constant.TAG, "trans change - " + transactionsList + " - " + adapterType);
+                        Log.d(Constants.TAG, "trans change - " + transactionsList + " - " + adapterType);
                         break;
                     }
                 }
@@ -465,7 +522,7 @@ public class DAOIncomesExpenses {
                         transactionsList.remove(pos);
                         if (isNotify)
                             notifyDataChange(adapterType);
-                        Log.d(Constant.TAG, "trans remove - " + transactionsList + " - " + adapterType);
+                        Log.d(Constants.TAG, "trans remove - " + transactionsList + " - " + adapterType);
                         break;
                     }
                 }
@@ -483,34 +540,35 @@ public class DAOIncomesExpenses {
 
     private void notifyDataChange(String adapterType) {
         switch (adapterType) {
-            case Constant.INCOMES_ADAPTER:
+            case Constants.INCOMES_ADAPTER:
                 incomesAdapter.notifyDataSetChanged();
                 break;
-            case Constant.INCOMES_TYPE_ADAPTER:
+            case Constants.INCOMES_TYPE_ADAPTER:
                 incomesTypeAdapter.notifyDataSetChanged();
                 break;
-            case Constant.EXPENSES_ADAPTER:
+            case Constants.EXPENSES_ADAPTER:
                 expensesAdapter.notifyDataSetChanged();
                 break;
-            case Constant.EXPENSES_TYPE_ADAPTER:
+            case Constants.EXPENSES_TYPE_ADAPTER:
                 expensesTypeAdapter.notifyDataSetChanged();
                 break;
         }
     }
 
-    private void deleteChildWithIEIDEquals(String ieID) {
+    private void deleteChildWithIEIDEquals(String ieID, DAOUsers daoUsers, int IEType) {
         for (Transactions trans : transactionsList) {
             if (trans.getIeID().matches(ieID)) {
                 database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("transactions").child(trans.getTransID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Log.d(Constant.TAG, "delete trans by deleting IE- " + transactionsList);
+                            Log.d(Constants.TAG, "delete trans by deleting IE- " + transactionsList);
                         } else {
-                            Log.d(Constant.TAG, "delete trans failed");
+                            Log.d(Constants.TAG, "delete trans failed");
                         }
                     }
                 });
+                daoUsers.notifyTransactionChange(trans, IEType);
             }
         }
         for (int i = 0; i < transactionsList.size(); i++) {

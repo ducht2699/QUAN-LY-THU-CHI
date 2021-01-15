@@ -1,6 +1,5 @@
 package com.example.project3;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -18,11 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.project3.dao.DAOUsers;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 
 public class LoginActivity extends AppCompatActivity {
     private Button btReg, btLogin;
@@ -80,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         daoUsers = new DAOUsers();
         //check if user is logged in --> sign out
         if (daoUsers.userIsLoggedIn() == true) {
-            Log.d(Constant.TAG, "user existed");
+            Log.d(Constants.TAG, "user existed");
             daoUsers.userSignOut();
         }
         linearLayout = findViewById(R.id.linearLayoutlogin);

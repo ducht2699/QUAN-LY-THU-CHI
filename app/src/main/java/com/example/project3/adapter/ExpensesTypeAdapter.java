@@ -19,9 +19,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.dao.DAOUsers;
 import com.example.project3.model.IncomesExpenses;
 import com.example.project3.model.Transactions;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -34,6 +35,7 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
     private List<Transactions> transactionList;
     private int layout;
     private DAOIncomesExpenses daoIncomesExpenses;
+    private DAOUsers daoUsers;
 
     public ExpensesTypeAdapter() {
     }
@@ -44,6 +46,8 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
         this.IEList = IEList;
         this.daoIncomesExpenses = daoIncomesExpenses;
         this.layout = layout;
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener(false);
     }
 
     @NonNull
@@ -102,7 +106,7 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                             @Override
                             public void onClick(View v) {
                                 String expenseTypeNewName = tvExpenseType.getText().toString();
-                                IncomesExpenses ie = new IncomesExpenses(incomesExpenses.getIeID(), expenseTypeNewName, Constant.EXPENSES);
+                                IncomesExpenses ie = new IncomesExpenses(incomesExpenses.getIeID(), expenseTypeNewName, Constants.EXPENSES);
                                 daoIncomesExpenses.editIEType(ie.getIeID(), expenseTypeNewName, context, dialog);
                             }
                         });
@@ -138,7 +142,7 @@ public class ExpensesTypeAdapter extends RecyclerView.Adapter<ExpensesTypeAdapte
                         btnYes.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                daoIncomesExpenses.deleteIEType(incomesExpenses.getIeID(), tvConfirmMessage, progressBar, dialog, context);
+                                daoIncomesExpenses.deleteIEType(incomesExpenses.getIeID(), tvConfirmMessage, progressBar, dialog, context, daoUsers, Constants.RETURN_EXPENSES);
                             }
                         });
                         btnNo.setOnClickListener(new View.OnClickListener() {

@@ -37,4 +37,9 @@ public class AccountType {
     public void setAmountMoney(long amountMoney) {
         this.amountMoney = amountMoney;
     }
+
+    @Override
+    public String toString() {
+        return accountName;
+    }
 }

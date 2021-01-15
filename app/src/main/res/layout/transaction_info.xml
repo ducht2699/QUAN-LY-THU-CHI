@@ -8,101 +8,133 @@
         android:id="@+id/tvTransTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:padding="10dp"
-        android:textColor="@color/grey_dam"
         android:text="THÔNG TIN THU"
+        android:textColor="@color/grey_dam"
         android:textSize="25dp"
-        android:textStyle="bold"
-        android:gravity="center_horizontal" />
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="30dp">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <ImageView
-        android:src="@drawable/icon_motagiaodich"
-        android:layout_width="40dp"
-        android:layout_height="40dp"/>
-    <TextView
-        android:id="@+id/tvTransDes"
-        android:textStyle="bold"
-        android:textColor="@color/grey_dam"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:hint="Mô tả giao dịch"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:textSize="20dp"
-        android:gravity="center_horizontal" />
-</LinearLayout>
-
-<LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <ImageView
-        android:src="@drawable/icon_datemotagiaodich"
-        android:layout_width="40dp"
-        android:layout_height="40dp"/>
-    <TextView
-        android:id="@+id/tvTransDate"
-        android:textStyle="bold"
-        android:textColor="@color/grey_dam"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:hint="Ngày giao dịch"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:textSize="20dp"
-        android:gravity="center_horizontal" />
-</LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
-                android:src="@drawable/icon_moneymotagaodich"
                 android:layout_width="40dp"
-                android:layout_height="40dp"/>
+                android:layout_height="40dp"
+                android:src="@drawable/icon_motagiaodich" />
+
             <TextView
-                android:id="@+id/tvMoney"
-                android:textStyle="bold"
-                android:textColor="@color/grey_dam"
+                android:id="@+id/tvTransDes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
+                android:gravity="center_horizontal"
+                android:hint="Mô tả giao dịch"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textColor="@color/grey_dam"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_datemotagiaodich" />
+
+            <TextView
+                android:id="@+id/tvTransDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:gravity="center_horizontal"
+                android:hint="Ngày giao dịch"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textColor="@color/grey_dam"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_moneymotagaodich" />
+
+            <TextView
+                android:id="@+id/tvMoney"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:gravity="center_horizontal"
                 android:hint="Số tiền"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
+                android:textColor="@color/grey_dam"
                 android:textSize="20dp"
-                android:gravity="center_horizontal" />
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
-                android:src="@drawable/icon_loaimotagiaodich"
                 android:layout_width="40dp"
-                android:layout_height="40dp"/>
+                android:layout_height="40dp"
+                android:src="@drawable/ic_ietype" />
+
             <TextView
                 android:id="@+id/tvIEType"
-                android:textStyle="bold"
-                android:textColor="@color/grey_dam"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:gravity="center_horizontal"
                 android:hint="Loại giao dịch"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
+                android:textColor="@color/grey_dam"
                 android:textSize="20dp"
-                android:gravity="center_horizontal" />
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_wallet" />
+
+            <TextView
+                android:id="@+id/tvWalletType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:hint="Loại Ví"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textColor="@color/grey_dam"
+                android:textSize="20dp"
+                android:textStyle="bold" />
         </LinearLayout>
 
 

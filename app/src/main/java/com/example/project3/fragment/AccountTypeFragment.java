@@ -12,20 +12,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.dao.DAOUsers;
 import com.github.clans.fab.FloatingActionButton;
-
-import java.util.Collections;
 
 
 public class AccountTypeFragment extends Fragment {
@@ -56,7 +52,7 @@ public class AccountTypeFragment extends Fragment {
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constants.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
                 rcv.setAdapter(daoUsers.getAccountTypeAdapter());
             }
@@ -116,7 +112,7 @@ public class AccountTypeFragment extends Fragment {
 
     private void init() {
         daoUsers = new DAOUsers();
-        daoUsers.addAccountTypeListener();
+        daoUsers.addAccountTypeListener(true);
         daoUsers.createAccountTypeAdapter(view.getContext());
         rcv = view.findViewById(R.id.rcvAccountType);
         btnAdd = view.findViewById(R.id.addBtn);

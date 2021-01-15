@@ -24,9 +24,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.project3.Constant;
+import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.dao.DAOIncomesExpenses;
+import com.example.project3.dao.DAOUsers;
+import com.example.project3.model.AccountType;
 import com.example.project3.model.Transactions;
 import com.example.project3.model.IncomesExpenses;
 import com.github.clans.fab.FloatingActionButton;
@@ -43,6 +45,7 @@ public class Tab_Expenses_Fragment extends Fragment {
     private DatePickerDialog datePickerDialog;
     private FloatingActionButton btnGrid, btnList, btnAdd;
     private DAOIncomesExpenses daoIncomesExpenses;
+    private DAOUsers daoUsers;
 
     public Tab_Expenses_Fragment() {
         // Required empty public constructor
@@ -67,7 +70,7 @@ public class Tab_Expenses_Fragment extends Fragment {
         btnGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constant.GRID_COLUMN);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constants.GRID_COLUMN);
                 rcv.setLayoutManager(gridLayoutManager);
                 rcv.setAdapter(daoIncomesExpenses.getExpensesAdapter());
             }
@@ -96,9 +99,12 @@ public class Tab_Expenses_Fragment extends Fragment {
                 final TextView tvTransDate = dialog.findViewById(R.id.add_trans_date);
                 final TextView tvTransMoney = dialog.findViewById(R.id.add_trans_money);
                 final Spinner spnTransType = dialog.findViewById(R.id.spnTransType);
+                final Spinner spnWalletType = dialog.findViewById(R.id.spnWalletType);
                 final TextView tvTitle = dialog.findViewById(R.id.titleAddAccount);
                 final Button btnCancel = dialog.findViewById(R.id.btnCancelTrans);
                 final Button btnAdd = dialog.findViewById(R.id.btnAddTrans);
+                final TextView tvTitleIEType = dialog.findViewById(R.id.tvTitleIEType);
+                tvTitleIEType.setText("Loại Chi");
                 tvTitle.setText("THÊM KHOẢN CHI");
                 //click on date show date chooser
                 tvTransDate.setOnClickListener(new View.OnClickListener() {
@@ -118,9 +124,12 @@ public class Tab_Expenses_Fragment extends Fragment {
                         datePickerDialog.show();
                     }
                 });
-                //pour data to spinner
+                //pour data to spinner IEType
                 final ArrayAdapter spnAdapter = new ArrayAdapter(getActivity(), R.layout.spiner, daoIncomesExpenses.getIEList());
                 spnTransType.setAdapter(spnAdapter);
+                //pour data to spinner Wallet Type
+                final ArrayAdapter spnAdapter2 = new ArrayAdapter(getActivity(), R.layout.spiner, daoUsers.getAccountTypeList());
+                spnWalletType.setAdapter(spnAdapter2);
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -133,21 +142,24 @@ public class Tab_Expenses_Fragment extends Fragment {
                         String transDes = tvTransDes.getText().toString();
                         String transDate = tvTransDate.getText().toString();
                         String transMoney = tvTransMoney.getText().toString();
-                        if (spnTransType.getSelectedItem() != null) {
+                        if (spnTransType.getSelectedItem() != null && spnWalletType.getSelectedItem() != null) {
                             IncomesExpenses ie = (IncomesExpenses) spnTransType.getSelectedItem();
                             String ieID = ie.getIeID();
+                            AccountType accountType = (AccountType) spnWalletType.getSelectedItem();
+                            String accountTypeID = accountType.getAccountTypeID();
                             if (transDes.isEmpty() || transDate.isEmpty() || transMoney.isEmpty()) {
                                 Toast.makeText(getActivity(), "Các trường không được để trống!", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
-                                    Transactions transaction = new Transactions("", transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID);
+                                    Transactions transaction = new Transactions("", transDes, dfm.parse(transDate), Integer.parseInt(transMoney), ieID, accountTypeID);
                                     daoIncomesExpenses.addTransaction(getActivity(), dialog, transaction);
+                                    daoUsers.notifyTransactionChange(transaction, Constants.EXPENSES);
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
                             }
                         } else {
-                            Toast.makeText(getActivity(), "Tạo loại chi trước!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Tạo loại chi/ví trước!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -164,7 +176,10 @@ public class Tab_Expenses_Fragment extends Fragment {
     }
 
     private void init() {
-        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constant.EXPENSES_ADAPTER, Constant.EXPENSES);
+        daoIncomesExpenses = new DAOIncomesExpenses(getActivity(), Constants.EXPENSES_ADAPTER, Constants.EXPENSES);
+        daoUsers = new DAOUsers();
+        daoUsers.addAccountTypeListener(true);
+        daoUsers.createAccountTypeAdapter(view.getContext());
         rcv = view.findViewById(R.id.rcvAccountType);
         btnAdd = view.findViewById(R.id.addBtn);
         btnGrid = view.findViewById(R.id.btnGrid);

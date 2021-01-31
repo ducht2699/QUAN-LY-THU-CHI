@@ -18,9 +18,7 @@ public class DAOStatisticType {
         statisticTypesList.add(new StatisticType("Tình hình thu chi", R.drawable.ic_ie_situation, "tbq5ybyrthwvete"));
         statisticTypesList.add(new StatisticType("Phân tích chi tiêu", R.drawable.ic_expense_analysis, "wregervwevf"));
         statisticTypesList.add(new StatisticType("Phân tích thu", R.drawable.ic_income_analysis, "ehrthtyj"));
-        statisticTypesList.add(new StatisticType("Theo dõi vay nợ", R.drawable.ic_dept_loan, "wdcvdfvnskdjn"));
-        statisticTypesList.add(new StatisticType("Đối tượng thu/chi", R.drawable.ic_ie_object, "kdsclijcqw"));
-        statisticTypesList.add(new StatisticType("Chuyến đi, sự kiện", R.drawable.ic_event, "eoiwjepifj3"));
+        statisticTypesList.add(new StatisticType("Gợi ý chi tiêu", R.drawable.ic_guide, "eoiwjepifj3"));
         statisticTypesList.add(new StatisticType("Phân tích tài chính", R.drawable.ic_financial_analytics, "egwegweuih83"));
     }
 

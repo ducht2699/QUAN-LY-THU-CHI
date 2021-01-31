@@ -197,7 +197,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHo
                                 datePickerDialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
                                     @Override
                                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                        final String tempTransDate = dayOfMonth + "/" + month + "/" + year;
+                                        final String tempTransDate = dayOfMonth + "/" + (month + 1) + "/" + year;
                                         etvTransDate.setText(tempTransDate);
                                     }
                                 }, y, m, d);

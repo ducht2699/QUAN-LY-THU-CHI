@@ -32,12 +32,12 @@ public class StatisticAdapter extends RecyclerView.Adapter<StatisticAdapter.View
     private DAOIncomesExpenses daoIncomesExpenses;
     private DAOUsers daoUsers;
 
-    public StatisticAdapter(Context context, int layout) {
+    public StatisticAdapter(Context context, int layout, DAOIncomesExpenses daoIncomesExpenses) {
         this.context = context;
         this.layout = layout;
         daoStatisticType = new DAOStatisticType();
         statisticTypeList = daoStatisticType.getStatisticTypesList();
-        daoIncomesExpenses = new DAOIncomesExpenses();
+        this.daoIncomesExpenses = daoIncomesExpenses;
         daoUsers = new DAOUsers();
         daoUsers.addAccountTypeListener(true);
         daoUsers.createAccountTypeAdapter(context);

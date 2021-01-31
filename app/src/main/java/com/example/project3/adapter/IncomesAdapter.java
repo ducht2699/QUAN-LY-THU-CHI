@@ -63,7 +63,6 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
         this.IEList = IEList;
         daoUsers = new DAOUsers();
         daoUsers.addAccountTypeListener(false);
-
     }
 
     @NonNull
@@ -182,7 +181,7 @@ public class IncomesAdapter extends RecyclerView.Adapter<IncomesAdapter.ViewHold
                                 datePickerDialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
                                     @Override
                                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                        final String transDate = dayOfMonth + "/" + month + "/" + year;
+                                        final String transDate = dayOfMonth + "/" + (month + 1) + "/" + year;
                                         tvTransDate.setText(transDate);
                                     }
                                 }, y, m, d);

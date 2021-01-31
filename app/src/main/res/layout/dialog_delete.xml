@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="35dp"
     android:layout_marginRight="35dp"
     android:background="@drawable/background_dialog">
-<ProgressBar
-    android:id="@+id/progress_loadconfirm"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="20dp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"/>
+
+    <ProgressBar
+        android:id="@+id/progress_loadconfirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
     <TextView
         android:id="@+id/tvConfirmTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
         android:layout_marginRight="10dp"
         android:text="Are You Sure Want to Save  ??"
         android:textColor="@color/grey_dam"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:textSize="18dp" />
+        android:textSize="18dp"
+        android:textStyle="bold" />
 
     <LinearLayout
-        android:layout_below="@+id/tvConfirmTitle"
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvConfirmTitle"
         android:layout_marginLeft="10dp"
-        android:layout_height="wrap_content">
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnYes"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="Yes"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
+            android:layout_weight="1"
             android:background="@drawable/button_bg"
-            android:textColor="@android:color/white"
-            android:layout_height="wrap_content" />
+            android:text="Yes"
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/btnNo"
             android:layout_width="0dp"
-            android:text="No"
-            android:background="@drawable/bg_ui"
-            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:background="@drawable/bg_ui"
+            android:text="No"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 

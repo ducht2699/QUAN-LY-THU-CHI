@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.adapter.StatisticAdapter;
+import com.example.project3.dao.DAOIncomesExpenses;
 
 
 public class Statistic_Fragment extends Fragment {
     private View view;
     private RecyclerView rcvStatistic;
+    private DAOIncomesExpenses daoIncomesExpenses;
 
     public Statistic_Fragment() {
     }
@@ -35,12 +37,13 @@ public class Statistic_Fragment extends Fragment {
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), Constants.GRID_COLUMN);
         rcvStatistic.setLayoutManager(gridLayoutManager);
-        StatisticAdapter adapter = new StatisticAdapter(getContext(), R.layout.item_grid);
-        rcvStatistic.setAdapter(adapter);
+        rcvStatistic.setAdapter(daoIncomesExpenses.getStatisticAdapter());
         return view;
     }
 
     private void init() {
         rcvStatistic = view.findViewById(R.id.rcvStatisticType);
+        daoIncomesExpenses = new DAOIncomesExpenses();
+        daoIncomesExpenses.createStatisticAdapter(getActivity());
     }
 }

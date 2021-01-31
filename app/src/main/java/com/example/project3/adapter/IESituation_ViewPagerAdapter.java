@@ -8,14 +8,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.example.project3.Constants;
-import com.example.project3.fragment.statistic_details.ie_situation.IESituationMonthTabFragment;
+import com.example.project3.fragment.statistic_details.ie_situation.IESituationDetailsTabFragment;
 import com.example.project3.fragment.statistic_details.ie_situation.IESituationNowTabFragment;
-import com.example.project3.fragment.statistic_details.ie_situation.IESituationQuarterTabFragment;
-import com.example.project3.fragment.statistic_details.ie_situation.IESituationYearTabFragment;
 
 
 public class IESituation_ViewPagerAdapter extends FragmentStatePagerAdapter {
     private Bundle bundle;
+
     public IESituation_ViewPagerAdapter(@NonNull FragmentManager fm, Bundle bundle) {
         super(fm);
         this.bundle = bundle;
@@ -29,20 +28,9 @@ public class IESituation_ViewPagerAdapter extends FragmentStatePagerAdapter {
                 IESituationNowTabFragment ieSituationNowTabFragment = new IESituationNowTabFragment();
                 ieSituationNowTabFragment.setArguments(bundle);
                 return ieSituationNowTabFragment;
-            case Constants.MONTH:
-                IESituationMonthTabFragment ieSituationMonthTabFragment = new IESituationMonthTabFragment();
-                ieSituationMonthTabFragment.setArguments(bundle);
-                return ieSituationMonthTabFragment;
-            case Constants.QUARTER:
-                IESituationQuarterTabFragment ieSituationQuarterTabFragment = new IESituationQuarterTabFragment();
-                ieSituationQuarterTabFragment.setArguments(bundle);
-                return ieSituationQuarterTabFragment;
-            case Constants.YEAR:
-                IESituationYearTabFragment ieSituationYearTabFragment = new IESituationYearTabFragment();
-                ieSituationYearTabFragment.setArguments(bundle);
-                return ieSituationYearTabFragment;
+            default:
+                return new IESituationDetailsTabFragment(position);
         }
-        return null;
     }
 
     @Override

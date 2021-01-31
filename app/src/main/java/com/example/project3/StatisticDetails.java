@@ -13,12 +13,10 @@ import androidx.fragment.app.Fragment;
 
 import com.example.project3.dao.DAOStatisticType;
 import com.example.project3.fragment.statistic_details.CurrentStatisticFragment;
-import com.example.project3.fragment.statistic_details.DeptLoanFragment;
-import com.example.project3.fragment.statistic_details.ExpenseAnalysisFragment;
+import com.example.project3.fragment.statistic_details.IEGuideFragment;
+import com.example.project3.fragment.statistic_details.expense_analysis.ExpenseAnalysisFragment;
 import com.example.project3.fragment.statistic_details.FinancialAnalyticFragment;
-import com.example.project3.fragment.statistic_details.IEEventFragment;
-import com.example.project3.fragment.statistic_details.IEObjectFragment;
-import com.example.project3.fragment.statistic_details.IncomeAnalysisFragment;
+import com.example.project3.fragment.statistic_details.expense_analysis.IncomeAnalysisFragment;
 import com.example.project3.fragment.statistic_details.ie_situation.IESituationFragment;
 import com.example.project3.model.StatisticType;
 
@@ -91,17 +89,9 @@ public class StatisticDetails extends AppCompatActivity {
                 IncomeAnalysisFragment fragment2 = new IncomeAnalysisFragment();
                 replaceFragment(fragment2);
                 break;
-            case R.drawable.ic_dept_loan:
-                DeptLoanFragment deptLoanFragment = new DeptLoanFragment();
-                replaceFragment(deptLoanFragment);
-                break;
-            case R.drawable.ic_ie_object:
-                IEObjectFragment ieObjectFragment = new IEObjectFragment();
-                replaceFragment(ieObjectFragment);
-                break;
-            case R.drawable.ic_event:
-                IEEventFragment ieEventFragment = new IEEventFragment();
-                replaceFragment(ieEventFragment);
+            case R.drawable.ic_guide:
+                IEGuideFragment ieGuideFragment = new IEGuideFragment();
+                replaceFragment(ieGuideFragment);
                 break;
             case R.drawable.ic_financial_analytics:
                 FinancialAnalyticFragment financialAnalyticFragment = new FinancialAnalyticFragment();

@@ -19,7 +19,7 @@ public class IntroActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
-        txtTitle = findViewById(R.id.txt_Tiltintro);
+        txtTitle = findViewById(R.id.tvTitleIntro);
         img_intro = findViewById(R.id.img_intro);
         animationText = AnimationUtils.loadAnimation(this, R.anim.text_intro_animation);
         txtTitle.setAnimation(animationText);

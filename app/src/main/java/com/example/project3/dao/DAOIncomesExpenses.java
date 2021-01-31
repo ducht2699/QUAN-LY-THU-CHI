@@ -17,21 +17,30 @@ import com.example.project3.Constants;
 import com.example.project3.R;
 import com.example.project3.adapter.ExpensesAdapter;
 import com.example.project3.adapter.ExpensesTypeAdapter;
+import com.example.project3.adapter.IECalculateAdapter;
 import com.example.project3.adapter.IncomesAdapter;
 import com.example.project3.adapter.IncomesTypeAdapter;
+import com.example.project3.adapter.StatisticAdapter;
 import com.example.project3.database.Database;
+import com.example.project3.model.IECalculation;
 import com.example.project3.model.IncomesExpenses;
+import com.example.project3.model.StatisticType;
 import com.example.project3.model.Transactions;
+import com.github.mikephil.charting.data.BarEntry;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -39,17 +48,33 @@ public class DAOIncomesExpenses {
     private Database database;
     private List<IncomesExpenses> IEList;
     private List<Transactions> transactionsList;
+    private List<IECalculation> ieCalculationList;
     private IncomesTypeAdapter incomesTypeAdapter;
     private IncomesAdapter incomesAdapter;
     private ExpensesAdapter expensesAdapter;
     private ExpensesTypeAdapter expensesTypeAdapter;
+    private StatisticAdapter statisticAdapter;
+    private IECalculateAdapter ieCalculateAdapter;
 
     public DAOIncomesExpenses() {
         this.database = new Database();
         IEList = new ArrayList<>();
         transactionsList = new ArrayList<>();
+        ieCalculationList = new ArrayList<>();
         getAllIEType();
         getAllTransaction();
+    }
+
+    public void createIECalculateAdapter(Activity activity) {
+        ieCalculateAdapter = new IECalculateAdapter(activity, R.layout.ie_calculate, ieCalculationList);
+    }
+
+    public void createStatisticAdapter(Activity activity) {
+        statisticAdapter = new StatisticAdapter(activity, R.layout.item_grid, DAOIncomesExpenses.this);
+    }
+
+    public IECalculateAdapter getIeCalculateAdapter() {
+        return ieCalculateAdapter;
     }
 
     public DAOIncomesExpenses(Activity activity, String adapterType, int IEType) {
@@ -58,6 +83,14 @@ public class DAOIncomesExpenses {
         transactionsList = new ArrayList<>();
         setListener(IEType, adapterType);
         createAdapter(activity, adapterType);
+    }
+
+    public StatisticAdapter getStatisticAdapter() {
+        return statisticAdapter;
+    }
+
+    public List<IECalculation> getIeCalculationList() {
+        return ieCalculationList;
     }
 
     public int calculateIE(int IEType, int timeType) {
@@ -149,81 +182,36 @@ public class DAOIncomesExpenses {
     }
 
     private void getAllTransaction() {
-        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("transactions").addChildEventListener(new ChildEventListener() {
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("transactions").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions transactions = snapshot.getValue(Transactions.class);
-                transactionsList.add(transactions);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Transactions transactions = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(transactions.getTransID())) {
-                        transactionsList.set(transactionsList.indexOf(x), transactions);
-                        break;
-                    }
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot ds: snapshot.getChildren()) {
+                    Transactions transactions = ds.getValue(Transactions.class);
+                    transactionsList.add(transactions);
                 }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                Transactions transactions = snapshot.getValue(Transactions.class);
-                for (Transactions x : transactionsList) {
-                    if (x.getTransID().matches(transactions.getTransID())) {
-                        transactionsList.remove(x);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
     private void getAllIEType() {
-        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("incomesExpensesTypes").addChildEventListener(new ChildEventListener() {
+        database.getDatabase().child("Users").child(database.getAuthentication().getCurrentUser().getUid().toString()).child("incomesExpensesTypes").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                IEList.add(ie);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID())) {
-                        IEList.set(IEList.indexOf(x), ie);
-                        break;
-                    }
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                IEList.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    IncomesExpenses ie = ds.getValue(IncomesExpenses.class);
+                    IEList.add(ie);
                 }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                IncomesExpenses ie = snapshot.getValue(IncomesExpenses.class);
-                for (IncomesExpenses x : IEList) {
-                    if (x.getIeID().matches(ie.getIeID())) {
-                        IEList.remove(x);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -577,4 +565,65 @@ public class DAOIncomesExpenses {
             }
         }
     }
+
+    private int getIEType(Transactions transactions) {
+        for (IncomesExpenses ie : IEList) {
+            if (ie.getIeID().matches(transactions.getIeID())) {
+                return ie.getIeType();
+            }
+        }
+        return 0;
+    }
+
+    public void addIECalculateListByTimeType(int timeType, int fromYear, int toYear) {
+        ieCalculationList.clear();
+        for (Transactions trans : transactionsList) {
+            Calendar transCal = Calendar.getInstance();
+            transCal.setTime(trans.getTransDate());
+            if (transCal.get(Calendar.YEAR) >= fromYear && transCal.get(Calendar.YEAR) <= toYear) {
+                long incomesMoney = 0, expenseMoney = 0;
+                switch (getIEType(trans)) {
+                    case Constants.INCOME:
+                        incomesMoney = trans.getAmountMoney();
+                        break;
+                    case Constants.EXPENSES:
+                        expenseMoney = trans.getAmountMoney();
+                        break;
+                }
+                int time = 0;
+                switch (timeType) {
+                    case Constants.MONTH:
+                        time = transCal.get(Calendar.MONTH) + 1;
+                        break;
+                    case Constants.QUARTER:
+                        time = transCal.get(Calendar.MONTH) / 3 + 1;
+                        break;
+                    case Constants.YEAR:
+                        time = transCal.get(Calendar.YEAR);
+                        break;
+                }
+                IECalculation ieCalculation = new IECalculation(timeType, incomesMoney, expenseMoney, time);
+                addToIECalList(ieCalculation);
+                ieCalculateAdapter.notifyDataSetChanged();
+            }
+        }
+        Collections.sort(ieCalculationList, new Comparator<IECalculation>() {
+            @Override
+            public int compare(IECalculation o1, IECalculation o2) {
+                return o1.getTime() - o2.getTime();
+            }
+        });
+    }
+
+    private void addToIECalList(IECalculation newIECal) {
+        for (IECalculation ieCalculation: ieCalculationList) {
+            if (ieCalculation.getTime() == newIECal.getTime()) {
+                ieCalculation.setIncomes(ieCalculation.getIncomes() + newIECal.getIncomes());
+                ieCalculation.setExpense(ieCalculation.getExpense() + newIECal.getExpense());
+                return;
+            }
+        }
+        ieCalculationList.add(newIECal);
+    }
+
 }

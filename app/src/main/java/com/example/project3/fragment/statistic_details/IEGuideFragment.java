@@ -12,10 +12,10 @@ import com.example.project3.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link IncomeAnalysisFragment#newInstance} factory method to
+ * Use the {@link IEGuideFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class IncomeAnalysisFragment extends Fragment {
+public class IEGuideFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +26,7 @@ public class IncomeAnalysisFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public IncomeAnalysisFragment() {
+    public IEGuideFragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +36,11 @@ public class IncomeAnalysisFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment IncomeAnalysisFragment.
+     * @return A new instance of fragment IEGuideFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static IncomeAnalysisFragment newInstance(String param1, String param2) {
-        IncomeAnalysisFragment fragment = new IncomeAnalysisFragment();
+    public static IEGuideFragment newInstance(String param1, String param2) {
+        IEGuideFragment fragment = new IEGuideFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,6 +61,6 @@ public class IncomeAnalysisFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_income_analysis, container, false);
+        return inflater.inflate(R.layout.fragment_i_e_guide, container, false);
     }
 }

@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:background="#03A9F4"
     tools:context=".fragment.statistic_details.ie_situation.IESituationFragment">
-
-    <!-- TODO: Update blank fragment layout -->
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,13 +17,13 @@
             android:layout_width="match_parent"
             android:layout_height="34dp"
             android:background="#03A9F4"
+            android:elevation="10dp"
             android:minHeight="?attr/actionBarSize"
+            app:tabIndicatorColor="@color/white"
             app:tabIndicatorFullWidth="true"
             app:tabIndicatorHeight="3dp"
-            app:tabIndicatorColor="@color/white"
             app:tabSelectedTextColor="@color/white"
-            app:tabTextColor="#98D2EC"
-            android:elevation="10dp">
+            app:tabTextColor="#98D2EC">
 
         </com.google.android.material.tabs.TabLayout>
 

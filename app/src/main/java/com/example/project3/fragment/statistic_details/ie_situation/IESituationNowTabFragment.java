@@ -51,7 +51,6 @@ public class IESituationNowTabFragment extends Fragment {
         outMoney = Integer.valueOf(bundle.getString("monthExpense"));
         tvMonthMoney.setText(moneyStandardize(String.valueOf(inMoney - outMoney)));
         tvQuarterIncome.setText(moneyStandardize(bundle.getString("quarterIncomes")));
-        //error - TODO:check the calculate quarter function
         tvQuarterExpense.setText(moneyStandardize(bundle.getString("quarterExpense")));
         inMoney = Integer.valueOf(bundle.getString("quarterIncomes"));
         outMoney = Integer.valueOf(bundle.getString("quarterExpense"));
